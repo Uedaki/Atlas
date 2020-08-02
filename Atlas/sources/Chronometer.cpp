@@ -16,7 +16,11 @@ std::ostream &operator<<(std::ostream &os, const atlas::Chronometer &chronometer
 	if (hours != 0 || minutes != 0 || seconds != 0)
 		os << seconds << " seconds";
 	if (hours == 0 && minutes == 0)
+	{
+		if (seconds != 0)
+			os << " ";
 		os << milliseconds << " milliseconds";
+	}
 
 	return (os);
 }

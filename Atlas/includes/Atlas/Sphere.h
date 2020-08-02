@@ -69,61 +69,6 @@ namespace atlas
 			return (false);
 		}
 
-		bool4 simdHit(SimdRay &ray, float4 min, float4 max, SimdHitRecord &record) const override
-		{
-			float4 sqRadius(radius * radius);
-
-			float4 centerX(center.x);
-			float4 centerY(center.y);
-			float4 centerZ(center.z);
-
-			float4 ocX = ray.origX - centerX;
-			float4 ocY = ray.origY - centerY;
-			float4 ocZ = ray.origZ - centerZ;
-
-			float4 a = ray.dirX * ray.dirX + ray.dirY * ray.dirY + ray.dirZ * ray.dirZ;
-			float4 b = ocX * ray.dirX + ocY * ray.dirY + ocZ * ray.dirZ;
-			float4 c = ocX * ocX + ocY * ocY + ocZ * ocZ - sqRadius;
-
-			float4 discriminant = b * b - a * c;
-
-			bool4 discriminantMsk = discriminant > float4(0.f);
-			if (any(discriminantMsk))
-			{
-				float4 invA = float4(1.f) / a;
-				float4 t0 = (-b - sqrtf(discriminant)) * invA;
-				float4 t1 = (-b + sqrtf(discriminant)) * invA;
-
-				bool4 msk0 = discriminantMsk & (t0 > min) & (t0 < max);
-				bool4 msk1 = discriminantMsk & (t1 > min) & (t1 < max);
-
-				float4 t = select(t1, t0, msk0);
-				bool4 msk = msk0 | msk1;
-
-				if (any(msk))
-				{
-					record.t = select(max, t, msk);
-
-					float4 posX = ray.origX + ray.dirX * t;
-					float4 posY = ray.origY + ray.dirY * t;
-					float4 posZ = ray.origZ + ray.dirZ * t;
-					record.pX = select(record.pX, posX, msk);
-					record.pY = select(record.pY, posY, msk);
-					record.pZ = select(record.pZ, posZ, msk);
-
-
-					float4 r(1.0f);
-
-					record.texel.r = select(record.texel.r, r, msk);
-					record.texel.g = select(record.texel.g, r, msk);
-					record.texel.b = select(record.texel.b, r, msk);
-
-					return (msk);
-				}
-			}
-			return (bool4(0.f));
-		}
-
 		~Sphere() override {};
 
 	private:

@@ -17,7 +17,7 @@ void atlas::Bound::operator=(const Bound &bound)
 
 atlas::Bound atlas::Bound::operator+(const Bound &bound)
 {
-	assert(max.x > min.x || max.y > min.y || max.z > min.z); // Bound has not been initialized.
+	//assert(max.x > min.x || max.y > min.y || max.z > min.z); // Bound has not been initialized.
 	return (Bound(glm::vec3(std::min(min.x, bound.min.x),
 		std::min(min.y, bound.min.y),
 		std::min(min.z, bound.min.z)),

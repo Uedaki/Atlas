@@ -120,7 +120,6 @@ namespace atlas
 			Report report;
 
 			Texel traceRay(const Ray &ray, int depth = 0) const;
-			SimdTexel traceSimdRay(SimdRay &ray, int depth = 0) const;
 
 			void generateRenderingJobs();
 		};

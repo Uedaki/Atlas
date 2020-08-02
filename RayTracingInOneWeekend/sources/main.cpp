@@ -16,7 +16,7 @@
 
 constexpr uint32_t WIDTH = 720;
 constexpr uint32_t HEIGHT = 480;
-constexpr uint32_t NBR_SAMPLE = 1;
+constexpr uint32_t NBR_SAMPLE = 64;
 
 struct Color
 {
@@ -110,7 +110,7 @@ int main()
 		atlas::Buffer output(WIDTH * HEIGHT);
 
 		vk::Window window(WIDTH, HEIGHT);
-		session.launch(camera, 1);
+		session.launch(camera, 3);
 		//session.launch(camera, 3);
 		while (window.isWindowOpen())
 		{
