@@ -22,6 +22,9 @@
     <Filter Include="Fichiers sources\Rendering">
       <UniqueIdentifier>{5fcff1b8-5090-4a4f-9552-f693526cee8b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Acheron">
+      <UniqueIdentifier>{71e729b6-4eff-4b83-959a-cf30880bcbf0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -87,6 +90,9 @@
     <ClInclude Include="includes\Atlas\Simd.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
+    <ClInclude Include="Acheron.h">
+      <Filter>Acheron</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -115,6 +121,9 @@
     </ClCompile>
     <ClCompile Include="sources\Tools.cpp">
       <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Acheron.cpp">
+      <Filter>Acheron</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

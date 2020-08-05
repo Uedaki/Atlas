@@ -14,6 +14,8 @@
 #include "Materials.h"
 #include "Window.h"
 
+#include "../Acheron.h"
+
 constexpr uint32_t WIDTH = 720;
 constexpr uint32_t HEIGHT = 480;
 constexpr uint32_t NBR_SAMPLE = 64;
@@ -25,6 +27,8 @@ struct Color
 	unsigned char r;
 	unsigned char a;
 };
+
+#define ACHERON 0
 
 atlas::Scene create_scene()
 {
@@ -96,8 +100,12 @@ int main()
 	{
 		bool isDenoised = false;
 		atlas::Scene scene = create_scene();
+#if ACHERON
+		Acheron session(scene, WIDTH, HEIGHT, NBR_SAMPLE);
+#else
 		atlas::rendering::Session session(scene, WIDTH, HEIGHT, NBR_SAMPLE);
-		atlas::ext::Oidn denoiser(WIDTH, HEIGHT);
+#endif
+		//atlas::ext::Oidn denoiser(WIDTH, HEIGHT);
 
 		glm::vec3 pos(13, 2, 3);
 		glm::vec3 target(0, 0, 0);
@@ -110,8 +118,13 @@ int main()
 		atlas::Buffer output(WIDTH * HEIGHT);
 
 		vk::Window window(WIDTH, HEIGHT);
-		session.launch(camera, 3);
+		
 		//session.launch(camera, 3);
+#if ACHERON
+		session.launch(camera, output);
+#else
+		session.launch(camera, 4);
+#endif
 		while (window.isWindowOpen())
 		{
 			if (window.startFrame())
@@ -121,18 +134,20 @@ int main()
 				{
 					if (session.isWorking())
 					{
+#if !ACHERON
 						session.fetchResult(output);
+#endif
 						copyImageToBackBuffer(pixels, output.image);
 					}
 					else
 					{
-						denoiser.launch(output);
-						copyImageToBackBuffer(pixels, denoiser.getDenoisedOutput());
+						//denoiser.launch(output);
+						copyImageToBackBuffer(pixels, output.image);
 						isDenoised = true;
 					}
 				}
 				else
-					copyImageToBackBuffer(pixels, denoiser.getDenoisedOutput());
+					copyImageToBackBuffer(pixels, output.image);
 				window.render();
 			}
 		}
