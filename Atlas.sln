@@ -15,6 +15,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AtlasExtOidn", "AtlasExtOid
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RayTracingTheNextWeekend", "RayTracingTheNextWeekend\RayTracingTheNextWeekend.vcxproj", "{47187199-572D-4C1C-83AA-A12DAF56ECC5}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Acheron", "Acheron\Acheron.vcxproj", "{493711C8-BC5F-46E4-BCC3-774F9F3CE330}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -55,6 +57,14 @@ Global
 		{47187199-572D-4C1C-83AA-A12DAF56ECC5}.Release|x64.Build.0 = Release|x64
 		{47187199-572D-4C1C-83AA-A12DAF56ECC5}.Release|x86.ActiveCfg = Release|Win32
 		{47187199-572D-4C1C-83AA-A12DAF56ECC5}.Release|x86.Build.0 = Release|Win32
+		{493711C8-BC5F-46E4-BCC3-774F9F3CE330}.Debug|x64.ActiveCfg = Debug|x64
+		{493711C8-BC5F-46E4-BCC3-774F9F3CE330}.Debug|x64.Build.0 = Debug|x64
+		{493711C8-BC5F-46E4-BCC3-774F9F3CE330}.Debug|x86.ActiveCfg = Debug|Win32
+		{493711C8-BC5F-46E4-BCC3-774F9F3CE330}.Debug|x86.Build.0 = Debug|Win32
+		{493711C8-BC5F-46E4-BCC3-774F9F3CE330}.Release|x64.ActiveCfg = Release|x64
+		{493711C8-BC5F-46E4-BCC3-774F9F3CE330}.Release|x64.Build.0 = Release|x64
+		{493711C8-BC5F-46E4-BCC3-774F9F3CE330}.Release|x86.ActiveCfg = Release|Win32
+		{493711C8-BC5F-46E4-BCC3-774F9F3CE330}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -64,6 +74,7 @@ Global
 		{FE3B865C-B2D3-411B-96E0-0CC00E9CDE5C} = {0F65C818-20E9-4A36-B51C-07A8C86FE995}
 		{DAA25FD1-A366-4A53-AF62-E6415063277C} = {FA55A7D9-472A-4A5D-8CAA-9A3DEECE1320}
 		{47187199-572D-4C1C-83AA-A12DAF56ECC5} = {0F65C818-20E9-4A36-B51C-07A8C86FE995}
+		{493711C8-BC5F-46E4-BCC3-774F9F3CE330} = {FA55A7D9-472A-4A5D-8CAA-9A3DEECE1320}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {081D47BE-BBF1-4DB1-AF4F-5E703912B136}

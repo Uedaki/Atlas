@@ -24,7 +24,7 @@ namespace atlas
 		ATLAS void enableDefocusBlur(float aperture, float focusDistance);
 		ATLAS void reset();
 
-		rendering::Ray getRay(const float x, const float y) const;
+		ATLAS rendering::Ray getRay(const float x, const float y) const;
 		SimdRay getSimdRay(const float4 x, const float4 y) const;
 	private:
 		glm::vec3 pos;

@@ -90,9 +90,6 @@
     <ClInclude Include="includes\Atlas\Simd.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="Acheron.h">
-      <Filter>Acheron</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -121,9 +118,6 @@
     </ClCompile>
     <ClCompile Include="sources\Tools.cpp">
       <Filter>Fichiers sources</Filter>
-    </ClCompile>
-    <ClCompile Include="Acheron.cpp">
-      <Filter>Acheron</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

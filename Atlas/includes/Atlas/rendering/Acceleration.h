@@ -7,6 +7,12 @@
 
 #include "atlas/Simd.h"
 
+# ifdef ATLAS_EXPORT
+#   define ATLAS  __declspec( dllexport )
+# else
+#   define ATLAS __declspec( dllimport )
+# endif
+
 #define SIMD
 
 namespace atlas
@@ -19,9 +25,9 @@ namespace atlas
 		{
 		public:
 			Acceleration() = default;
-			Acceleration(std::vector<const Hitable *> &source, const Bound &bound, std::vector<Acceleration> &pool);
-			void feed(std::vector<const Hitable *> &source, const Bound &bound, std::vector<Acceleration> &pool);
-			bool hit(const Ray &ray, const float min, const float max, HitRecord &record) const override;
+			ATLAS Acceleration(std::vector<const Hitable *> &source, const Bound &bound, std::vector<Acceleration> &pool);
+			ATLAS void feed(std::vector<const Hitable *> &source, const Bound &bound, std::vector<Acceleration> &pool);
+			ATLAS bool hit(const Ray &ray, const float min, const float max, HitRecord &record) const override;
 
 		private:
 			std::array<const Hitable *, 4> elements = { nullptr };
@@ -30,7 +36,7 @@ namespace atlas
 			std::array<Bound, 4> bounds;
 #endif
 
-			void split(std::vector<const Hitable *> &src,
+			ATLAS void split(std::vector<const Hitable *> &src,
 				std::vector<const Hitable *> &nearElements, Bound &nearBound,
 				std::vector<const Hitable *> &farElements, Bound &farBound,
 				int axis);

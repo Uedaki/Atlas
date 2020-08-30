@@ -167,6 +167,9 @@
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Acheron\Acheron.vcxproj">
+      <Project>{493711c8-bc5f-46e4-bcc3-774f9f3ce330}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\Atlas\Atlas.vcxproj">
       <Project>{ed590edf-0e59-4ad0-b193-6b25a9934245}</Project>
     </ProjectReference>
