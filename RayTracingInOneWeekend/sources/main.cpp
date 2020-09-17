@@ -7,9 +7,9 @@
 //#include "Atlas/Camera.h"
 //#include "Atlas/ext/Oidn.h"
 //#include "Atlas/Rendering/Session.h"
-//#include "Atlas/Scene.h"
-//#include "Atlas/Sphere.h"
-//#include "Atlas/Tools.h"
+#include "Atlas/Scene.h"
+#include "Atlas/Sphere.h"
+#include "Atlas/Tools.h"
 
 #include "Materials.h"
 #include "Window.h"
@@ -35,47 +35,47 @@ atlas::Scene create_scene()
 {
 	atlas::Scene scene;
 
-	//atlas::Material &mapMaterial = scene.defineMaterial<Lambert>(glm::vec3(0.5, 0.5, 0.5));
-	//scene.defineShape<atlas::Sphere>(glm::vec3(0, -1000, 0), 1000.f, &mapMaterial);
+	atlas::Material &mapMaterial = scene.defineMaterial<Lambert>(glm::vec3(0.5, 0.5, 0.5));
+	scene.defineShape<atlas::Sphere>(glm::vec3(0, -1000, 0), 1000.f, &mapMaterial);
 
-	//for (int a = -11; a < 11; a++)
-	//{
-	//	for (int b = -11; b < 11; b++)
-	//	{
-	//		float choose_mat = atlas::Tools::rand();
-	//		glm::vec3 center(a + 0.9 * atlas::Tools::rand(), 0.2, b + 0.9 * atlas::Tools::rand());
-	//		if ((center - glm::vec3(4, 0.2, 0)).length() > 0.9)
-	//		{
-	//			atlas::Material *material = nullptr;
-	//			if (choose_mat < 0.8)
-	//			{
-	//				material = &scene.defineMaterial<Lambert>(glm::vec3(atlas::Tools::rand() * atlas::Tools::rand(),
-	//					atlas::Tools::rand() * atlas::Tools::rand(),
-	//					atlas::Tools::rand() * atlas::Tools::rand()));
-	//			}
-	//			else if (choose_mat < 0.95)
-	//			{
-	//				material = &scene.defineMaterial<Metal>(glm::vec3(0.5f * (1.0f + atlas::Tools::rand()),
-	//					0.5f * (1.0f + atlas::Tools::rand()),
-	//					0.5f * (1.0f + atlas::Tools::rand())), 0.5f * atlas::Tools::rand());
-	//			}
-	//			else
-	//			{
-	//				material = &scene.defineMaterial<Dielectric>(1.5f);
-	//			}
-	//			scene.defineShape<atlas::Sphere>(center, 0.2f, material);
-	//		}
-	//	}
-	//}
+	for (int a = -11; a < 11; a++)
+	{
+		for (int b = -11; b < 11; b++)
+		{
+			float choose_mat = atlas::Tools::rand();
+			glm::vec3 center(a + 0.9 * atlas::Tools::rand(), 0.2, b + 0.9 * atlas::Tools::rand());
+			if ((center - glm::vec3(4, 0.2, 0)).length() > 0.9)
+			{
+				atlas::Material *material = nullptr;
+				if (choose_mat < 0.8)
+				{
+					material = &scene.defineMaterial<Lambert>(glm::vec3(atlas::Tools::rand() * atlas::Tools::rand(),
+						atlas::Tools::rand() * atlas::Tools::rand(),
+						atlas::Tools::rand() * atlas::Tools::rand()));
+				}
+				else if (choose_mat < 0.95)
+				{
+					material = &scene.defineMaterial<Metal>(glm::vec3(0.5f * (1.0f + atlas::Tools::rand()),
+						0.5f * (1.0f + atlas::Tools::rand()),
+						0.5f * (1.0f + atlas::Tools::rand())), 0.5f * atlas::Tools::rand());
+				}
+				else
+				{
+					material = &scene.defineMaterial<Dielectric>(1.5f);
+				}
+				scene.defineShape<atlas::Sphere>(center, 0.2f, material);
+			}
+		}
+	}
 
-	//atlas::Material &dielectric = scene.defineMaterial<Dielectric>(1.3f);
-	//scene.defineShape<atlas::Sphere>(glm::vec3(0, 1, 0), 1.f, &dielectric);
+	atlas::Material &dielectric = scene.defineMaterial<Dielectric>(1.3f);
+	scene.defineShape<atlas::Sphere>(glm::vec3(0, 1, 0), 1.f, &dielectric);
 
-	//atlas::Material &lambert = scene.defineMaterial<Lambert>(glm::vec3(0.3, 0.2, 0.1));
-	//scene.defineShape<atlas::Sphere>(glm::vec3(-4, 1, 0), 1.f, &lambert);
+	atlas::Material &lambert = scene.defineMaterial<Lambert>(glm::vec3(0.3, 0.2, 0.1));
+	scene.defineShape<atlas::Sphere>(glm::vec3(-4, 1, 0), 1.f, &lambert);
 
-	//atlas::Material &metal = scene.defineMaterial<Metal>(glm::vec3(0.7, 0.6, 0.5), 0.f);
-	//scene.defineShape<atlas::Sphere>(glm::vec3(4, 1, 0), 1.f, &metal);
+	atlas::Material &metal = scene.defineMaterial<Metal>(glm::vec3(0.7, 0.6, 0.5), 0.f);
+	scene.defineShape<atlas::Sphere>(glm::vec3(4, 1, 0), 1.f, &metal);
 
 	return (scene);
 }
@@ -111,6 +111,12 @@ int main()
 	//Neptune neptune;
 	//neptune.runOneIteration(4);
 
+	glm::vec3 v(5, 4, 2);
+	v = glm::normalize(v);
+	std::cout << v.x << " " << v.y << " " << v.z << std::endl;
+	v = octDecode(octEncode(v));
+	std::cout << v.x << " " << v.y << " " << v.z << std::endl;
+
 	atlas::Scene scene = create_scene();
 	Acheron acheron(scene, WIDTH, HEIGHT, NBR_SAMPLE);
 
@@ -123,11 +129,10 @@ int main()
 	camera.enableDefocusBlur(aperture, focusDistance);
 
 	acheron.launch(camera, 3);
-	return (0);
 
-//	try
-//	{
-//		bool isDenoised = false;
+	try
+	{
+		bool isDenoised = false;
 //		atlas::Scene scene = create_scene();
 //#if ACHERON
 //		Acheron session(scene, WIDTH, HEIGHT, NBR_SAMPLE);
@@ -145,20 +150,20 @@ int main()
 //		//camera.enableDefocusBlur(aperture, focusDistance);
 //
 //		atlas::Buffer output(WIDTH * HEIGHT);
-//
-//		vk::Window window(WIDTH, HEIGHT);
-//		
-//		//session.launch(camera, 3);
+
+		vk::Window window(WIDTH, HEIGHT);
+		
+		//session.launch(camera, 3);
 //#if ACHERON
 //		session.launch(camera, output);
 //#else
 //		session.launch(camera, 4);
 //#endif
-//		while (window.isWindowOpen())
-//		{
-//			if (window.startFrame())
-//			{
-//				Color *pixels = reinterpret_cast<Color *>(window.getCurrentBuffer());
+		while (window.isWindowOpen())
+		{
+			if (window.startFrame())
+			{
+				Color *pixels = reinterpret_cast<Color *>(window.getCurrentBuffer());
 //				if (!isDenoised)
 //				{
 //					if (session.isWorking())
@@ -176,15 +181,15 @@ int main()
 //					}
 //				}
 //				else
-//					copyImageToBackBuffer(pixels, output.image);
-//				window.render();
-//			}
-//		}
-//	}
-//	catch (std::exception &e)
-//	{
-//		std::cerr << "[Error] " << e.what() << std::endl;
-//		return (1);
-//	}
-//	return (0);
+					copyImageToBackBuffer(pixels, acheron.output.image);
+				window.render();
+			}
+		}
+	}
+	catch (std::exception &e)
+	{
+		std::cerr << "[Error] " << e.what() << std::endl;
+		return (1);
+	}
+	return (0);
 }

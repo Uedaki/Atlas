@@ -76,7 +76,7 @@ std::ostream &operator<<(std::ostream &os, const Telemetry::SectorTime &s)
 			}
 		}
 
-		os << s.t * div << ext << " avg (min: " << s.min * div << ext << " max:" << s.max * div << ext << ")";
+		os << s.t * div << ext << " avg " << s.count << " times(min: " << s.min * div << ext << " max:" << s.max * div << ext << ")";
 	}
 	return (os);
 }

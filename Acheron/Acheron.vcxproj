@@ -156,14 +156,13 @@
     <ClInclude Include="Acheron.h" />
     <ClInclude Include="BatchManager.h" />
     <ClInclude Include="BinFile.h" />
+    <ClInclude Include="BinSize.h" />
     <ClInclude Include="CompactRay.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GlobalBins.h" />
     <ClInclude Include="LocalBins.h" />
-    <ClInclude Include="mio\include\mio\mmap.hpp" />
-    <ClInclude Include="mio\include\mio\page.hpp" />
-    <ClInclude Include="mio\include\mio\shared_mmap.hpp" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="RayPack.h" />
     <ClInclude Include="Telemetry.h" />
     <ClInclude Include="utils.h" />
   </ItemGroup>

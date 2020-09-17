@@ -16,9 +16,9 @@ void LocalBins::feed(const atlas::rendering::Ray &ray, const CompactRay &compact
 	bins[index][pos] = compactRay;
 	binSizes[index] += 1;
 	//printf("Local bin add [%d, %d]\n", index, pos);
-	if (pos + 1 == BinSize)
+	if (pos + 1 == LOCAL_BIN_SIZE)
 	{
-		collector.feed(index, bins[index], BinSize);
+		collector.feed(index, bins[index], LOCAL_BIN_SIZE);
 		binSizes[index] = 0;
 	}
 }

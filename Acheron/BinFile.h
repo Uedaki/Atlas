@@ -6,6 +6,7 @@
 
 #include "CompactRay.h"
 #include "BatchManager.h"
+#include "BinSize.h"
 
 # ifdef ACHERON_EXPORTS
 #   define ACH  __declspec( dllexport )
@@ -17,8 +18,6 @@ struct Batch;
 
 class BinFile
 {
-	const static uint32_t MaxSize;
-
 	struct FileHandles
 	{
 		void *file;
@@ -38,10 +37,10 @@ public:
 	ACH void unmap(FileHandles &handles);
 	
 	ACH void open();
-	ACH void open(const std::string &filename);
+	ACH void open(const std::string &filename, bool doesFileExist = false);
 	ACH void close();
 
-	ACH void feed(const std::array<CompactRay, 256> &rays, uint32_t size);
+	ACH void feed(const std::array<CompactRay, LOCAL_BIN_SIZE> &rays, uint32_t size);
 
 	void purge(Batch &batch);
 	static void extract(const std::string &filename, Batch &batch);

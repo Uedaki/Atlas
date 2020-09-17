@@ -31,12 +31,16 @@ std::string BatchManager::popBatchName()
 {
 	std::string content;
 	std::string batchName;
-	std::ifstream file("stack.tmp", std::ios::in);
+	std::ifstream file("stack.tmp");
+
 	if (file)
 	{
+		if (file.eof())
+			return ("");
+
 		std::string newLine;
 		std::getline(file, newLine);
-		while (!newLine.empty())
+		while (!file.eof() && !newLine.empty())
 		{
 			if (!batchName.empty())
 				content += batchName + "\n";
@@ -45,7 +49,7 @@ std::string BatchManager::popBatchName()
 		}
 		file.close();
 
-		std::ofstream newFile("stack.tmp", std::ios::out | std::ios::trunc);
+		std::ofstream newFile("stack.tmp", std::ios::trunc);
 		if (newFile)
 		{
 			newFile << content;

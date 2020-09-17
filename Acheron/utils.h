@@ -6,6 +6,12 @@
 
 #include <algorithm>
 
+# ifdef ACHERON_EXPORTS
+#   define ACH  __declspec( dllexport )
+# else
+#   define ACH __declspec( dllimport )
+# endif
+
 struct NRay
 {
 	glm::vec3 origin;
@@ -31,8 +37,8 @@ uint32_t copyBitToUint(uint32_t src, uint32_t size, uint32_t offset);
 
 glm::vec2 OctWrap(glm::vec2 v);
 
-glm::vec2 octEncode(glm::vec3 n);
-glm::vec3 octDecode(glm::vec2 f);
+ACH glm::vec2 octEncode(glm::vec3 n);
+ACH glm::vec3 octDecode(glm::vec2 f);
 
 float maxValue(const glm::vec3 &v);
 float maxIdx(const glm::vec3 &v);

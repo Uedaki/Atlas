@@ -6,8 +6,6 @@
 
 #include "Acheron.h"
 
-const uint32_t BinFile::MaxSize = 32768;
-
 //BinFile::BinFile(BatchManager &manager)
 //	: manager(&manager)
 //{}
@@ -24,7 +22,7 @@ void BinFile::setManager(BatchManager &newManager)
 
 void BinFile::map()
 {
-	open(filename);
+	open(filename, true);
 }
 
 void BinFile::unmap()
@@ -36,7 +34,7 @@ void BinFile::unmap()
 
 void BinFile::unmap(FileHandles &handles)
 {
-	const size_t size = MaxSize * sizeof(CompactRay);
+	const size_t size = BIN_SIZE * sizeof(CompactRay);
 	FlushViewOfFile(handles.buffer, size);
 	UnmapViewOfFile(handles.buffer);
 	CloseHandle(handles.mapping);
@@ -49,15 +47,17 @@ void BinFile::open()
 	open(manager->getNewBatchName());
 }
 
-void BinFile::open(const std::string &newFilename)
+void BinFile::open(const std::string &newFilename, bool doesFileExist)
 {
 	if (prevFile.file)
 		unmap(prevFile);
 	prevFile = currentFile;
 
+	uint32_t flags = doesFileExist ? OPEN_EXISTING : CREATE_ALWAYS;
+
 	filename = newFilename;
-	const size_t size = sizeof(uint32_t) + MaxSize * sizeof(CompactRay);
-	currentFile.file = CreateFileA(filename.c_str(), GENERIC_WRITE | GENERIC_READ, 0, nullptr, CREATE_NEW, FILE_ATTRIBUTE_TEMPORARY, nullptr);
+	const size_t size = sizeof(uint32_t) + BIN_SIZE * sizeof(CompactRay);
+	currentFile.file = CreateFileA(filename.c_str(), GENERIC_WRITE | GENERIC_READ, 0, nullptr, flags, FILE_ATTRIBUTE_TEMPORARY, nullptr);
 	currentFile.mapping = CreateFileMappingA(currentFile.file, nullptr, PAGE_READWRITE, 0, size, nullptr);
 	currentFile.buffer = (CompactRay*)MapViewOfFile(currentFile.mapping, FILE_MAP_WRITE | FILE_MAP_READ, 0, 0, size);
 }
@@ -78,25 +78,25 @@ BinFile::~BinFile()
 	close();
 }
 
-void BinFile::feed(const std::array<CompactRay, 256> &additionnalRays, uint32_t size)
+void BinFile::feed(const std::array<CompactRay, LOCAL_BIN_SIZE> &additionnalRays, uint32_t size)
 {
 	uint32_t offset = pos.fetch_add(size);
 
-	if (offset >= MaxSize)
+	if (offset >= BIN_SIZE)
 	{
-		while (pos >= MaxSize)
+		while (pos >= BIN_SIZE)
 		{
 			std::unique_lock<std::mutex> lck(lock);
 			dispatcher.wait(lck);
 		}
 		feed(additionnalRays, size);
 	}
-	else if (offset + size >= MaxSize)
+	else if (offset + size >= BIN_SIZE)
 	{
-		uint32_t firstSize = MaxSize - offset;
-		uint32_t secondSize = offset + size - MaxSize;
+		uint32_t firstSize = BIN_SIZE - offset;
+		uint32_t secondSize = offset + size - BIN_SIZE;
 
-		memcpy(&currentFile.buffer[offset], additionnalRays.data(), firstSize);
+		memcpy(&currentFile.buffer[offset], additionnalRays.data(), firstSize * sizeof(CompactRay));
 		manager->postBatchAsActive(filename);
 
 		open(manager->getNewBatchName());
@@ -105,7 +105,7 @@ void BinFile::feed(const std::array<CompactRay, 256> &additionnalRays, uint32_t 
 		dispatcher.notify_all();
 
 		if (secondSize > 0)
-			memcpy(currentFile.buffer, &additionnalRays[firstSize], secondSize);
+			memcpy(currentFile.buffer, &additionnalRays[firstSize], secondSize * sizeof(CompactRay));
 	}
 	else
 	{
@@ -135,19 +135,18 @@ void BinFile::purge(Batch &batch)
 
 void BinFile::extract(const std::string &filename, Batch &batch)
 {
-	batch.resize(MaxSize);
-	const size_t fileSize = MaxSize * sizeof(CompactRay);
+	batch.resize(BIN_SIZE);
+	const size_t fileSize = BIN_SIZE * sizeof(CompactRay);
 	void *fileHandle = CreateFileA(filename.c_str(), GENERIC_READ, 0, nullptr, OPEN_EXISTING,
 		FILE_ATTRIBUTE_READONLY | FILE_ATTRIBUTE_TEMPORARY | FILE_FLAG_SEQUENTIAL_SCAN | FILE_FLAG_DELETE_ON_CLOSE,
 		nullptr);
 
-	for (uint32_t i = 0; i < MaxSize; i++)
+	for (uint32_t i = 0; i < BIN_SIZE; i++)
 	{
 		CompactRay cr;
 
 		DWORD s = 0;
-		OVERLAPPED ol = { 0 };
-		ReadFile(fileHandle, &cr, sizeof(CompactRay), &s, &ol);
+		ReadFile(fileHandle, &cr, sizeof(CompactRay), &s, nullptr);
 
 		NRay r;
 		cr.extract(r);
@@ -159,6 +158,9 @@ void BinFile::extract(const std::string &filename, Batch &batch)
 		batch.sampleIDs[i] = r.sampleID;
 		batch.depths[i] = r.depth;
 		batch.tNears[i] = r.tNear;
+
+		if (r.origin.x == 0)
+			printf("0\n");
 	}
 	CloseHandle(fileHandle);
 }

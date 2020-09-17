@@ -7,10 +7,10 @@
 #include "CompactRay.h"
 
 #include "GlobalBins.h"
+#include "BinSize.h"
 
 class LocalBins
 {
-	#define BinSize 256
 public:
 	LocalBins(GlobalBins &c);
 	void feed(const atlas::rendering::Ray &ray, const CompactRay &compatchRay);
@@ -19,5 +19,5 @@ public:
 private:
 	GlobalBins &collector;
 	std::array<uint32_t, 6> binSizes = {0, 0, 0, 0, 0, 0};
-	std::array<std::array<CompactRay, BinSize>, 6> bins;
+	std::array<std::array<CompactRay, LOCAL_BIN_SIZE>, 6> bins;
 };

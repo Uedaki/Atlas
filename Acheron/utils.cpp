@@ -100,12 +100,25 @@ uint32_t copyBitToUint(uint32_t src, uint32_t size, uint32_t offset)
 
 glm::vec2 OctWrap(glm::vec2 v)
 {
-	return (glm::vec2((1.0 - abs(v.x)) * (v.x >= 0.0 ? 1.0 : -1.0),
-		(1.0 - abs(v.y)) * (v.y >= 0.0 ? 1.0 : -1.0)));
+	return (glm::vec2((1.0 - abs(v.y)) * (v.x >= 0.0 ? 1.0 : -1.0),
+		(1.0 - abs(v.x)) * (v.y >= 0.0 ? 1.0 : -1.0)));
 }
 
 glm::vec2 octEncode(glm::vec3 n)
 {
+	//float l1norm = abs(n.x) + abs(n.y) + abs(n.z);
+	//float invNorm = 1.f / l1norm;
+	//glm::vec2 result(n.x * invNorm, n.y * invNorm);
+	//if (n.z < 0.f)
+	//{
+	//	float xSign = result.x >= 0 ? 1.f : -1.f;
+	//	float ySign = result.y >= 0 ? 1.f : -1.f;
+
+	//	result.x = (1 - abs(result.y)) * xSign;
+	//	result.y = (1 - abs(result.x)) * ySign;
+	//}
+	//return (result);
+
 	glm::vec3 r = n / (abs(n.x) + abs(n.y) + abs(n.z));
 	glm::vec2 c = r.z >= 0.0 ? glm::vec2(r.x, r.y) : OctWrap(glm::vec2(r.x, r.y));
 	c.x = c.x * 0.5 + 0.5;
@@ -115,11 +128,22 @@ glm::vec2 octEncode(glm::vec3 n)
 
 glm::vec3 octDecode(glm::vec2 f)
 {
+	/*glm::vec3 v(f.x, f.y, 1 - abs(f.x) - abs(f.y));
+	if (v.z < 0.f)
+	{
+		float xSign = v.x >= 0 ? 1.f : -1.f;
+		float ySign = v.y >= 0 ? 1.f : -1.f;
+
+		v.x = (1 - abs(v.y)) * xSign;
+		v.y = (1 - abs(v.x)) * ySign;
+	}
+	return (glm::normalize(v));	*/
+
 	f = f * 2.0f - 1.0f;
 
 	// https://twitter.com/Stubbesaurus/status/937994790553227264
 	glm::vec3 n(f.x, f.y, 1.0 - abs(f.x) - abs(f.y));
-	float t = std::min(std::max(-n.z, 0.f), 1.f);
+	float t = std::max(-n.z, 0.f);
 	n.x += n.x >= 0.0 ? -t : t;
 	n.y += n.y >= 0.0 ? -t : t;
 	return glm::normalize(n);

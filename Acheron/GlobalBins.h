@@ -6,6 +6,7 @@
 #include "BinFile.h"
 #include "CompactRay.h"
 #include "BatchManager.h"
+#include "BinSize.h"
 
 class GlobalBins
 {
@@ -16,7 +17,7 @@ public:
 	void map();
 	void unmap();
 
-	void feed(uint8_t binIndex, const std::array<CompactRay, 256> &bin, uint32_t size);
+	void feed(uint8_t binIndex, const std::array<CompactRay, LOCAL_BIN_SIZE> &bin, uint32_t size);
 
 	bool purge(Batch &batch);
 private:

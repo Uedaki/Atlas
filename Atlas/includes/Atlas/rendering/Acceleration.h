@@ -27,6 +27,7 @@ namespace atlas
 			Acceleration() = default;
 			ATLAS Acceleration(std::vector<const Hitable *> &source, const Bound &bound, std::vector<Acceleration> &pool);
 			ATLAS void feed(std::vector<const Hitable *> &source, const Bound &bound, std::vector<Acceleration> &pool);
+			
 			ATLAS bool hit(const Ray &ray, const float min, const float max, HitRecord &record) const override;
 
 		private:

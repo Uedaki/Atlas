@@ -33,7 +33,7 @@ void GlobalBins::unmap()
 	}
 }
 
-void GlobalBins::feed(uint8_t binIndex, const std::array<CompactRay, 256> &rays, uint32_t size)
+void GlobalBins::feed(uint8_t binIndex, const std::array<CompactRay, LOCAL_BIN_SIZE> &rays, uint32_t size)
 {
 	//printf("add local bin to %d bin\n", binIndex);
 	bins[binIndex].feed(rays, size);

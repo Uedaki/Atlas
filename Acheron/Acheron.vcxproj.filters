@@ -16,9 +16,6 @@
     <Filter Include="dll">
       <UniqueIdentifier>{a9504cbc-8816-487c-8e10-dc7b6769a330}</UniqueIdentifier>
     </Filter>
-    <Filter Include="mio">
-      <UniqueIdentifier>{84fbfe6c-7f87-4ca1-aac6-e07ae4e56be4}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -51,14 +48,8 @@
     <ClInclude Include="BatchManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="mio\include\mio\mmap.hpp">
-      <Filter>mio</Filter>
-    </ClInclude>
-    <ClInclude Include="mio\include\mio\page.hpp">
-      <Filter>mio</Filter>
-    </ClInclude>
-    <ClInclude Include="mio\include\mio\shared_mmap.hpp">
-      <Filter>mio</Filter>
+    <ClInclude Include="BinSize.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
