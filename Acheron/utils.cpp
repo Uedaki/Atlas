@@ -14,8 +14,8 @@ uint64_t posToZOrderIndex(uint32_t x, uint32_t y)
 
 uint64_t zOrderIndexToPos(uint64_t index, uint32_t &x, uint32_t &y)
 {
-	x = _pext_u64(index, 0x5555555555555555);;
-	y = _pext_u64(index, 0xaaaaaaaaaaaaaaaa);
+	x = static_cast<uint32_t>(_pext_u64(index, 0x5555555555555555));
+	y = static_cast<uint32_t>(_pext_u64(index, 0xaaaaaaaaaaaaaaaa));
 
 	//for (uint64_t i = 0; i < sizeof(uint64_t) * 8; i += 2)
 	//{
@@ -36,7 +36,7 @@ uint32_t toRgb9e5(const glm::vec3 &weight)
 	const float N = 9; // N is the number of mantissa bits per component
 	const float Emax = 31; // Emax is the maximum allowed biased exponent value
 	const float B = 15; // B is the exponent bias
-	const float sharedexp_max = (pow(2, N) - 1) / pow(2, N) * pow(2, Emax - B);
+	const float sharedexp_max = (pow(2.f, N) - 1.f) / pow(2.f, N) * pow(2.f, Emax - B);
 
 	const float red_c = std::max(0.f, std::min(sharedexp_max, weight.r));
 	const float green_c = std::max(0.f, std::min(sharedexp_max, weight.g));
@@ -46,12 +46,12 @@ uint32_t toRgb9e5(const glm::vec3 &weight)
 
 	float exp_shared_p = std::max(-B - 1, floor(log2(max_c))) + 1 + B;
 
-	const float max_s = floor(max_c / pow(2, (exp_shared_p - B - N)) + 0.5);
-	const float exp_shared = max_s == pow(2, N) ? exp_shared_p + 1 : exp_shared_p;
+	const float max_s = floor(max_c / pow(2.f, (exp_shared_p - B - N)) + 0.5f);
+	const float exp_shared = max_s == pow(2.f, N) ? exp_shared_p + 1.f : exp_shared_p;
 
-	const float red_s = floor(red_c / pow(2, (exp_shared - B - N)) + 0.5);
-	const float green_s = floor(green_c / pow(2, (exp_shared - B - N)) + 0.5);
-	const float blue_s = floor(blue_c / pow(2, (exp_shared - B - N)) + 0.5);
+	const float red_s = floor(red_c / pow(2.f, (exp_shared - B - N)) + 0.5f);
+	const float green_s = floor(green_c / pow(2.f, (exp_shared - B - N)) + 0.5f);
+	const float blue_s = floor(blue_c / pow(2.f, (exp_shared - B - N)) + 0.5f);
 
 	copyUintToBit(red_s, cw, 9, 0);
 	copyUintToBit(green_s, cw, 9, 9);
@@ -73,9 +73,9 @@ glm::vec3 toColor(uint32_t weight)
 	const float blue_s = copyBitToUint(weight, 9, 18);
 	const float exp_shared = copyBitToUint(weight, 5, 27);
 
-	color.r = red_s * pow(2, exp_shared - B - N);
-	color.g = green_s * pow(2, exp_shared - B - N);
-	color.b = blue_s * pow(2, exp_shared - B - N);
+	color.r = red_s * pow(2.f, exp_shared - B - N);
+	color.g = green_s * pow(2.f, exp_shared - B - N);
+	color.b = blue_s * pow(2.f, exp_shared - B - N);
 
 	return (color);
 }
@@ -121,8 +121,8 @@ glm::vec2 octEncode(glm::vec3 n)
 
 	glm::vec3 r = n / (abs(n.x) + abs(n.y) + abs(n.z));
 	glm::vec2 c = r.z >= 0.0 ? glm::vec2(r.x, r.y) : OctWrap(glm::vec2(r.x, r.y));
-	c.x = c.x * 0.5 + 0.5;
-	c.y = c.y * 0.5 + 0.5;
+	c.x = c.x * 0.5f + 0.5f;
+	c.y = c.y * 0.5f + 0.5f;
 	return (c);
 }
 
@@ -154,7 +154,7 @@ float maxValue(const glm::vec3 &v)
 	return (v.x > v.y ? (v.x > v.z ? v.x : v.z) : (v.y > v.z ? v.y : v.z));
 }
 
-float maxIdx(const glm::vec3 &v)
+uint8_t maxIdx(const glm::vec3 &v)
 {
 	return (v.x > v.y ? (v.x > v.z ? 0 : 1) : (v.y > v.z ? 1 : 2));
 }

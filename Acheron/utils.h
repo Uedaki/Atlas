@@ -41,4 +41,4 @@ ACH glm::vec2 octEncode(glm::vec3 n);
 ACH glm::vec3 octDecode(glm::vec2 f);
 
 float maxValue(const glm::vec3 &v);
-float maxIdx(const glm::vec3 &v);
+uint8_t maxIdx(const glm::vec3 &v);

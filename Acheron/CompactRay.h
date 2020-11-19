@@ -19,6 +19,16 @@ struct CompactRay
 
 	CompactRay() = default;
 
+	CompactRay(const atlas::rendering::Ray &ray, const glm::vec3 &color, uint32_t pixel, uint32_t sample, uint32_t depth, float tNear = 0)
+		: origin(ray.origin)
+		, direction(octEncode(ray.dir))
+		, weight(toRgb9e5(color))
+		, pixelID(pixel)
+		, sampleID(sample)
+		, depth(depth)
+		, tNear(tNear)
+	{}
+
 	CompactRay(const atlas::rendering::Ray &ray, uint32_t pixel, uint32_t sample, float tNear = 0)
 		: origin(ray.origin)
 		, direction(octEncode(ray.dir))

@@ -153,23 +153,37 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Acceleration.h" />
     <ClInclude Include="Acheron.h" />
     <ClInclude Include="BatchManager.h" />
     <ClInclude Include="BinFile.h" />
     <ClInclude Include="BinSize.h" />
+    <ClInclude Include="Bound.h" />
+    <ClInclude Include="BoundingCone.h" />
     <ClInclude Include="CompactRay.h" />
+    <ClInclude Include="Cone.h" />
+    <ClInclude Include="ConeIntersection.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GlobalBins.h" />
+    <ClInclude Include="Hitable.h" />
+    <ClInclude Include="HitRecord.h" />
     <ClInclude Include="LocalBins.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="RayPack.h" />
+    <ClInclude Include="Scene.h" />
+    <ClInclude Include="Shape.h" />
+    <ClInclude Include="Sphere.h" />
+    <ClInclude Include="TaskScheduler.h" />
     <ClInclude Include="Telemetry.h" />
+    <ClInclude Include="ThreadTask.h" />
     <ClInclude Include="utils.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Acceleration.cpp" />
     <ClCompile Include="Acheron.cpp" />
     <ClCompile Include="BatchManager.cpp" />
     <ClCompile Include="BinFile.cpp" />
+    <ClCompile Include="Bound.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="GlobalBins.cpp" />
     <ClCompile Include="LocalBins.cpp" />
@@ -179,6 +193,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="TaskScheduler.cpp" />
     <ClCompile Include="Telemetry.cpp" />
     <ClCompile Include="utils.cpp" />
   </ItemGroup>

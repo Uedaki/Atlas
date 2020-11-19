@@ -45,6 +45,7 @@ public:
 	void purge(Batch &batch);
 	static void extract(const std::string &filename, Batch &batch);
 
+	const std::string &getFilename() const { return (filename); }
 	uint32_t getSize() const { return (pos); }
 
 private:

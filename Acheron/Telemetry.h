@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef _DEBUG
-
+//#ifndef _DEBUG
+#if 1
 #include <algorithm>
 #include <chrono>
 #include <cstdint>
@@ -38,6 +38,7 @@ public:
 
 		~SingleTimedScope()
 		{
+			Telemetry &instance = getInstance();
 			instance.sectors[id].t = (float)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start).count();
 		}
 
@@ -55,6 +56,8 @@ public:
 
 		~MultipleTimedScope()
 		{
+			Telemetry &instance = getInstance();
+
 			float val = (float)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start).count();
 			instance.sectors[id].t = (instance.sectors[id].t * instance.sectors[id].count + val) / (instance.sectors[id].count + 1);
 			instance.sectors[id].min = std::min(instance.sectors[id].min, val);
@@ -71,15 +74,17 @@ public:
 	ACH static void printReport();
 
 private:
-	static Telemetry instance;
+
+	static Telemetry &getInstance();
+
 	std::vector<std::string> paths;
 	std::vector<SectorTime> sectors;
 };
 
-#define DEFINE_SECTOR(name, path) static Telemetry::SectorID name = Telemetry::getSectorID(path)
+#define DEFINE_SECTOR(name, path) static Telemetry::SectorID __tls_##name = Telemetry::getSectorID(path)
 
-#define SINGLE_TIMED_SCOPE(id) Telemetry::SingleTimedScope __sts(id)
-#define MULTIPLE_TIMED_SCOPE(id) Telemetry::MultipleTimedScope __mts(id)
+#define SINGLE_TIMED_SCOPE(id) Telemetry::SingleTimedScope __sts(__tls_##id)
+#define MULTIPLE_TIMED_SCOPE(id) Telemetry::MultipleTimedScope __mts(__tls_##id)
 
 #define PRINT_TELEMETRY_REPORT() Telemetry::printReport()
 

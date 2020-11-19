@@ -7,8 +7,8 @@
 //#include "Atlas/Camera.h"
 //#include "Atlas/ext/Oidn.h"
 //#include "Atlas/Rendering/Session.h"
-#include "Atlas/Scene.h"
-#include "Atlas/Sphere.h"
+#include "../Acheron/Scene.h"
+#include "../Acheron/Sphere.h"
 #include "Atlas/Tools.h"
 
 #include "Materials.h"
@@ -31,12 +31,12 @@ struct Color
 
 #define ACHERON 0
 
-atlas::Scene create_scene()
+Scene create_scene()
 {
-	atlas::Scene scene;
+	Scene scene;
 
 	atlas::Material &mapMaterial = scene.defineMaterial<Lambert>(glm::vec3(0.5, 0.5, 0.5));
-	scene.defineShape<atlas::Sphere>(glm::vec3(0, -1000, 0), 1000.f, &mapMaterial);
+	scene.defineShape<Sphere>(glm::vec3(0, -1000, 0), 1000.f, &mapMaterial);
 
 	for (int a = -11; a < 11; a++)
 	{
@@ -63,19 +63,19 @@ atlas::Scene create_scene()
 				{
 					material = &scene.defineMaterial<Dielectric>(1.5f);
 				}
-				scene.defineShape<atlas::Sphere>(center, 0.2f, material);
+				scene.defineShape<Sphere>(center, 0.2f, material);
 			}
 		}
 	}
 
 	atlas::Material &dielectric = scene.defineMaterial<Dielectric>(1.3f);
-	scene.defineShape<atlas::Sphere>(glm::vec3(0, 1, 0), 1.f, &dielectric);
+	scene.defineShape<Sphere>(glm::vec3(0, 1, 0), 1.f, &dielectric);
 
 	atlas::Material &lambert = scene.defineMaterial<Lambert>(glm::vec3(0.3, 0.2, 0.1));
-	scene.defineShape<atlas::Sphere>(glm::vec3(-4, 1, 0), 1.f, &lambert);
+	scene.defineShape<Sphere>(glm::vec3(-4, 1, 0), 1.f, &lambert);
 
 	atlas::Material &metal = scene.defineMaterial<Metal>(glm::vec3(0.7, 0.6, 0.5), 0.f);
-	scene.defineShape<atlas::Sphere>(glm::vec3(4, 1, 0), 1.f, &metal);
+	scene.defineShape<Sphere>(glm::vec3(4, 1, 0), 1.f, &metal);
 
 	return (scene);
 }
@@ -111,13 +111,7 @@ int main()
 	//Neptune neptune;
 	//neptune.runOneIteration(4);
 
-	glm::vec3 v(5, 4, 2);
-	v = glm::normalize(v);
-	std::cout << v.x << " " << v.y << " " << v.z << std::endl;
-	v = octDecode(octEncode(v));
-	std::cout << v.x << " " << v.y << " " << v.z << std::endl;
-
-	atlas::Scene scene = create_scene();
+	Scene scene = create_scene();
 	Acheron acheron(scene, WIDTH, HEIGHT, NBR_SAMPLE);
 
 	glm::vec3 pos(13, 2, 3);
@@ -128,7 +122,7 @@ int main()
 	atlas::Camera camera(pos, target, up, 20, acheron.getOutputImageRatio());
 	camera.enableDefocusBlur(aperture, focusDistance);
 
-	acheron.launch(camera, 3);
+	acheron.launch(camera);
 
 	try
 	{

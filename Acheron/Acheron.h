@@ -6,19 +6,23 @@
 #include <thread>
 #include <vector>
 
-#include "../Atlas/includes/Atlas/Scene.h"
+#include "Scene.h"
 #include "../Atlas/includes/Atlas/Camera.h"
 #include "../Atlas/includes/Atlas/Buffer.h"
-#include "../Atlas/includes/Atlas/rendering/Acceleration.h"
+#include "Acceleration.h"
 
 #include "GlobalBins.h"
 #include "BatchManager.h"
+
+#include "TaskScheduler.h"
 
 # ifdef ACHERON_EXPORTS
 #   define ACH  __declspec( dllexport )
 # else
 #   define ACH __declspec( dllimport )
 # endif
+
+struct BoundingCone;
 
 struct Batch
 {
@@ -31,7 +35,7 @@ struct Batch
 	std::vector<float> tNears;
 
 	uint32_t size() const {
-		return (origins.size());
+		return (static_cast<uint32_t>(origins.size()));
 	}
 
 	void resize(size_t size)
@@ -84,10 +88,18 @@ struct Batch
 class Acheron
 {
 public:
-	ACH Acheron(const atlas::Scene &scene, uint32_t width, uint32_t height, uint32_t nbrSample);
+	struct Context
+	{
+		uint32_t firstIterationSampleCount = 4u;
+		uint32_t maxSamplePerIteration = 256u;
+
+		uint32_t threadCount = 3;
+	} context;
+
+	ACH Acheron(const Scene &scene, uint32_t width, uint32_t height, uint32_t nbrSample);
 	ACH ~Acheron();
 
-	ACH void launch(const atlas::Camera &camera, uint32_t nbrThreads);
+	ACH void launch(const atlas::Camera &camera);
 
 	inline operator bool() const {
 		return (isRendering);
@@ -133,17 +145,14 @@ public:
 		return (maxDepth);
 	};
 
-private:
-	enum class CommandType : uint8_t
+//private:
+	enum CommandType : uint8_t
 	{
-		IDLE = 0,
-		GEN_FIRST_RAYS,
-		SORT_RAYS,
-		COMPUTE_CONE_RAY,
+		GEN_FIRST_RAYS = 0,
 		TRAVERSE,
 		SORT_HIT_POINT,
 		SHADE_HIT_POINT,
-		STOP
+
 	};
 	
 	uint32_t width = 0;
@@ -154,58 +163,28 @@ private:
 	float tmax = 100.f;
 	int maxDepth = 8;
 
-	std::atomic<CommandType> command = CommandType::IDLE;
-
 	const atlas::Camera *camera;
 public:
 	atlas::Buffer output;
-private:
-	uint64_t zOrderMax = 0;
-	uint64_t zOrderStep = 516;
+//private:
 	uint32_t currentSampleTarget = 0;
 
-	std::atomic<uint64_t> zOrderPos = 0;
-
-	std::atomic<bool> isRendering = false;
-	const atlas::Scene &scene;
-	std::vector<atlas::rendering::Acceleration> accelerations;
-
-	std::vector<std::thread> threads;
-	std::mutex lock;
-	std::condition_variable dispatcher;
-	std::atomic<uint8_t> sleepingThread;
+	bool isRendering = false;
+	const Scene &scene;
+	std::vector<Acceleration> accelerations;
 
 	Batch batch;
 	BatchManager batchManager;
 	GlobalBins bins;
 
-	std::vector<atlas::rendering::HitRecord> hitPoints;
-
-	struct Pack
-	{
-		std::vector<glm::vec3> *order;
-		uint32_t firstIndex;
-		uint32_t size;
-		uint32_t target;
-	};
-	std::vector<Pack> sortPack;
-	std::atomic<uint32_t> packSize;
-	std::atomic<uint32_t> packOffset;
-	std::atomic<uint32_t> packIndex;
+	std::vector<HitRecord> hitPoints;
 
 	void runOneIteration();
 	void processRays();
 
-	void runSlave();
-	void generateFirstRays();
-
 	uint8_t pickLargestAxis(const std::vector<glm::vec3> &ar, uint32_t firstIndex, uint32_t lastIndex);
-	uint32_t partition(std::vector<glm::vec3> &order, uint32_t major, uint32_t firstIndex, uint32_t lastIndex, uint32_t pivotIndex);
-	void sortRays();
-	void sortNextRay();
 	void quicksort();
 
-	void pushCommand(CommandType newCommand);
-	void pushCommandForOne(CommandType newCommand);
-	void sleepUntilSignal();
+
+	TaskScheduler scheduler;
 };

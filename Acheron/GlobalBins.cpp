@@ -56,3 +56,19 @@ bool GlobalBins::purge(Batch &batch)
 	else
 		return (false);
 }
+
+BinFile *GlobalBins::getBin()
+{
+	uint32_t fullestBin = 0;
+	for (uint8_t i = 1; i < 6; i++)
+	{
+		if (bins[i].getSize() > bins[fullestBin].getSize())
+			fullestBin = i;
+	}
+	if (bins[fullestBin].getSize() > 0)
+	{
+		return (&bins[fullestBin]);
+	}
+	else
+		return (nullptr);
+}

@@ -1,11 +1,9 @@
 #include "pch.h"
 #include "Telemetry.h"
 
-#ifndef _DEBUG
-
+//#ifndef _DEBUG
+#if 1
 #include <iostream>
-
-Telemetry Telemetry::instance;
 
 void Telemetry::SectorTime::reset()
 {
@@ -17,12 +15,13 @@ void Telemetry::SectorTime::reset()
 
 Telemetry::SectorID Telemetry::getSectorID(const std::string &path)
 {
+	Telemetry &instance = getInstance();
 	for (uint32_t i = 0; i < instance.paths.size(); i++)
 	{
 		if (instance.paths[i] == path)
 			return (i);
 	}
-	instance.paths.push_back(path);
+	instance.paths.emplace_back(path);
 	instance.sectors.emplace_back();
 	return (static_cast<SectorID>(instance.paths.size() - 1));
 }
@@ -83,12 +82,19 @@ std::ostream &operator<<(std::ostream &os, const Telemetry::SectorTime &s)
 
 void Telemetry::printReport()
 {
+	Telemetry &instance = getInstance();
 	std::cout << "Telemetry report:" << "\n";
 	for (uint32_t i = 0; i < instance.paths.size(); i++)
 	{
 		std::cout << instance.paths[i] << ": " << instance.sectors[i] << "\n";
 	}
 	std::cout << std::endl;
+}
+
+Telemetry &Telemetry::getInstance()
+{
+	static Telemetry instance;
+	return (instance);
 }
 
 #endif

@@ -20,6 +20,7 @@ public:
 	void feed(uint8_t binIndex, const std::array<CompactRay, LOCAL_BIN_SIZE> &bin, uint32_t size);
 
 	bool purge(Batch &batch);
+	BinFile *getBin();
 private:
 	std::array<BinFile, 6> bins;
 };
