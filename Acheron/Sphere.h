@@ -23,12 +23,17 @@ public:
 
 	void hit(const Cone &ray, const float min, const float max) const override
 	{
+		float tmax = 0;
 		for (uint32_t i = 0; i < ray.nbrRays; i++)
 		{
 			HitRecord tmp;
 			if (hit(ray.r[i], min, ray.h[i].t, tmp))
 				ray.h[i] = tmp;
+
+			float dist = glm::dot(ray.bound.dir, (ray.r[i].origin + ray.r[i].dir * ray.h[i].t) - ray.bound.origin);
+			tmax = std::max(tmax, dist);
 		}
+		ray.bound.tmax = tmax;
 	}
 
 	bool hit(const atlas::rendering::Ray &ray, const float min, const float max, HitRecord &record) const override

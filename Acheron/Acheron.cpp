@@ -731,7 +731,7 @@ void Acheron::processRays()
 		{
 			MULTIPLE_TIMED_SCOPE(tlySortRays);
 			QuickSortTask task(*this);
-#if 1
+#if 0
 			scheduler.expDispatch(task);
 #else
 			task.quicksort();
