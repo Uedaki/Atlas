@@ -5,7 +5,6 @@
 
 #include "Atlas/Buffer.h"
 #include "Atlas/Camera.h"
-#include "Atlas/ext/Oidn.h"
 #include "Atlas/Rendering/Session.h"
 #include "Atlas/Scene.h"
 #include "Atlas/Sphere.h"
@@ -13,6 +12,12 @@
 
 #include "Materials.h"
 #include "Window.h"
+
+#define USE_DENOISER 0
+
+#if USE_DENOISER
+# include "Atlas/ext/Oidn.h"
+#endif
 
 constexpr uint32_t WIDTH = 720;
 constexpr uint32_t HEIGHT = 480;
@@ -97,7 +102,10 @@ int main()
 		bool isDenoised = false;
 		atlas::Scene scene = create_scene();
 		atlas::rendering::Session session(scene, WIDTH, HEIGHT, NBR_SAMPLE);
+
+#if USE_DENOISER
 		atlas::ext::Oidn denoiser(WIDTH, HEIGHT);
+#endif
 
 		glm::vec3 pos(13, 2, 3);
 		glm::vec3 target(0, 0, 0);
@@ -126,13 +134,19 @@ int main()
 					}
 					else
 					{
+#if USE_DENOISER
 						denoiser.launch(output);
 						copyImageToBackBuffer(pixels, denoiser.getDenoisedOutput());
+#endif
 						isDenoised = true;
 					}
 				}
 				else
+#if USE_DENOISER
 					copyImageToBackBuffer(pixels, denoiser.getDenoisedOutput());
+#else
+					copyImageToBackBuffer(pixels, output.image);
+#endif
 				window.render();
 			}
 		}
