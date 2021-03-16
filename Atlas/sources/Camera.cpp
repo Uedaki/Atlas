@@ -1,105 +1,75 @@
-#include "pch.h"
-#include "Camera.h"
+#include "atlas/core/Camera.h"
 
-#include <glm/gtc/constants.hpp>
+using namespace atlas;
 
-#include <stdexcept>
-
-#include "Rendering/Ray.h"
-#include "Tools.h"
-
-atlas::Camera::Camera(const glm::vec3 &p, const glm::vec3 &t, const glm::vec3 &h, float f, float a)
-	: pos(p), target(t), up(h)
-	, fov(f), aspect(a)
-	, isBlurEnable(false), aperture(0), focusDistance(0)
-	, u(0), v(0), w(0)
-	, corner(0), horizontal(0), vertical(0)
+Camera::Camera(const Transform &CameraToWorld, Float shutterOpen,
+    Float shutterClose, Film *film, const Medium *medium)
+    : CameraToWorld(CameraToWorld)
+    , shutterOpen(shutterOpen)
+    , shutterClose(shutterClose)
+    , film(film)
+    , medium(medium)
 {
-	reset();
+
 }
 
-void atlas::Camera::enableDefocusBlur(float a, float f)
-{
-	isBlurEnable = true;
-	aperture = a;
-	focusDistance = f;
-	lensRadius = aperture / 2;
-
-	float theta = fov * glm::pi<float>() / 180;
-	float halfHeight = glm::tan(theta / 2);
-	float halfWidth = aspect * halfHeight;
-
-	w = glm::normalize(pos - target);
-	u = glm::normalize(glm::cross(up, w));
-	v = glm::cross(w, u);
-
-	corner = pos - halfWidth * u * focusDistance - halfHeight * v * focusDistance - w * focusDistance;
-	horizontal = 2 * halfWidth * u * focusDistance;
-	vertical = 2 * halfHeight * v * focusDistance;
+Camera::~Camera() {
+    //delete film;
 }
 
-void atlas::Camera::reset()
+Float Camera::generateRayDifferential(const CameraSample &sample, RayDifferential *rd) const
 {
-	isBlurEnable = false;
+    Float wt = generateRay(sample, *rd);
+    if (wt == 0)
+        return 0;
 
-	float theta = fov * glm::pi<float>() / 180;
-	float halfHeight = glm::tan(theta / 2);
-	float halfWidth = aspect * halfHeight;
+    Float wtx;
+    for (Float eps : { .05, -.05 })
+    {
+        CameraSample sshift = sample;
+        sshift.pFilm.x += eps;
+        Ray rx;
+        wtx = generateRay(sshift, rx);
+        rd->rxOrigin = rd->origin + (rx.origin - rd->origin) / eps;
+        rd->rxDirection = rd->dir + (rx.dir - rd->dir) / eps;
+        if (wtx != 0)
+            break;
+    }
+    if (wtx == 0)
+        return 0;
 
-	w = glm::normalize(pos - target);
-	u = glm::normalize(glm::cross(up, w));
-	v = glm::cross(w, u);
+    Float wty;
+    for (Float eps : { .05, -.05 })
+    {
+        CameraSample sshift = sample;
+        sshift.pFilm.y += eps;
+        Ray ry;
+        wty = generateRay(sshift, ry);
+        rd->ryOrigin = rd->origin + (ry.origin - rd->origin) / eps;
+        rd->ryDirection = rd->dir + (ry.dir - rd->dir) / eps;
+        if (wty != 0)
+            break;
+    }
+    if (wty == 0)
+        return 0;
 
-	corner = pos - halfWidth * u - halfHeight * v - w;
-	horizontal = 2 * halfWidth * u;
-	vertical = 2 * halfHeight * v;
+    rd->hasDifferentials = true;
+    return wt;
 }
 
-atlas::rendering::Ray atlas::Camera::getRay(const float x, const float y) const
+Spectrum Camera::we(const Ray &ray, Point2f *raster) const
 {
-	if (isBlurEnable)
-	{
-		glm::vec3 rd = lensRadius * Tools::randomInUnitDisk();
-		glm::vec3 offset = u * rd.x + v * rd.y;
-		return (rendering::Ray(pos + offset, corner + x * horizontal + y * vertical - pos - offset));
-	}
-	else
-	{
-		return (rendering::Ray(pos, corner + x * horizontal + y * vertical - pos));
-	}
+    return Spectrum(0.f);
 }
 
-SimdRay atlas::Camera::getSimdRay(const float4 x, const float4 y) const
+void Camera::pdfWe(const Ray &ray, Float *pdfPos, Float *pdfDir) const
 {
-	if (isBlurEnable)
-	{
-		//glm::vec3 rd = lensRadius * Tools::randomInUnitDisk();
-		//glm::vec3 offset = u * rd.x + v * rd.y;
-		//return (rendering::Ray(pos + offset, corner + x * horizontal + y * vertical - pos - offset));
-		throw std::runtime_error("Not implemented");
-	}
-	else
-	{
-		float4 cornerX(corner.x);
-		float4 cornerY(corner.y);
-		float4 cornerZ(corner.z);
 
-		float4 hX(horizontal.x);
-		float4 hY(horizontal.y);
-		float4 hZ(horizontal.z);
-
-		float4 vX(vertical.x);
-		float4 vY(vertical.y);
-		float4 vZ(vertical.z);
-
-		float4 posX(pos.x);
-		float4 posY(pos.y);
-		float4 posZ(pos.z);
-
-		float4 dirX = cornerX + x * hX + y * vX - posX;
-		float4 dirY = cornerY + x * hY + y * vY - posY;
-		float4 dirZ = cornerZ + x * hZ + y * vZ - posZ;
-
-		return (SimdRay(posX, posY, posZ, dirX, dirY, dirZ));
-	}
 }
+
+//Spectrum Camera::sampleWi(const Interaction &ref, const Point2f &u,
+//    Vec3f *wi, Float *pdf, Point2f *pRaster,
+//    VisibilityTester *vis) const {
+//    LOG(FATAL) << "Camera::Sample_Wi() is not implemented!";
+//    return Spectrum(0.f);
+//}
