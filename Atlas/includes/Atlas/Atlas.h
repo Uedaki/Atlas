@@ -110,6 +110,24 @@ namespace atlas
 		return bitsToFloat(ui);
 	}
 
+	void uintToBits(uint32_t src, uint32_t &dst, uint32_t size, uint32_t offset)
+	{
+		for (uint32_t i = 0; i < size; i++)
+		{
+			dst |= (((src >> i) & 1) << (offset + i));
+		}
+	}
+
+	uint32_t bitsToUint(uint32_t src, uint32_t size, uint32_t offset)
+	{
+		uint32_t dst = 0;
+		for (uint32_t i = 0; i < size; i++)
+		{
+			dst |= (((src >> (offset + i)) & 1) << i);
+		}
+		return (dst);
+	}
+
 	inline Float gamma(int n)
 	{
 		return (n * MACHINE_EPSILON) / (1 - n * MACHINE_EPSILON);

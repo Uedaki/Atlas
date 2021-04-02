@@ -188,4 +188,55 @@ namespace atlas
 	{
 		return (RgbSpectrum(std::exp(s.r), std::exp(s.g), std::exp(s.b)));
 	}
+
+	inline uint32_t toRgb9e5(const RgbSpectrum &weight)
+	{
+		uint32_t cw = 0;
+
+		const float N = 9; // N is the number of mantissa bits per component
+		const float Emax = 31; // Emax is the maximum allowed biased exponent value
+		const float B = 15; // B is the exponent bias
+		const float sharedexp_max = (pow(2.f, N) - 1.f) / pow(2.f, N) * pow(2.f, Emax - B);
+
+		const float red_c = std::max(0.f, std::min(sharedexp_max, weight.r));
+		const float green_c = std::max(0.f, std::min(sharedexp_max, weight.g));
+		const float blue_c = std::max(0.f, std::min(sharedexp_max, weight.b));
+
+		const float max_c = std::max(std::max(red_c, green_c), blue_c);
+
+		float exp_shared_p = std::max(-B - 1, std::floor(log2(max_c))) + 1 + B;
+
+		const float max_s = std::floor(max_c / pow(2.f, (exp_shared_p - B - N)) + 0.5f);
+		const float exp_shared = max_s == pow(2.f, N) ? exp_shared_p + 1.f : exp_shared_p;
+
+		const float red_s = std::floor(red_c / pow(2.f, (exp_shared - B - N)) + 0.5f);
+		const float green_s = std::floor(green_c / pow(2.f, (exp_shared - B - N)) + 0.5f);
+		const float blue_s = std::floor(blue_c / pow(2.f, (exp_shared - B - N)) + 0.5f);
+
+		uintToBits(red_s, cw, 9, 0);
+		uintToBits(green_s, cw, 9, 9);
+		uintToBits(blue_s, cw, 9, 18);
+		uintToBits(exp_shared, cw, 5, 27);
+
+		return (cw);
+	}
+
+	inline RgbSpectrum toColor(uint32_t weight)
+	{
+		RgbSpectrum color;
+
+		const float N = 9; // N is the number of mantissa bits per component
+		const float B = 15; // B is the exponent bias
+
+		const float red_s = bitsToUint(weight, 9, 0);
+		const float green_s = bitsToUint(weight, 9, 9);
+		const float blue_s = bitsToUint(weight, 9, 18);
+		const float exp_shared = bitsToUint(weight, 5, 27);
+
+		color.r = red_s * pow(2.f, exp_shared - B - N);
+		color.g = green_s * pow(2.f, exp_shared - B - N);
+		color.b = blue_s * pow(2.f, exp_shared - B - N);
+
+		return (color);
+	}
 }
