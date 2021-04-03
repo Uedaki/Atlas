@@ -41,7 +41,13 @@ void Acheron::render(const Camera &camera, const Primitive &scene)
 void Acheron::renderIteration(const Camera &camera, const Primitive &scene, Film &film, uint32_t spp)
 {
 	{
-		task::GenerateFirstRays genFirstRays(*this, camera, spp);
+		task::GenerateFirstRays::Data data;
+		data.resolution = resolution;
+		data.spp = spp;
+		data.camera = &camera;
+		data.sampler = info.sampler;
+		data.batchManager = &manager;
+		task::GenerateFirstRays genFirstRays(data);
 		threads.execute(&genFirstRays);
 		threads.join();
 	}

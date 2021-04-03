@@ -8,13 +8,13 @@
 
 namespace atlas
 {
-	Vector2<float> octWrap(Vector2<float> v)
+	inline Vector2<float> octWrap(Vector2<float> v)
 	{
 		return (Vec2f((1.0 - std::abs(v.y)) * (v.x >= 0.0 ? 1.0 : -1.0),
 			(1.0 - std::abs(v.x)) * (v.y >= 0.0 ? 1.0 : -1.0)));
 	}
 
-	Vector2<float> octEncode(Vec3f dn)
+	inline Vector2<float> octEncode(Vec3f dn)
 	{
 		Vector3<float> n(dn);
 
@@ -25,7 +25,7 @@ namespace atlas
 		return (c);
 	}
 
-	Vec3f octDecode(Vector2<float> f)
+	inline Vec3f octDecode(Vector2<float> f)
 	{
 		f = f * 2.0f - 1.0f;
 

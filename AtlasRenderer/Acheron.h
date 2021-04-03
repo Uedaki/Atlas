@@ -5,7 +5,9 @@
 #include "Atlas/core/Primitive.h"
 #include "Atlas/core/Sampler.h"
 
+#include "AtlasRendererLibHeader.h"
 #include "ThreadPool.h"
+#include "Bin.h"
 
 namespace atlas
 {
@@ -25,16 +27,16 @@ namespace atlas
 			struct
 			{
 				uint8_t threadCount = std::thread::hardware_concurrency() - 1;
-				std::string tmpFolder;
+				std::string tmpFolder = "./";
 			} parameter;
 		};
 
-		Acheron(const Info &info);
-		~Acheron();
+		ATLAS_RENDERER Acheron(const Info &info);
+		ATLAS_RENDERER ~Acheron();
 
-		void render(const Camera &camera, const Primitive &scene);
-		void renderIteration(const Camera &camera, const Primitive &scene, Film &film, uint32_t spp);
-		void processBatches(const Primitive &scene, Film &film);
+		ATLAS_RENDERER void render(const Camera &camera, const Primitive &scene);
+		ATLAS_RENDERER void renderIteration(const Camera &camera, const Primitive &scene, Film &film, uint32_t spp);
+		ATLAS_RENDERER void processBatches(const Primitive &scene, Film &film);
 
 		// atlas::Film film(filmInfo);
 
@@ -46,11 +48,6 @@ namespace atlas
 
 
 		// FilmInfo, bvh, sampler
-
-		Sampler &getSampler()
-		{
-			return (*info.sampler);
-		}
 
 		const Point2i resolution;
 

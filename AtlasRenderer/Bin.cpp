@@ -1,10 +1,12 @@
 #include "Bin.h"
 
+// Need to be above of the other include
+#include <windows.h>
+
 #include <FileApi.h>
 #include <fstream>
 #include <MemoryApi.h>
 #include <string>
-#include <windows.h>
 
 using namespace atlas;
 
@@ -109,6 +111,8 @@ void BatchManager::feed(uint8_t idx, LocalBin &localBin)
 	{
 		memcpy(&bin.currentFile.buffer[offset], localBin.buffer.data(), size * sizeof(CompactRay));
 	}
+
+	localBin.reset();
 }
 
 std::string BatchManager::getNewBatchName()

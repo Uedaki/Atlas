@@ -78,11 +78,11 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\Uedaki\source\repos\Atlas-v2\Atlas\includes;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Uedaki\source\repos\Atlas-v2\AtlasRenderer;C:\Users\Uedaki\source\repos\Atlas-v2\Atlas\includes;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\Users\Uedaki\source\repos\Atlas-v2\Atlas\includes;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Uedaki\source\repos\Atlas-v2\AtlasRenderer;C:\Users\Uedaki\source\repos\Atlas-v2\Atlas\includes;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -144,6 +144,9 @@
     <ClCompile Include="..\Atlas\compile.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AtlasRenderer\AtlasRenderer.vcxproj">
+      <Project>{fc7f29a7-b472-4272-bf45-a8f2a498a29a}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\Atlas\Atlas.vcxproj">
       <Project>{141761c3-ae02-4211-9282-d37f3146cca4}</Project>
     </ProjectReference>

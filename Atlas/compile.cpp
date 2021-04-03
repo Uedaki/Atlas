@@ -31,6 +31,8 @@
 #include <iostream>
 #include <vector>
 
+#include "Acheron.h"
+
 atlas::Transform *setTransform(Float x, Float y, Float z)
 {
 	atlas::Transform *tr = new atlas::Transform;
@@ -181,29 +183,38 @@ int main()
 	atlas::StratifiedSamplerInfo samplerInfo;
 	atlas::Sampler *sampler = atlas::StratifiedSampler::create(samplerInfo);
 
-	Float invSpp = 1.f / spp;
-	Float *rgb = new Float[width * height * 3];
-	for (auto pixel : film.croppedPixelBounds)
-	{
-		atlas::Spectrum colorSum(0);
-		sampler->startPixel(pixel);
-		for (uint32_t s = 0; s < spp; s++)
-		{
-			atlas::Ray r;
-			atlas::CameraSample cs = sampler->getCameraSample(pixel);
-			camera.generateRay(cs, r);
+	atlas::Acheron::Info achInfo;
+	achInfo.resolution = atlas::Point2i(width, height);
+	achInfo.region = screen;
+	achInfo.sampler = sampler;
+	achInfo.filter = new atlas::BoxFilter(atlas::Vec2f(0.5, 0.5));
+	atlas::Acheron ach(achInfo);
 
-			atlas::Spectrum color = rayColor(r, bvh, 9, *sampler);
-			colorSum += color;
+	ach.render(camera, bvh);
 
-			film.addSample(pixel, cs.pFilm, color, 1);
-			sampler->startNextSample();
-		}
+	//Float invSpp = 1.f / spp;
+	//Float *rgb = new Float[width * height * 3];
+	//for (auto pixel : film.croppedPixelBounds)
+	//{
+	//	atlas::Spectrum colorSum(0);
+	//	sampler->startPixel(pixel);
+	//	for (uint32_t s = 0; s < spp; s++)
+	//	{
+	//		atlas::Ray r;
+	//		atlas::CameraSample cs = sampler->getCameraSample(pixel);
+	//		camera.generateRay(cs, r);
 
-		rgb[(pixel.x + pixel.y * width) * 3] = sqrt(colorSum.r * invSpp);
-		rgb[(pixel.x + pixel.y * width) * 3 + 1] = sqrt(colorSum.g * invSpp);
-		rgb[(pixel.x + pixel.y * width) * 3 + 2] = sqrt(colorSum.b * invSpp);
-	}
+	//		atlas::Spectrum color = rayColor(r, bvh, 9, *sampler);
+	//		colorSum += color;
 
-	film.writeImage();
+	//		film.addSample(pixel, cs.pFilm, color, 1);
+	//		sampler->startNextSample();
+	//	}
+
+	//	rgb[(pixel.x + pixel.y * width) * 3] = sqrt(colorSum.r * invSpp);
+	//	rgb[(pixel.x + pixel.y * width) * 3 + 1] = sqrt(colorSum.g * invSpp);
+	//	rgb[(pixel.x + pixel.y * width) * 3 + 2] = sqrt(colorSum.b * invSpp);
+	//}
+
+	//film.writeImage();
 }

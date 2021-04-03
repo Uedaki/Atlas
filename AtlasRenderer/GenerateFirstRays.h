@@ -16,14 +16,24 @@ namespace atlas
 		public:
 			static constexpr uint64_t zOrderStep = 516;
 
-			GenerateFirstRays(Acheron &renderer, const Camera &camera, uint32_t spp)
-				: renderer(renderer), camera(camera), spp(spp)
+			struct Data
+			{
+				Point2i resolution;
+				uint32_t spp;
+
+				const Camera *camera = nullptr;
+				Sampler *sampler = nullptr;
+				BatchManager *batchManager = nullptr;
+			};
+
+			GenerateFirstRays(Data &data)
+				: data(data)
 			{}
 
 			void preExecute() override
 			{
-				zOrderMax = posToZOrderIndex(renderer.resolution.x, renderer.resolution.y);
-				renderer.manager.openBins();
+				zOrderMax = posToZOrderIndex(data.resolution.x, data.resolution.y);
+				data.batchManager->openBins();
 			}
 
 			void execute() override
@@ -41,19 +51,19 @@ namespace atlas
 						uint32_t x;
 						uint32_t y;
 						zOrderIndexToPos(i, x, y);
-						if (x < renderer.resolution.x && y < renderer.resolution.y)
+						if (x < data.resolution.x && y < data.resolution.y)
 						{
-							for (uint32_t s = 0; s < spp; s++)
+							for (uint32_t s = 0; s < data.spp; s++)
 							{
 								atlas::Ray r;
-								atlas::CameraSample cs = renderer.getSampler().getCameraSample(Point2i(x, y));
-								camera.generateRay(cs, r);
+								atlas::CameraSample cs = data.sampler->getCameraSample(Point2i(x, y));
+								data.camera->generateRay(cs, r);
 
 								const uint8_t vectorIndex = abs(r.dir).maxDimension();
 								const bool isNegative = std::signbit(r.dir[vectorIndex]);
 								const uint8_t index = vectorIndex * 2 + isNegative;
-								if (localBins[index].feed(CompactRay(r, x + y * renderer.resolution.x, s, 0)))
-									renderer.manager.feed(localBins[i]);
+								if (localBins[index].feed(CompactRay(r, x + y * data.resolution.x, s, 0)))
+									data.batchManager->feed(index, localBins[index]);
 							}
 						}
 					}
@@ -61,13 +71,13 @@ namespace atlas
 
 				for (uint32_t i = 0; i < localBins.size(); i++)
 				{
-					renderer.manager.feed(localBins[i]);
+					data.batchManager->feed(i, localBins[i]);
 				}
 			}
 
 			void postExecute() override
 			{
-				renderer.manager.unmapBins();
+				data.batchManager->unmapBins();
 			}
 
 			uint64_t posToZOrderIndex(uint32_t x, uint32_t y)
@@ -83,12 +93,10 @@ namespace atlas
 			}
 
 		private:
-			Acheron &renderer;
-			const Camera &camera;
+			Data data;
 
 			std::atomic<uint64_t> zOrderPos = 0;
 			uint64_t zOrderMax = 0;
-			uint32_t spp;
 		};
 	}
 }
