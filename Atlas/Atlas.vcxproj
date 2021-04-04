@@ -174,6 +174,7 @@
     <ClInclude Include="includes\Atlas\core\simd\Simd.h" />
     <ClInclude Include="includes\Atlas\core\simd\SPoints.h" />
     <ClInclude Include="includes\Atlas\core\simd\SRay.h" />
+    <ClInclude Include="includes\Atlas\core\simd\SRgbSpectrum.h" />
     <ClInclude Include="includes\Atlas\core\simd\SSurfaceInteraction.h" />
     <ClInclude Include="includes\Atlas\core\simd\SVectors.h" />
     <ClInclude Include="includes\Atlas\core\Texture.h" />

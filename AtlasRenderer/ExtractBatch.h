@@ -1,33 +1,5 @@
 #pragma once
 
-//		{
-//		MULTIPLE_TIMED_SCOPE(tlyExtractBatch);
-//		BinFile *bin = nullptr;
-//		std::string batchName = batchManager.popBatchName();
-//		if (!batchName.empty())
-//		{
-//#if 0	
-//			BinFile::extract(batchName, batch);
-//#else
-//			ExtractBatchTask task(*this, batchName);
-//			scheduler.dispatch(task);
-//#endif
-//		}
-//#if 1
-//		else if ((bin = bins.getBin()))
-//		{
-//			ExtractBatchTask task(*this, bin->getFilename(), bin->getSize());
-//			scheduler.dispatch(task);
-//			bin->close();
-//		}
-//		else
-//			return;
-//#else
-//		else if (!bins.purge(batch))
-//			return;
-//#endif
-//		}
-
 // Need to be above of the other include
 #define NOMINMAX
 #include <windows.h>

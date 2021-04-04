@@ -158,6 +158,9 @@
     <ClInclude Include="includes\Atlas\core\Sampling.h">
       <Filter>Header Files\utils</Filter>
     </ClInclude>
+    <ClInclude Include="includes\Atlas\core\simd\SRgbSpectrum.h">
+      <Filter>Header Files\simd</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="sources\BvhAccel.cpp">
