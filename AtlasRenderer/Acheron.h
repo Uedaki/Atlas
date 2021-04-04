@@ -8,6 +8,7 @@
 #include "AtlasRendererLibHeader.h"
 #include "ThreadPool.h"
 #include "Bin.h"
+#include "Batch.h"
 
 namespace atlas
 {
@@ -51,6 +52,7 @@ namespace atlas
 
 		const Point2i resolution;
 
+		Batch batch;
 		BatchManager manager;
 	private:
 		Info info;

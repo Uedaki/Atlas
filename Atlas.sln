@@ -15,8 +15,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestApp", "TestApp\TestApp.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AtlasRenderer", "AtlasRenderer\AtlasRenderer.vcxproj", "{FC7F29A7-B472-4272-BF45-A8F2A498A29A}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestThreadScheduler", "TestThreadScheduler\TestThreadScheduler.vcxproj", "{90BA710F-4534-44CF-BE03-D880C2F75FA5}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -49,14 +47,6 @@ Global
 		{FC7F29A7-B472-4272-BF45-A8F2A498A29A}.Release|x64.Build.0 = Release|x64
 		{FC7F29A7-B472-4272-BF45-A8F2A498A29A}.Release|x86.ActiveCfg = Release|Win32
 		{FC7F29A7-B472-4272-BF45-A8F2A498A29A}.Release|x86.Build.0 = Release|Win32
-		{90BA710F-4534-44CF-BE03-D880C2F75FA5}.Debug|x64.ActiveCfg = Debug|x64
-		{90BA710F-4534-44CF-BE03-D880C2F75FA5}.Debug|x64.Build.0 = Debug|x64
-		{90BA710F-4534-44CF-BE03-D880C2F75FA5}.Debug|x86.ActiveCfg = Debug|Win32
-		{90BA710F-4534-44CF-BE03-D880C2F75FA5}.Debug|x86.Build.0 = Debug|Win32
-		{90BA710F-4534-44CF-BE03-D880C2F75FA5}.Release|x64.ActiveCfg = Release|x64
-		{90BA710F-4534-44CF-BE03-D880C2F75FA5}.Release|x64.Build.0 = Release|x64
-		{90BA710F-4534-44CF-BE03-D880C2F75FA5}.Release|x86.ActiveCfg = Release|Win32
-		{90BA710F-4534-44CF-BE03-D880C2F75FA5}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -65,7 +55,6 @@ Global
 		{141761C3-AE02-4211-9282-D37F3146CCA4} = {D8672B7F-5742-4036-92D5-1B06F45DAB54}
 		{6595ACCB-7D27-4B9E-AC92-47B0094857FB} = {9E53767E-CDCC-484A-9EAD-81912F634711}
 		{FC7F29A7-B472-4272-BF45-A8F2A498A29A} = {D8672B7F-5742-4036-92D5-1B06F45DAB54}
-		{90BA710F-4534-44CF-BE03-D880C2F75FA5} = {9E53767E-CDCC-484A-9EAD-81912F634711}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {58F36E02-2175-4F77-9F31-A30D149EBD56}

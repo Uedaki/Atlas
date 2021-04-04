@@ -161,7 +161,7 @@ int main()
 {
 	const uint32_t width = 720;
 	const uint32_t height = 500;
-	const uint32_t spp = 8;
+	const uint32_t spp = 2;
 
 	atlas::FilmInfo filmInfo;
 	filmInfo.filename = "film.ppm";
@@ -185,6 +185,7 @@ int main()
 
 	atlas::Acheron::Info achInfo;
 	achInfo.resolution = atlas::Point2i(width, height);
+	achInfo.spp = spp;
 	achInfo.region = screen;
 	achInfo.sampler = sampler;
 	achInfo.filter = new atlas::BoxFilter(atlas::Vec2f(0.5, 0.5));

@@ -26,8 +26,10 @@
   <ItemGroup>
     <ClInclude Include="Acheron.h" />
     <ClInclude Include="AtlasRendererLibHeader.h" />
+    <ClInclude Include="Batch.h" />
     <ClInclude Include="Bin.h" />
     <ClInclude Include="CompactRay.h" />
+    <ClInclude Include="ExtractBatch.h" />
     <ClInclude Include="GenerateFirstRays.h" />
     <ClInclude Include="ThreadPool.h" />
   </ItemGroup>

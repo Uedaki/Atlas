@@ -36,6 +36,12 @@
     <ClInclude Include="AtlasRendererLibHeader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ExtractBatch.h">
+      <Filter>Header Files\Task</Filter>
+    </ClInclude>
+    <ClInclude Include="Batch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Acheron.cpp">

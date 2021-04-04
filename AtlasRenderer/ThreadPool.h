@@ -106,6 +106,8 @@ namespace atlas
 			uint32_t newTask = (lastTask + 1) % BufferSize;
 			taskBuffer[newTask] = task;
 			lastTask = newTask;
+			if (taskBuffer[currentTask]->getState() == ThreadedTaskState::CLOSED)
+				currentTask = (currentTask + 1) % BufferSize;
 			sleepCtrl.notify_all();
 		}
 

@@ -41,7 +41,7 @@ namespace atlas
 
 	struct Bin
 	{
-		static const uint32_t MaxSize = 32768;
+		static constexpr uint32_t MaxSize = 32768;
 
 		struct FileHandles
 		{
@@ -77,6 +77,8 @@ namespace atlas
 
 		void postBatchAsActive(const std::string &batchName);
 		std::string popBatchName();
+
+		Bin *getUncompledBatch();
 
 	private:
 		std::mutex locker;

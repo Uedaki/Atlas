@@ -165,3 +165,19 @@ std::string BatchManager::popBatchName()
 	}
 	return (batchName);
 }
+
+Bin *BatchManager::getUncompledBatch()
+{
+	uint32_t fullestBin = 0;
+	for (uint8_t i = 1; i < 6; i++)
+	{
+		if (bins[i].pos > bins[fullestBin].pos)
+			fullestBin = i;
+	}
+	if (bins[fullestBin].pos > 0)
+	{
+		return (&bins[fullestBin]);
+	}
+	else
+		return (nullptr);
+}

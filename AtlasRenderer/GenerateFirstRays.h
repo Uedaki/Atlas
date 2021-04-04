@@ -39,6 +39,7 @@ namespace atlas
 			void execute() override
 			{
 				thread_local std::array<LocalBin, 6> localBins;
+				std::unique_ptr<Sampler> sampler = data.sampler->clone(1);
 
 				while (true)
 				{
@@ -53,6 +54,7 @@ namespace atlas
 						zOrderIndexToPos(i, x, y);
 						if (x < data.resolution.x && y < data.resolution.y)
 						{
+							sampler->startPixel(Point2i(x, y));
 							for (uint32_t s = 0; s < data.spp; s++)
 							{
 								atlas::Ray r;
@@ -64,6 +66,8 @@ namespace atlas
 								const uint8_t index = vectorIndex * 2 + isNegative;
 								if (localBins[index].feed(CompactRay(r, x + y * data.resolution.x, s, 0)))
 									data.batchManager->feed(index, localBins[index]);
+
+								sampler->startNextSample();
 							}
 						}
 					}

@@ -28,7 +28,17 @@
 //#endif
 //		}
 
+// Need to be above of the other include
+#define NOMINMAX
+#include <windows.h>
+
+#include <FileApi.h>
+#include <fstream>
+#include <MemoryApi.h>
+#include <string>
+
 #include "Acheron.h"
+#include "Batch.h"
 #include "Bin.h"
 #include "CompactRay.h"
 #include "ThreadPool.h"
@@ -44,11 +54,7 @@ namespace atlas
 
 			struct Data
 			{
-				Point2i resolution;
-				uint32_t spp;
-
-				const Camera *camera = nullptr;
-				Sampler *sampler = nullptr;
+				Batch *dst = nullptr;
 				BatchManager *batchManager = nullptr;
 			};
 
@@ -58,60 +64,82 @@ namespace atlas
 
 			void preExecute() override
 			{
-				bin.filename = data.batchManager->popBatchName();
-				if (!bin.filename.empty())
+				filename = data.batchManager->popBatchName();
+				size = 0;
+				
+				if (filename.empty())
 				{
-					Bin::map(bin);
-				}
-				else if ((bin = bins.getBin()))
-				{
-					ExtractBatchTask task(*this, bin->getFilename(), bin->getSize());
-					scheduler.dispatch(task);
-					bin->close();
+					Bin *uncompletedBin;
+					if ((uncompletedBin = data.batchManager->getUncompledBatch()))
+					{
+						filename = uncompletedBin->filename;
+						size = uncompletedBin->pos;
+						handle = uncompletedBin->currentFile;
+					}
+					else
+						return ;
 				}
 				else
-					return;
+					size = Bin::MaxSize;
+
+				const size_t byteSize = sizeof(uint32_t) + size * sizeof(CompactRay);
+
+				uint32_t flags = OPEN_EXISTING;
+
+				handle.file = CreateFileA(filename.c_str(), GENERIC_READ, 0, nullptr, flags, FILE_ATTRIBUTE_READONLY | FILE_ATTRIBUTE_TEMPORARY | FILE_FLAG_DELETE_ON_CLOSE, nullptr);
+				handle.mapping = CreateFileMappingA(handle.file, nullptr, PAGE_READONLY, 0, byteSize, nullptr);
+				handle.buffer = (CompactRay *)MapViewOfFile(handle.mapping, FILE_MAP_READ, 0, 0, byteSize);
+				data.dst->resize(size);
 			}
 
 			void execute() override
 			{
+				if (size == 0)
+					return;
+
 				while (true)
 				{
 					uint32_t offset = index.fetch_add(maxRayPerPass);
-					if (offset >= bin.pos)
+					if (offset >= size)
 						break;
 
-					uint32_t end = std::min(offset + maxRayPerPass, (uint32_t)size);
+					uint32_t end = std::min(offset + maxRayPerPass, size);
 					for (uint32_t i = offset; i < end; i++)
 					{
-						NRay r;
-						buffer[i].extract(r);
-
-						owner.batch.origins[i] = r.origin;
-						owner.batch.directions[i] = r.dir;
-						owner.batch.colors[i] = r.weight;
-						owner.batch.pixelIDs[i] = r.pixelID;
-						owner.batch.sampleIDs[i] = r.sampleID;
-						owner.batch.depths[i] = r.depth;
-						owner.batch.tNears[i] = r.tNear;
+						data.dst->origins[i] = handle.buffer[i].origin;
+						data.dst->directions[i] = octDecode(handle.buffer[i].direction);
+						data.dst->colors[i] = toColor(handle.buffer[i].weight);
+						data.dst->pixelIDs[i] = handle.buffer[i].pixelID;
+						data.dst->sampleIDs[i] = handle.buffer[i].sampleID;
+						data.dst->depths[i] = handle.buffer[i].depth;
+						data.dst->tNears[i] = handle.buffer[i].tNear;
 					}
 				}
 			}
 
 			void postExecute() override
 			{
-				
+				if (size == 0)
+					return;
+
+				Bin::unmap(handle);
+			}
+
+			bool hasBatchToProcess()
+			{
+				return  (size == 0);
 			}
 
 		private:
+			static constexpr uint32_t maxRayPerPass = 512;
+
 			Data data;
 
-			bool hasBatchToProcess;
-			Bin bin;
+			std::string filename;
+			Bin::FileHandles handle;
+			uint32_t size = Bin::MaxSize;
 
 			std::atomic<uint32_t> index = 0;
-			uint32_t size = 0;
-			const uint32_t maxRayPerPass = 512;
 		};
 	}
 }
