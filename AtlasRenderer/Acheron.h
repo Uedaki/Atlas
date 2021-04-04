@@ -53,6 +53,7 @@ namespace atlas
 		const Point2i resolution;
 
 		Batch batch;
+		S4Batch s4Batch;
 		BatchManager manager;
 	private:
 		Info info;

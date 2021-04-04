@@ -58,7 +58,7 @@ namespace atlas
 							for (uint32_t s = 0; s < data.spp; s++)
 							{
 								atlas::Ray r;
-								atlas::CameraSample cs = data.sampler->getCameraSample(Point2i(x, y));
+								atlas::CameraSample cs = sampler->getCameraSample(Point2i(x, y));
 								data.camera->generateRay(cs, r);
 
 								const uint8_t vectorIndex = abs(r.dir).maxDimension();

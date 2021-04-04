@@ -15,6 +15,11 @@ namespace atlas
 	public:
 		static constexpr uint32_t BinSize = 512;
 
+		LocalBin()
+		{
+			DCHECK(pow(2, log2(BinSize)) == BinSize);
+		}
+
 		bool feed(const CompactRay &ray)
 		{
 			buffer[currentSize] = ray;
@@ -45,19 +50,24 @@ namespace atlas
 
 		struct FileHandles
 		{
-			void *file;
-			void *mapping;
-			CompactRay *buffer;
+			void *file = nullptr;
+			void *mapping = nullptr;
+			CompactRay *buffer = nullptr;
 		};
 
-		std::string filename;
+		std::string filename = "";
 
-		FileHandles currentFile;
-		FileHandles prevFile;
+		FileHandles currentFile = {0};
+		FileHandles prevFile = {0};
 
-		std::atomic<uint32_t> pos;
+		std::atomic<uint32_t> pos = 0;
 		std::mutex guard;
 		std::condition_variable dispatcher;
+
+		Bin()
+		{
+			DCHECK(pow(2, log2(MaxSize)) == MaxSize);
+		}
 
 		static void open(Bin &bin);
 		static void map(Bin &bin);

@@ -63,10 +63,17 @@ void Acheron::processBatches(const Primitive &scene, Film &film)
 	{
 		// extract batch
 		{
+#if 0
 			task::ExtractBatch::Data data;
 			data.dst = &batch;
 			data.batchManager = &manager;
 			task::ExtractBatch task(data);
+#else
+			task::S4ExtractBatch::Data data;
+			data.dst = &s4Batch;
+			data.batchManager = &manager;
+			task::S4ExtractBatch task(data);
+#endif
 			threads.execute(&task);
 			threads.join();
 			if (!task.hasBatchToProcess())

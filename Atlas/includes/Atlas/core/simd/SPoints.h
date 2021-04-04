@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef _USE_SIMD
+//#ifdef _USE_SIMD
 
 #include "atlas/Atlas.h"
 #include "atlas/core/Logging.h"
@@ -303,6 +303,13 @@ namespace atlas
 		return (S4Point3(select(a.x, b.x, cond), select(a.y, b.y, cond),
 			select(a.z, b.z, cond)));
 	}
+
+	SIMD_INLINE void swap(S4Point3 &v1, S4Point3 &v2, const S4Bool &mask)
+	{
+		S4Point3 tmp = v1;
+		v1 = select(v1, v2, mask);
+		v2 = select(v2, v1, mask == S4Bool(0, 0, 0, 0));
+	}
 }
 
-#endif
+//#endif

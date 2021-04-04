@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef _USE_SIMD
+//#ifdef _USE_SIMD
 
 #include "atlas/Atlas.h"
 #include "atlas/core/Logging.h"
@@ -33,7 +33,7 @@ namespace atlas
 			, y(v1.y, v2.y, v3.y, v4.y)
 			, z(v1.z, v2.z, v3.z, v4.z)
 		{
-			DCHECK(!v1.hasNans() && !v2.hasNans() && !v3.hasNans() && v4.hasNans());
+			DCHECK(!v1.hasNans() && !v2.hasNans() && !v3.hasNans() && !v4.hasNans());
 		}
 		SIMD_INLINE S4Vector3(const S4Float &f1, const S4Float &f2, const S4Float &f3)
 			: x(f1)
@@ -170,8 +170,15 @@ namespace atlas
 			select(a.z, b.z, cond)));
 	}
 
+	SIMD_INLINE void swap(S4Vector3 &v1, S4Vector3 &v2, const S4Bool &mask)
+	{
+		S4Vector3 tmp = v1;
+		v1 = select(v1, v2, mask);
+		v2 = select(v2, v1, mask == S4Bool(0, 0, 0, 0));
+	}
+
 	typedef S4Vector3 S4Vec3;
 	typedef S4Vector3 S4Normal;
 }
 
-#endif
+//#endif
