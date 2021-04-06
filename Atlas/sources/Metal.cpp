@@ -5,9 +5,9 @@ using namespace atlas;
 std::shared_ptr<Material> MetalMaterial::create(const Info &info)
 {
     Info ci;
-    ci.k = info.k ? info.k : atlas::createSpectrumConstant(3.90463543, 2.44763327, 2.13765264);
-    ci.eta = info.eta ? info.eta : atlas::createSpectrumConstant(0.199990690, 0.922084630, 1.09987593);
-    ci.roughness = info.roughness ? info.roughness : atlas::createFloatConstant(0.01f);
+    ci.k = info.k ? info.k : atlas::createSpectrumConstant((Float)3.90463543, (Float)2.44763327, (Float)2.13765264);
+    ci.eta = info.eta ? info.eta : atlas::createSpectrumConstant((Float)0.199990690, (Float)0.922084630, (Float)1.09987593);
+    ci.roughness = info.roughness ? info.roughness : atlas::createFloatConstant((Float)0.01);
     ci.uRoughness = info.uRoughness;
     ci.vRoughness = info.vRoughness;
     ci.bumpMap = info.bumpMap;

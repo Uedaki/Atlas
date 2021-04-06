@@ -26,7 +26,7 @@ typedef float Float;
 #endif
 
 #ifdef _MSC_VER
-#define MACHINE_EPSILON (std::numeric_limits<Float>::epsilon() * 0.5)
+#define MACHINE_EPSILON (std::numeric_limits<Float>::epsilon() * (Float)0.5)
 #else
 static Float MACHINE_EPSILON = std::numeric_limits<Float>::epsilon() * 0.5;
 #endif
@@ -130,7 +130,7 @@ namespace atlas
 
 	inline Float gamma(int n)
 	{
-		return ((Float)n * MACHINE_EPSILON) / (1. - (Float)n * MACHINE_EPSILON);
+		return ((Float)n * MACHINE_EPSILON) / ((Float)1 - (Float)n * MACHINE_EPSILON);
 	}
 
 	enum class TransportMode

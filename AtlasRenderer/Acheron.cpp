@@ -4,6 +4,7 @@
 
 #include "GenerateFirstRays.h"
 #include "ExtractBatch.h"
+#include "SortRays.h"
 
 using namespace atlas;
 
@@ -23,6 +24,7 @@ void Acheron::render(const Camera &camera, const Primitive &scene)
 {
 	uint32_t it = 0;
 	uint32_t sppStep = 2;
+	info.spp = 1;
 	for (uint32_t i = 0; i < info.spp; i += sppStep)
 	{
 		uint32_t currentSpp = i + sppStep <= info.spp ? sppStep : i + sppStep - info.spp;
@@ -59,11 +61,11 @@ void Acheron::renderIteration(const Camera &camera, const Primitive &scene, Film
 
 void Acheron::processBatches(const Primitive &scene, Film &film)
 {
-	while (true)
+	//while (true)
 	{
 		// extract batch
 		{
-#if 0
+#if 1
 			task::ExtractBatch::Data data;
 			data.dst = &batch;
 			data.batchManager = &manager;
@@ -79,7 +81,15 @@ void Acheron::processBatches(const Primitive &scene, Film &film)
 			if (!task.hasBatchToProcess())
 				return;
 		}
+		
 		// sort rays
+		{
+			task::SortRays::Data data;
+			data.batch = &batch;
+			task::SortRays task(data);
+			threads.execute(&task);
+			threads.join();
+		}
 
 		// traverse
 

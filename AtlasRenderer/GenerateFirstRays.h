@@ -30,10 +30,11 @@ namespace atlas
 				: data(data)
 			{}
 
-			void preExecute() override
+			bool preExecute() override
 			{
 				zOrderMax = posToZOrderIndex(data.resolution.x, data.resolution.y);
 				data.batchManager->openBins();
+				return (true);
 			}
 
 			void execute() override
@@ -52,7 +53,7 @@ namespace atlas
 						uint32_t x;
 						uint32_t y;
 						zOrderIndexToPos(i, x, y);
-						if (x < data.resolution.x && y < data.resolution.y)
+						if (x < (uint32_t)data.resolution.x && y < (uint32_t)data.resolution.y)
 						{
 							sampler->startPixel(Point2i(x, y));
 							for (uint32_t s = 0; s < data.spp; s++)

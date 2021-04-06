@@ -10,8 +10,8 @@ namespace atlas
 {
 	inline Vector2<float> octWrap(Vector2<float> v)
 	{
-		return (Vec2f((1.0 - std::abs(v.y)) * (v.x >= 0.0 ? 1.0 : -1.0),
-			(1.0 - std::abs(v.x)) * (v.y >= 0.0 ? 1.0 : -1.0)));
+		return (Vec2f((Float)((1.0 - std::abs(v.y)) * (v.x >= 0.0 ? 1.0 : -1.0)),
+			(Float)((1.0 - std::abs(v.x)) * (v.y >= 0.0 ? 1.0 : -1.0))));
 	}
 
 	inline Vector2<float> octEncode(Vec3f dn)
@@ -30,7 +30,7 @@ namespace atlas
 		f = f * 2.0f - 1.0f;
 
 		// https://twitter.com/Stubbesaurus/status/937994790553227264
-		Vector3<float> n(f.x, f.y, 1.0 - std::abs(f.x) - std::abs(f.y));
+		Vector3<float> n(f.x, f.y, 1.0f - std::abs(f.x) - std::abs(f.y));
 		float t = std::max(-n.z, 0.f);
 		n.x += n.x >= 0.0 ? -t : t;
 		n.y += n.y >= 0.0 ? -t : t;

@@ -52,10 +52,10 @@ namespace atlas
             focalDistance = focald;
 
             ScreenToRaster =
-                scale(film->resolution.x, film->resolution.y, 1) *
+                scale((Float)film->resolution.x, (Float)film->resolution.y, (Float)1) *
                 scale(1 / (screenWindow.max.x - screenWindow.min.x),
-                    1 / (screenWindow.min.y - screenWindow.max.y), 1) *
-                translate(Vec3f(-screenWindow.min.x, -screenWindow.max.y, 0));
+                    1 / (screenWindow.min.y - screenWindow.max.y), (Float)1) *
+                translate(Vec3f(-screenWindow.min.x, -screenWindow.max.y, (Float)0));
             RasterToScreen = ScreenToRaster.inverse();
             RasterToCamera = CameraToScreen.inverse() * RasterToScreen;
         }

@@ -135,8 +135,10 @@ namespace atlas
 		T &operator[](int i)
 		{
 			DCHECK(i >= 0 && i <= 2);
-			T &values[2] = { x, y };
-			return (values[i]);
+			if (i == 0)
+				return (x);
+			else
+				return (y);
 		}
 	};
 

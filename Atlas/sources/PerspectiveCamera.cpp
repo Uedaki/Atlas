@@ -22,7 +22,7 @@ PerspectiveCamera::PerspectiveCamera(const Transform &CameraToWorld,
 
     Point2i res = film->resolution;
     Point3f pMin = RasterToCamera(Point3f(0, 0, 0));
-    Point3f pMax = RasterToCamera(Point3f(res.x, res.y, 0));
+    Point3f pMax = RasterToCamera(Point3f((Float)res.x, (Float)res.y, 0));
     pMin /= pMin.z;
     pMax /= pMax.z;
     A = std::abs((pMax.x - pMin.x) * (pMax.y - pMin.y));

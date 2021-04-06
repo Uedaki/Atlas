@@ -19,7 +19,7 @@ namespace atlas
 	class ThreadedTask
 	{
 	public:
-		virtual void preExecute() = 0;
+		virtual bool preExecute() = 0;
 		virtual void execute() = 0;
 		virtual void postExecute() = 0;
 
@@ -64,8 +64,13 @@ namespace atlas
 
 								if (taskBuffer[currentTask]->getState() == ThreadedTaskState::WAITING)
 								{
-									taskBuffer[currentTask]->preExecute();
-									taskBuffer[currentTask]->setState(ThreadedTaskState::RUNNING);
+									if (taskBuffer[currentTask]->preExecute())
+										taskBuffer[currentTask]->setState(ThreadedTaskState::RUNNING);
+									else
+									{
+										taskBuffer[currentTask]->setState(ThreadedTaskState::CLOSED);
+										continue;
+									}
 								}
 							}
 
@@ -130,8 +135,13 @@ namespace atlas
 
 					if (taskBuffer[currentTask]->getState() == ThreadedTaskState::WAITING)
 					{
-						taskBuffer[currentTask]->preExecute();
-						taskBuffer[currentTask]->setState(ThreadedTaskState::RUNNING);
+						if (taskBuffer[currentTask]->preExecute())
+							taskBuffer[currentTask]->setState(ThreadedTaskState::RUNNING);
+						else
+						{
+							taskBuffer[currentTask]->setState(ThreadedTaskState::CLOSED);
+							continue;
+						}
 					}
 				}
 

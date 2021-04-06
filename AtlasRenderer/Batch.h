@@ -69,7 +69,7 @@ namespace atlas
 
 		void resize(size_t size)
 		{
-			uint32_t newSize = (size + 3) + 4;
+			size_t newSize = (size + 3) + 4;
 
 			origins.resize(newSize);
 			directions.resize(newSize);

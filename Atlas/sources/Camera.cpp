@@ -24,7 +24,7 @@ Float Camera::generateRayDifferential(const CameraSample &sample, RayDifferentia
         return 0;
 
     Float wtx;
-    for (Float eps : { .05, -.05 })
+    for (Float eps : { (Float).05, (Float)-.05 })
     {
         CameraSample sshift = sample;
         sshift.pFilm.x += eps;
@@ -39,7 +39,7 @@ Float Camera::generateRayDifferential(const CameraSample &sample, RayDifferentia
         return 0;
 
     Float wty;
-    for (Float eps : { .05, -.05 })
+    for (Float eps : { (Float).05, (Float)-.05 })
     {
         CameraSample sshift = sample;
         sshift.pFilm.y += eps;

@@ -104,7 +104,7 @@ namespace atlas
 				if (pdf > 0)
 					r += f * absCosTheta(wi) / pdf;
 			}
-			return r / nSamples;
+			return r / (Float)nSamples;
 		}
 		virtual Spectrum rho(int nSamples, const Point2f *samples1, const Point2f *samples2) const
 		{

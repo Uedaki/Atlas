@@ -34,7 +34,7 @@ namespace atlas
 				: data(data)
 			{}
 
-			void preExecute() override
+			bool preExecute() override
 			{
 				filename = data.batchManager->popBatchName();
 				size = 0;
@@ -49,12 +49,12 @@ namespace atlas
 						handle = uncompletedBin->currentFile;
 					}
 					else
-						return ;
+						return (false);
 				}
 				else
 					size = Bin::MaxSize;
 
-				const size_t byteSize = sizeof(uint32_t) + size * sizeof(CompactRay);
+				const DWORD byteSize = sizeof(uint32_t) + size * sizeof(CompactRay);
 
 				uint32_t flags = OPEN_EXISTING;
 
@@ -62,6 +62,7 @@ namespace atlas
 				handle.mapping = CreateFileMappingA(handle.file, nullptr, PAGE_READONLY, 0, byteSize, nullptr);
 				handle.buffer = (CompactRay *)MapViewOfFile(handle.mapping, FILE_MAP_READ, 0, 0, byteSize);
 				data.dst->resize(size);
+				return (true);
 			}
 
 			void execute() override
@@ -76,7 +77,7 @@ namespace atlas
 						break;
 
 					uint32_t end = std::min(offset + maxRayPerPass, size);
-					for (uint32_t i = offset; i < end; i += 4)
+					for (uint32_t i = offset; i < end; i++)
 					{
 						data.dst->origins[i] = handle.buffer[i].origin;
 						data.dst->directions[i] = octDecode(handle.buffer[i].direction);
@@ -100,7 +101,7 @@ namespace atlas
 
 			bool hasBatchToProcess()
 			{
-				return  (size == 0);
+				return  (size);
 			}
 
 		private:
@@ -130,7 +131,7 @@ namespace atlas
 				: data(data)
 			{}
 
-			void preExecute() override
+			bool preExecute() override
 			{
 				filename = data.batchManager->popBatchName();
 				size = 0;
@@ -145,12 +146,12 @@ namespace atlas
 						handle = uncompletedBin->currentFile;
 					}
 					else
-						return;
+						return (false);
 				}
 				else
 					size = Bin::MaxSize;
 
-				const size_t byteSize = sizeof(uint32_t) + size * sizeof(CompactRay);
+				const DWORD byteSize = sizeof(uint32_t) + size * sizeof(CompactRay);
 
 				uint32_t flags = OPEN_EXISTING;
 
@@ -158,6 +159,7 @@ namespace atlas
 				handle.mapping = CreateFileMappingA(handle.file, nullptr, PAGE_READONLY, 0, byteSize, nullptr);
 				handle.buffer = (CompactRay *)MapViewOfFile(handle.mapping, FILE_MAP_READ, 0, 0, byteSize);
 				data.dst->resize(size);
+				return (true);
 			}
 
 			void execute() override
@@ -196,7 +198,7 @@ namespace atlas
 
 			bool hasBatchToProcess()
 			{
-				return (size == 0);
+				return (size);
 			}
 
 		private:
