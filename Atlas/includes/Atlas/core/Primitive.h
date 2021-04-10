@@ -3,6 +3,7 @@
 #include "atlas/core/Bounds.h"
 #include "atlas/core/Ray.h"
 #include "atlas/core/Material.h"
+#include "atlas/core/Payload.h"
 #ifdef _USE_SIMD
 #include "atlas/core/simd/Simd.h"
 #include "atlas/core/simd/SRay.h"
@@ -26,6 +27,9 @@ namespace atlas
  
         virtual bool intersect(const Ray &r, SurfaceInteraction &) const = 0;
         virtual bool intersectP(const Ray &r) const = 0;
+
+        virtual void intersect(const Payload &p, std::vector<SurfaceInteraction> &it, std::vector<Float> &tmax) const = 0;
+        //virtual void intersectP(const Payload &p, std::vector<Float> &tmax) const = 0;
 
 //        virtual void intersect(const ConeRay &r, SurfaceInteraction *) const = 0;
 //        virtual void intersectP(const ConeRay &r) const = 0;

@@ -26,13 +26,13 @@
   <ItemGroup>
     <ClInclude Include="Acheron.h" />
     <ClInclude Include="AtlasRendererLibHeader.h" />
-    <ClInclude Include="Batch.h" />
     <ClInclude Include="Bin.h" />
     <ClInclude Include="CompactRay.h" />
     <ClInclude Include="ExtractBatch.h" />
     <ClInclude Include="GenerateFirstRays.h" />
     <ClInclude Include="SortRays.h" />
     <ClInclude Include="ThreadPool.h" />
+    <ClInclude Include="TraceRays.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Acheron.cpp" />
@@ -162,7 +162,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>C:\Users\Uedaki\source\repos\Atlas-v2\Atlas\includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Atlas\includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

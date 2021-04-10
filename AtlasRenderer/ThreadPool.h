@@ -107,7 +107,6 @@ namespace atlas
 
 		void execute(ThreadedTask *task)
 		{
-			
 			uint32_t newTask = (lastTask + 1) % BufferSize;
 			taskBuffer[newTask] = task;
 			lastTask = newTask;

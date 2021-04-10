@@ -27,6 +27,23 @@ bool GeometricPrimitive::intersectP(const Ray &r) const
 	return (shape->intersectP(r));
 }
 
+void GeometricPrimitive::intersect(const Payload &p, std::vector<SurfaceInteraction> &intersections, std::vector<Float> &tmax) const
+{
+	Float coneMax = 0;
+	for (uint32_t i = p.first; i < p.first + p.size; i++)
+	{
+		Float tHit = 0;
+		Ray r(p.batch->origins[i], p.batch->directions[i], tmax[i]);
+		if (shape->intersect(r, tHit, intersections[i]))
+		{
+			tmax[i] = tHit;
+			intersections[i].primitive = this;
+		}
+		coneMax = std::max(coneMax, tHit);
+	}
+	p.cone.tmax = coneMax;
+}
+
 //void GeometricPrimitive::intersect(const ConeRay &cone, SurfaceInteraction &intersections) const
 //{
 //	DCHECK(cone.rays && intersections);

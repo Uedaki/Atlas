@@ -161,6 +161,15 @@
     <ClInclude Include="includes\Atlas\core\simd\SRgbSpectrum.h">
       <Filter>Header Files\simd</Filter>
     </ClInclude>
+    <ClInclude Include="includes\Atlas\core\Payload.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\Atlas\core\Batch.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\Atlas\core\ConeBoxIntersection.h">
+      <Filter>Header Files\utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="sources\BvhAccel.cpp">
@@ -215,6 +224,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="sources\Matrix4x4.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\ConeBoxIntersection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

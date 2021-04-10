@@ -45,12 +45,15 @@ Bounds2f Film::getPhysicalExtent() const
 	return Bounds2f(Point2f(-x / 2, -y / 2), Point2f(x / 2, y / 2));
 }
 
-void Film::addSample(const Point2i &pos, const Point2f &pFilm, const Spectrum &LIn, Float sampleWeight)
+void Film::addSample(const uint32_t pixelID, const Spectrum &LIn, Float sampleWeight)
 {
-    //Pixel &pixel = getPixel(pos);
-    //pixel.color += LIn;
-    //pixel.filterWeightSum += 1;
+    Pixel &pixel = pixels[pixelID];
+    pixel.color += LIn * sampleWeight;
+    pixel.filterWeightSum += 1;
+}
 
+void Film::addSample(const Point2f &pFilm, const Spectrum &LIn, Float sampleWeight)
+{
     Spectrum L = LIn;
     if (L.y() > maxSampleLuminance)
         L *= maxSampleLuminance / L.y();

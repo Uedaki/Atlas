@@ -39,10 +39,10 @@
     <ClInclude Include="ExtractBatch.h">
       <Filter>Header Files\Task</Filter>
     </ClInclude>
-    <ClInclude Include="Batch.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="SortRays.h">
+      <Filter>Header Files\Task</Filter>
+    </ClInclude>
+    <ClInclude Include="TraceRays.h">
       <Filter>Header Files\Task</Filter>
     </ClInclude>
   </ItemGroup>

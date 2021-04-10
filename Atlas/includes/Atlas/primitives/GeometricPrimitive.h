@@ -20,6 +20,8 @@ namespace atlas
         ATLAS bool intersect(const Ray &r, SurfaceInteraction &) const override;
         ATLAS bool intersectP(const Ray &r) const override;
 
+        ATLAS void intersect(const Payload &p, std::vector<SurfaceInteraction> &, std::vector<Float> &) const override;
+
 //        void intersect(const ConeRay &r, SurfaceInteraction *) const override;
 //        void intersectP(const ConeRay &r) const override;
 //

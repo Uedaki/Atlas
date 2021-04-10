@@ -21,6 +21,7 @@ void Bin::open(Bin &bin)
 	bin.currentFile.file = CreateFileA(bin.filename.c_str(), GENERIC_WRITE | GENERIC_READ, 0, nullptr, flags, FILE_ATTRIBUTE_TEMPORARY, nullptr);
 	bin.currentFile.mapping = CreateFileMappingA(bin.currentFile.file, nullptr, PAGE_READWRITE, 0, size, nullptr);
 	bin.currentFile.buffer = (CompactRay *)MapViewOfFile(bin.currentFile.mapping, FILE_MAP_WRITE | FILE_MAP_READ, 0, 0, size);
+	bin.pos = 0;
 }
 
 void Bin::map(Bin &bin)
@@ -44,6 +45,11 @@ void Bin::unmap(Bin::FileHandles &handles)
 	CloseHandle(handles.mapping);
 	CloseHandle(handles.file);
 	handles = { 0 };
+}
+
+void Bin::reset(Bin &bin)
+{
+
 }
 
 void BatchManager::openBins()

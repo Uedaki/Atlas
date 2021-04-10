@@ -34,7 +34,8 @@ namespace atlas
 		ATLAS Bounds2i getSampleBounds() const;
 		ATLAS Bounds2f getPhysicalExtent() const;
 
-		ATLAS void addSample(const Point2i &pos, const Point2f &pFilm, const Spectrum &L, Float sampleWeight = 1.f);
+		ATLAS void addSample(uint32_t pixelID, const Spectrum &L, Float sampleWeight = 1.f);
+		ATLAS void addSample(const Point2f &pFilm, const Spectrum &L, Float sampleWeight = 1.f);
 
 		ATLAS Pixel &getPixel(const Point2i &p);
 		ATLAS const Pixel &getPixel(const Point2i &p) const;

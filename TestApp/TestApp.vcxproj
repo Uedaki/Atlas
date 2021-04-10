@@ -82,7 +82,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\Users\Uedaki\source\repos\Atlas-v2\AtlasRenderer;C:\Users\Uedaki\source\repos\Atlas-v2\Atlas\includes;$(IncludePath)</IncludePath>
+    <IncludePath>..\AtlasRenderer;..\Atlas\includes;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

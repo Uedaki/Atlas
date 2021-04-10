@@ -72,6 +72,8 @@ namespace atlas
 		static void open(Bin &bin);
 		static void map(Bin &bin);
 		static void unmap(FileHandles &handle);
+
+		static void reset(Bin &bin);
 	};
 
 	class BatchManager

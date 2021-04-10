@@ -57,47 +57,47 @@ std::vector<std::shared_ptr<atlas::Primitive>> createPrimitives()
 	sphereInfo.radius = 1000.f;
 	sphereInfo.zMax = 1000.f;
 	sphereInfo.zMin = -1000.f;
-	scene.push_back(std::make_shared<atlas::GeometricPrimitive>(
-		atlas::Sphere::createShape(sphereInfo), atlas::MatteMaterial::create()
-		));
+	//scene.push_back(std::make_shared<atlas::GeometricPrimitive>(
+	//	atlas::Sphere::createShape(sphereInfo), atlas::MatteMaterial::create()
+	//	));
 	
-	for (int a = -11; a < 11; a++)
-	{
-		for (int b = -11; b < 11; b++)
-		{
-			Float choose_mat = atlas::random();
-			atlas::Vec3f center(a + 0.9 * atlas::random(), 0.2, b + 0.9 * atlas::random());
-			sphereInfo.objectToWorld = setTransform(center.x, center.y, center.z);
-			sphereInfo.worldToObject = setInverse(sphereInfo.objectToWorld);
-			sphereInfo.radius = 0.2f;
-			if ((center - atlas::Vec3f(4, 0.2, 0)).length() > 0.9)
-			{
-				std::shared_ptr<atlas::Material> material = nullptr;
-				if (choose_mat < 0.8)
-				{
-					atlas::MatteMaterialInfo info;
-					info.kd = atlas::createSpectrumConstant(atlas::random() * atlas::random(), atlas::random() * atlas::random(), atlas::random() * atlas::random());
-					material = atlas::MatteMaterial::create(info);
-				}
-				else if (choose_mat < 0.95)
-				{
-					atlas::MetalMaterialInfo info;
-					info.eta = atlas::createSpectrumConstant(
-						0.5f * (1.0f + atlas::random(),
-						0.5f * (1.0f + atlas::random()), 
-						0.5f * (1.0f + atlas::random())));
-					material = atlas::MetalMaterial::create(info);
-				}
-				else
-				{
-					material = atlas::GlassMaterial::create();
-				}
-				scene.push_back(std::make_shared<atlas::GeometricPrimitive>(
-					atlas::Sphere::createShape(sphereInfo), material
-					));
-			}
-		}
-	}
+	//for (int a = -11; a < 11; a++)
+	//{
+	//	for (int b = -11; b < 11; b++)
+	//	{
+	//		Float choose_mat = atlas::random();
+	//		atlas::Vec3f center(a + 0.9 * atlas::random(), 0.2, b + 0.9 * atlas::random());
+	//		sphereInfo.objectToWorld = setTransform(center.x, center.y, center.z);
+	//		sphereInfo.worldToObject = setInverse(sphereInfo.objectToWorld);
+	//		sphereInfo.radius = 0.2f;
+	//		if ((center - atlas::Vec3f(4, 0.2, 0)).length() > 0.9)
+	//		{
+	//			std::shared_ptr<atlas::Material> material = nullptr;
+	//			if (choose_mat < 0.8)
+	//			{
+	//				atlas::MatteMaterialInfo info;
+	//				info.kd = atlas::createSpectrumConstant(atlas::random() * atlas::random(), atlas::random() * atlas::random(), atlas::random() * atlas::random());
+	//				material = atlas::MatteMaterial::create(info);
+	//			}
+	//			else if (choose_mat < 0.95)
+	//			{
+	//				atlas::MetalMaterialInfo info;
+	//				info.eta = atlas::createSpectrumConstant(
+	//					0.5f * (1.0f + atlas::random(),
+	//					0.5f * (1.0f + atlas::random()), 
+	//					0.5f * (1.0f + atlas::random())));
+	//				material = atlas::MetalMaterial::create(info);
+	//			}
+	//			else
+	//			{
+	//				material = atlas::GlassMaterial::create();
+	//			}
+	//			scene.push_back(std::make_shared<atlas::GeometricPrimitive>(
+	//				atlas::Sphere::createShape(sphereInfo), material
+	//				));
+	//		}
+	//	}
+	//}
 
 	sphereInfo.radius = 1.f;
 	sphereInfo.zMax = 1.f;
@@ -117,8 +117,8 @@ std::vector<std::shared_ptr<atlas::Primitive>> createPrimitives()
 		atlas::Sphere::createShape(sphereInfo), atlas::GlassMaterial::create(glassInfo)
 		));
 
-	sphereInfo.worldToObject = setTransform(-4, 1, 0);
-	sphereInfo.objectToWorld = setInverse(sphereInfo.objectToWorld);
+	sphereInfo.objectToWorld = setTransform(-4, 1, 0);
+	sphereInfo.worldToObject = setInverse(sphereInfo.objectToWorld);
 	scene.push_back(std::make_shared<atlas::GeometricPrimitive>(
 		atlas::Sphere::createShape(sphereInfo), material
 		));
@@ -157,10 +157,21 @@ atlas::Spectrum rayColor(const atlas::Ray &r, const atlas::Primitive &scene, int
 	return ((1.0 - t) * atlas::Spectrum(1.f) + t * atlas::Spectrum(0.5, 0.7, 1.0));
 }
 
+bool intersectLineCone(const atlas::Point3f &lp, atlas::Vec3f &ld, const atlas::Point3f &co, const atlas::Vec3f &cd, Float angle);
+
 int main()
 {
-	const uint32_t width = 720;
-	const uint32_t height = 500;
+	//atlas::Point3f lp(-1);
+	//atlas::Vec3f ld(1, 1, 5);
+
+	//atlas::Point3f co(0);
+	//atlas::Vec3f cd(0, 0, 1);
+
+	//intersectLineCone(lp, ld, co, cd, atlas::radians(30));
+	//return (0);
+
+	const uint32_t width = 300;
+	const uint32_t height = 200;
 	const uint32_t spp = 2;
 
 	atlas::FilmInfo filmInfo;
@@ -183,6 +194,7 @@ int main()
 	atlas::StratifiedSamplerInfo samplerInfo;
 	atlas::Sampler *sampler = atlas::StratifiedSampler::create(samplerInfo);
 
+#if 1
 	atlas::Acheron::Info achInfo;
 	achInfo.resolution = atlas::Point2i(width, height);
 	achInfo.spp = spp;
@@ -193,29 +205,181 @@ int main()
 
 	ach.render(camera, bvh);
 
-	//Float invSpp = 1.f / spp;
-	//Float *rgb = new Float[width * height * 3];
-	//for (auto pixel : film.croppedPixelBounds)
-	//{
-	//	atlas::Spectrum colorSum(0);
-	//	sampler->startPixel(pixel);
-	//	for (uint32_t s = 0; s < spp; s++)
-	//	{
-	//		atlas::Ray r;
-	//		atlas::CameraSample cs = sampler->getCameraSample(pixel);
-	//		camera.generateRay(cs, r);
+#else
 
-	//		atlas::Spectrum color = rayColor(r, bvh, 9, *sampler);
-	//		colorSum += color;
+	Float invSpp = 1.f / spp;
+	Float *rgb = new Float[width * height * 3];
+	for (auto pixel : film.croppedPixelBounds)
+	{
+		atlas::Spectrum colorSum(0);
+		sampler->startPixel(pixel);
+		for (uint32_t s = 0; s < spp; s++)
+		{
+			atlas::Ray r;
+			atlas::CameraSample cs = sampler->getCameraSample(pixel);
+			camera.generateRay(cs, r);
 
-	//		film.addSample(pixel, cs.pFilm, color, 1);
-	//		sampler->startNextSample();
-	//	}
+			atlas::Spectrum color = rayColor(r, bvh, 9, *sampler);
+			colorSum += color;
 
-	//	rgb[(pixel.x + pixel.y * width) * 3] = sqrt(colorSum.r * invSpp);
-	//	rgb[(pixel.x + pixel.y * width) * 3 + 1] = sqrt(colorSum.g * invSpp);
-	//	rgb[(pixel.x + pixel.y * width) * 3 + 2] = sqrt(colorSum.b * invSpp);
-	//}
+			film.addSample(cs.pFilm, color, 1);
+			sampler->startNextSample();
+		}
 
-	//film.writeImage();
+		rgb[(pixel.x + pixel.y * width) * 3] = sqrt(colorSum.r * invSpp);
+		rgb[(pixel.x + pixel.y * width) * 3 + 1] = sqrt(colorSum.g * invSpp);
+		rgb[(pixel.x + pixel.y * width) * 3 + 2] = sqrt(colorSum.b * invSpp);
+	}
+
+	film.writeImage();
+#endif
+}
+
+using namespace atlas;
+
+// https://www.geometrictools.com/Documentation/IntersectionLineCone.pdf
+
+int findIntersection(Float u0, Float u1, Float v0, Float v1, Float overlap[2])
+{
+	int numValid;
+	if (u1 < v0 || v1 < u0)
+	{
+		numValid = 0;
+	}
+	else if (v0 < u1)
+	{
+		if (u0 < v1)
+		{
+			overlap[0] = (u0 < v0 ? v0 : u0);
+			overlap[1] = (u1 < v1 ? v1 : u1);
+			if (overlap[0] < overlap[1])
+				numValid = 2;
+			else
+				numValid = 1;
+		}
+		else
+		{
+			overlap[0] = u0;
+			overlap[1] = u0;
+			numValid = 1;
+		}
+	}
+	else
+	{
+		overlap[0] = v0;
+		overlap[1] = v0;
+		numValid = 1;
+	}
+	return (numValid);
+}
+
+bool intersectLineCone(const Point3f &lp, Vec3f &ld, const Point3f &co, const Vec3f &cd, Float angle)
+{
+	if (dot(ld, cd) < 0)
+		ld = -ld;
+
+	Float cosAngle = std::cos(angle);
+	Float cosAngleSqr = cosAngle * cosAngle;
+
+	Vector3<Float> PmV = lp - co;
+	Float UdU = dot(ld, ld);
+	Float DdU = dot(cd, ld);  // >= 0
+	Float DdPmV = dot(cd, PmV);
+	Float UdPmV = dot(ld, PmV);
+	Float PmVdPmV = dot(PmV, PmV);
+	Float c2 = DdU * DdU - cosAngleSqr * UdU;
+	Float c1 = DdU * DdPmV - cosAngleSqr * UdPmV;
+	Float c0 = DdPmV * DdPmV - cosAngleSqr * PmVdPmV;
+
+	if (c2 != 0)
+	{
+		Float delta = c1 * c1 - c0 * c2;
+		if (delta < 0)
+		{
+			// nothng
+		}
+		else if (delta > 0)
+		{
+			Float x = -c1 / c2;
+			Float y = (c2 > (Float)0 ? (Float)1 / c2 : (Float)-1 / c2);
+			std::array<Float, 2> t = { x - y * sqrt(delta), x + y * sqrt(delta) };
+
+			// Compute the signed heights at the intersection points, h[0] and
+			// h[1] with h[0] <= h[1]. The ordering is guaranteed because we
+			// have arranged for the input line to satisfy Dot(D,U) >= 0.
+			std::array<Float, 2> h = { t[0] * DdU + DdPmV, t[1] * DdU + DdPmV };
+
+			//if (h[0] >= 0)
+			{
+				if (h[1] > h[0])
+				{
+					int numValid;
+					Float overlap[2];
+					numValid = findIntersection(h[0], h[1], 0, 20, overlap);
+
+					if (numValid == 2)
+					{
+						Float t0 = (overlap[0] - DdPmV) / DdU, t1 = (overlap[1] - DdPmV) / DdU;
+						return true;
+					}
+					else if (numValid == 1)
+					{
+
+					}
+					else
+					{
+
+					}
+				}
+				else
+				{
+
+				}
+			}
+			//else if (h[1] <= 0)
+			//{
+			//	// line intersect the negative cone in two points
+			//	if (h[1] > h[0])
+			//	{
+			//		int numValid;
+			//		Float overlap[2];
+			//		numValid = findIntersection(h[0], h[1], 0, 20, overlap);
+
+			//		if (numValid == 2)
+			//		{
+			//			Float t0 = (overlap[0] - DdPmV) / DdU, t1 = (overlap[1] - DdPmV) / DdU;
+			//			return true;
+			//		}
+			//		else if (numValid == 1)
+			//		{
+
+			//		}
+			//		else
+			//		{
+
+			//		}
+			//	}
+			//	else
+			//	{
+
+			//	}
+			//}
+			//else
+			//{
+			//	// intersect a single point
+			//}
+		}
+		else
+		{
+
+		}
+	}
+	else if (c1 != 0)
+	{
+
+	}
+	else
+	{
+
+	}
 }

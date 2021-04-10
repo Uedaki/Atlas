@@ -7,6 +7,7 @@
 #include "atlas/Atlas.h"
 #include "atlas/core/Logging.h"
 #include "atlas/core/Math.h"
+#include "atlas/core/Payload.h"
 #include "atlas/core/Points.h"
 #include "atlas/core/Ray.h"
 
@@ -230,6 +231,9 @@ namespace atlas
 				return (true);
 			return (false);
 		}
+
+
+		//bool intersectP(const BoundingCone &cone) const;
 	};
 
 	template <typename T, typename U>
@@ -407,3 +411,10 @@ namespace atlas
 		return Bounds2iIterator(b, pEnd);
 	}
 }
+
+//template <typename T>
+//bool atlas::Bounds3<T>::intersectP(const BoundingCone &cone) const
+//{
+//	atlas::TIQuery q;
+//	return q(*this, cone);
+//}

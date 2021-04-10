@@ -10,7 +10,7 @@
 #include <string>
 
 #include "Acheron.h"
-#include "Batch.h"
+#include "atlas/core/Batch.h"
 #include "Bin.h"
 #include "CompactRay.h"
 #include "ThreadPool.h"
@@ -47,6 +47,9 @@ namespace atlas
 						filename = uncompletedBin->filename;
 						size = uncompletedBin->pos;
 						handle = uncompletedBin->currentFile;
+						
+						uncompletedBin->filename = data.batchManager->getNewBatchName();
+						Bin::open(*uncompletedBin);
 					}
 					else
 						return (false);

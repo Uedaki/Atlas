@@ -146,10 +146,12 @@
     <ClInclude Include="includes\Atlas\Atlas.h" />
     <ClInclude Include="includes\Atlas\AtlasLibHeader.h" />
     <ClInclude Include="includes\Atlas\cameras\PerspectiveCamera.h" />
+    <ClInclude Include="includes\Atlas\core\Batch.h" />
     <ClInclude Include="includes\Atlas\core\Bounds.h" />
     <ClInclude Include="includes\Atlas\core\BSDF.h" />
     <ClInclude Include="includes\Atlas\core\BxDF.h" />
     <ClInclude Include="includes\Atlas\core\Camera.h" />
+    <ClInclude Include="includes\Atlas\core\ConeBoxIntersection.h" />
     <ClInclude Include="includes\Atlas\core\EFloat.h" />
     <ClInclude Include="includes\Atlas\core\Film.h" />
     <ClInclude Include="includes\Atlas\core\Filter.h" />
@@ -162,6 +164,7 @@
     <ClInclude Include="includes\Atlas\core\Matrix4x4.h" />
     <ClInclude Include="includes\Atlas\core\Medium.h" />
     <ClInclude Include="includes\Atlas\core\Microfacet.h" />
+    <ClInclude Include="includes\Atlas\core\Payload.h" />
     <ClInclude Include="includes\Atlas\core\Points.h" />
     <ClInclude Include="includes\Atlas\core\Primitive.h" />
     <ClInclude Include="includes\Atlas\core\Random.h" />
@@ -190,6 +193,7 @@
   <ItemGroup>
     <ClCompile Include="sources\BvhAccel.cpp" />
     <ClCompile Include="sources\Camera.cpp" />
+    <ClCompile Include="sources\ConeBoxIntersection.cpp" />
     <ClCompile Include="sources\Film.cpp" />
     <ClCompile Include="sources\GeometricPrimitive.cpp" />
     <ClCompile Include="sources\Glass.cpp" />

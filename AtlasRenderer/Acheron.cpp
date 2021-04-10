@@ -5,6 +5,7 @@
 #include "GenerateFirstRays.h"
 #include "ExtractBatch.h"
 #include "SortRays.h"
+#include "traceRays.h"
 
 using namespace atlas;
 
@@ -33,7 +34,7 @@ void Acheron::render(const Camera &camera, const Primitive &scene)
 		filmInfo.resolution = info.resolution;
 		filmInfo.cropWindow = info.region;
 		filmInfo.filter = info.filter;
-		filmInfo.filename += "iteration-" + std::to_string(it);
+		filmInfo.filename += "iteration-" + std::to_string(it) + ".ppm";
 		atlas::Film film(filmInfo);
 
 		renderIteration(camera, scene, film, currentSpp);
@@ -61,37 +62,78 @@ void Acheron::renderIteration(const Camera &camera, const Primitive &scene, Film
 
 void Acheron::processBatches(const Primitive &scene, Film &film)
 {
-	//while (true)
+	while (true)
 	{
-		// extract batch
 		{
-#if 1
-			task::ExtractBatch::Data data;
-			data.dst = &batch;
-			data.batchManager = &manager;
-			task::ExtractBatch task(data);
-#else
-			task::S4ExtractBatch::Data data;
-			data.dst = &s4Batch;
-			data.batchManager = &manager;
-			task::S4ExtractBatch task(data);
-#endif
-			threads.execute(&task);
-			threads.join();
-			if (!task.hasBatchToProcess())
-				return;
-		}
-		
-		// sort rays
-		{
-			task::SortRays::Data data;
-			data.batch = &batch;
-			task::SortRays task(data);
-			threads.execute(&task);
-			threads.join();
-		}
+			Batch batch;
+			std::vector<SurfaceInteraction> interactions;
 
-		// traverse
+			// extract batch
+			{
+#if 1
+				task::ExtractBatch::Data data;
+				data.dst = &batch;
+				data.batchManager = &manager;
+				task::ExtractBatch *task = new task::ExtractBatch(data);
+#else
+				task::S4ExtractBatch::Data data;
+				data.dst = &s4Batch;
+				data.batchManager = &manager;
+				task::S4ExtractBatch task(data);
+#endif
+				threads.execute(task);
+				threads.join();
+				if (!task->hasBatchToProcess())
+					return;
+			}
+
+			// sort rays
+			{
+				task::SortRays::Data data;
+				data.batch = &batch;
+				task::SortRays task(data);
+				threads.execute(&task);
+			}
+
+			// traverse
+			{
+				task::TraceRays::Data data;
+				data.batch = &batch;
+				data.scene = &scene;
+				data.interactions = &interactions;
+				task::TraceRays task(data);
+				threads.execute(&task);
+			}
+			threads.join();
+
+			printf("Hit\n");
+			{
+				threads.join();
+				for (uint32_t i = 0; i < batch.size(); i++)
+				{
+					//SurfaceInteraction s;
+					//atlas::Ray r(batch.origins[i], batch.directions[i]);
+					//if (scene.intersect(r, s))
+					//{
+					//	film.addSample(batch.pixelIDs[i], Spectrum(1, 0, 0));
+					//}
+					//else
+					//{
+					//	film.addSample(batch.pixelIDs[i], Spectrum(0, 0, 0));
+					//}
+
+					if (interactions[i].primitive)
+					{
+						film.addSample(batch.pixelIDs[i], Spectrum(1, 0, 0));
+					}
+					else
+					{
+						film.addSample(batch.pixelIDs[i], Spectrum(0, 0, 0));
+					}
+				}
+			}
+			printf("end\n");
+		}
 
 		// sort hitpoints
 

@@ -2,6 +2,7 @@
 
 #include "atlas/core/Bounds.h"
 #include "atlas/core/Points.h"
+#include "atlas/core/ConeBoxIntersection.h"
 
 using namespace atlas;
 
@@ -431,7 +432,6 @@ bool BvhAccel::intersect(const Ray &r, SurfaceInteraction &intersection) const
 		const LinearBvhNode *node = &nodes[currentNodeIndex];
 		if (node->bounds.intersectP(r, invDir, dirIsNeg))
 		{
-			//return (true);
 			if (node->nPrimitives > 0)
 			{
 				for (int32_t i = 0; i < node->nPrimitives; i++)
@@ -489,7 +489,7 @@ bool BvhAccel::intersectP(const Ray &r) const
 	while (true)
 	{
 		const LinearBvhNode *node = &nodes[currentNodeIndex];
-		if (1) //node->bounds)
+		if (node->bounds.intersectP(r, invDir, dirIsNeg))
 		{
 			if (node->nPrimitives > 0)
 			{
@@ -497,15 +497,16 @@ bool BvhAccel::intersectP(const Ray &r) const
 				{
 					if (primitives[node->primitiveOffset + i]->intersectP(r))
 						hit = true;
-					if (toVisitOffset == 0)
-						break;
-#if 0
-					currentNodeIndex = nodesToVisit[--toVisitOffset];
-#else
-					currentNodeIndex = nodesToVisit[toVisitOffset - 1];
-					toVisitOffset--;
-#endif
 				}
+
+				if (toVisitOffset == 0)
+					break;
+#if 0
+				currentNodeIndex = nodesToVisit[--toVisitOffset];
+#else
+				currentNodeIndex = nodesToVisit[toVisitOffset - 1];
+				toVisitOffset--;
+#endif
 			}
 			else
 			{
@@ -534,6 +535,63 @@ bool BvhAccel::intersectP(const Ray &r) const
 		}
 	}
 	return (hit);
+}
+
+void BvhAccel::intersect(const Payload &p, std::vector<SurfaceInteraction> &it, std::vector<Float> &tmax) const
+{
+	bool hit = false;
+	Vec3f invDir(1.f / p.cone.dir.x, 1.f / p.cone.dir.y, 1.f / p.cone.dir.z);
+	int8_t dirIsNeg[3] = { invDir.x < 0, invDir.y < 0, invDir.z < 0 };
+
+	int32_t toVisitOffset = 0;
+	int32_t currentNodeIndex = 0;
+	int32_t nodesToVisit[64];
+	while (true)
+	{
+		const LinearBvhNode *node = &nodes[currentNodeIndex];
+		if (atlas::intersectP(node->bounds, p.cone))
+		{
+			if (node->nPrimitives > 0)
+			{
+				for (int32_t i = 0; i < node->nPrimitives; i++)
+				{
+					primitives[node->primitiveOffset + i]->intersect(p, it, tmax);
+				}
+				if (toVisitOffset == 0)
+					break;
+#if 0
+				currentNodeIndex = nodesToVisit[--toVisitOffset];
+#else
+				currentNodeIndex = nodesToVisit[toVisitOffset - 1];
+				toVisitOffset--;
+#endif
+			}
+			else
+			{
+				if (dirIsNeg[node->axis])
+				{
+					nodesToVisit[toVisitOffset++] = currentNodeIndex + 1;
+					currentNodeIndex = node->secondChildOffset;
+				}
+				else
+				{
+					nodesToVisit[toVisitOffset++] = node->secondChildOffset;
+					currentNodeIndex = currentNodeIndex + 1;
+				}
+			}
+		}
+		else
+		{
+			if (toVisitOffset == 0)
+				break;
+#if 0
+			currentNodeIndex = nodesToVisit[--toVisitOffset];
+#else
+			currentNodeIndex = nodesToVisit[toVisitOffset - 1];
+			toVisitOffset--;
+#endif
+		}
+	}
 }
 
 //void BvhAccel::intersect(const ConeRay &cone, SurfaceInteraction *intersections) const
