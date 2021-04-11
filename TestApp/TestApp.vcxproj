@@ -78,11 +78,11 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>..\AtlasRenderer;..\Atlas\includes;$(IncludePath)</IncludePath>
+    <IncludePath>..\AtlasShading;..\AtlasRenderer;..\Atlas\includes;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>..\AtlasRenderer;..\Atlas\includes;$(IncludePath)</IncludePath>
+    <IncludePath>..\AtlasShading;..\AtlasRenderer;..\Atlas\includes;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -116,7 +116,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>SHADING;;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -130,7 +130,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>SHADING;;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -146,6 +146,9 @@
   <ItemGroup>
     <ProjectReference Include="..\AtlasRenderer\AtlasRenderer.vcxproj">
       <Project>{fc7f29a7-b472-4272-bf45-a8f2a498a29a}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\AtlasShading\AtlasShading.vcxproj">
+      <Project>{87b48105-9555-4291-a6b8-a8e27d8ff33d}</Project>
     </ProjectReference>
     <ProjectReference Include="..\Atlas\Atlas.vcxproj">
       <Project>{141761c3-ae02-4211-9282-d37f3146cca4}</Project>

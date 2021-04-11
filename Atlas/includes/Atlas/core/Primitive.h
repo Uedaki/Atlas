@@ -12,6 +12,10 @@
 
 namespace atlas
 {
+    namespace sh {
+        class Material;
+    }
+
     class AreaLight
     {
 
@@ -43,8 +47,11 @@ namespace atlas
 //#endif
 
         virtual const AreaLight *getAreaLight() const = 0;
+#if defined(SHADING)
+        virtual const sh::Material *getMaterial() const = 0;
+#else
         virtual const Material *getMaterial() const = 0;
-
+#endif
         virtual void computeScatteringFunctions(SurfaceInteraction &isect, TransportMode mode, bool allowMultipleLobes) const = 0;
     };
 }

@@ -146,16 +146,25 @@ const AreaLight *GeometricPrimitive::getAreaLight() const
 	return areaLight.get();
 }
 
+#if defined(SHADING)
+const sh::Material *GeometricPrimitive::getMaterial() const
+{
+	return material.get();
+}
+#else
 const Material *GeometricPrimitive::getMaterial() const
 {
 	return material.get();
 }
+#endif
 
 void GeometricPrimitive::computeScatteringFunctions(
 	SurfaceInteraction &isect, TransportMode mode,
 	bool allowMultipleLobes) const
 {
+#if !defined(SHADING)
 	if (material)
 		material->computeScatteringFunctions(isect, mode,
 			allowMultipleLobes);
+#endif
 }

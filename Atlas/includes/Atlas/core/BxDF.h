@@ -301,7 +301,7 @@ namespace atlas
 
 		Spectrum f(const Vec3f &wo, const Vec3f &wi) const override
 		{
-			return (r / PI);
+			return (r);
 		}
 
 		Spectrum rho(const Vec3f &wo, int nSamples, const Point2f *samples) const override

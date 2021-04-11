@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{141761c3-ae02-4211-9282-d37f3146cca4}</ProjectGuid>
-    <RootNamespace>Atlas</RootNamespace>
+    <ProjectGuid>{87b48105-9555-4291-a6b8-a8e27d8ff33d}</ProjectGuid>
+    <RootNamespace>AtlasShading</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -78,13 +78,11 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\Uedaki\source\repos\Atlas\AtlasShading;$(SolutionDir)Atlas\includes;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
-    <PublicIncludeDirectories>$(SolutionDir)Atlas\includes;</PublicIncludeDirectories>
+    <IncludePath>../Atlas/includes;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <PublicIncludeDirectories>$(SolutionDir)Atlas\includes;$(PublicIncludeDirectories)</PublicIncludeDirectories>
-    <IncludePath>C:\Users\Uedaki\source\repos\Atlas\AtlasShading;$(SolutionDir)Atlas\includes;$(IncludePath)</IncludePath>
+    <IncludePath>../Atlas/includes;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -118,7 +116,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>SHADING;;ATLAS_EXPORT;_USE_SIMD;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ATLAS_SH_EXPORT;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -132,7 +130,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>SHADING;;ATLAS_EXPORT;_USE_SIMD;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ATLAS_SH_EXPORT;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -143,73 +141,25 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="includes\Atlas\Atlas.h" />
-    <ClInclude Include="includes\Atlas\AtlasLibHeader.h" />
-    <ClInclude Include="includes\Atlas\cameras\PerspectiveCamera.h" />
-    <ClInclude Include="includes\Atlas\core\Batch.h" />
-    <ClInclude Include="includes\Atlas\core\Bounds.h" />
-    <ClInclude Include="includes\Atlas\core\BSDF.h" />
-    <ClInclude Include="includes\Atlas\core\BxDF.h" />
-    <ClInclude Include="includes\Atlas\core\Camera.h" />
-    <ClInclude Include="includes\Atlas\core\ConeBoxIntersection.h" />
-    <ClInclude Include="includes\Atlas\core\EFloat.h" />
-    <ClInclude Include="includes\Atlas\core\Film.h" />
-    <ClInclude Include="includes\Atlas\core\Filter.h" />
-    <ClInclude Include="includes\Atlas\core\Geometry.h" />
-    <ClInclude Include="includes\Atlas\core\ImageIO.h" />
-    <ClInclude Include="includes\Atlas\core\Interaction.h" />
-    <ClInclude Include="includes\Atlas\core\Logging.h" />
-    <ClInclude Include="includes\Atlas\core\Material.h" />
-    <ClInclude Include="includes\Atlas\core\Math.h" />
-    <ClInclude Include="includes\Atlas\core\Matrix4x4.h" />
-    <ClInclude Include="includes\Atlas\core\Medium.h" />
-    <ClInclude Include="includes\Atlas\core\Microfacet.h" />
-    <ClInclude Include="includes\Atlas\core\Payload.h" />
-    <ClInclude Include="includes\Atlas\core\Points.h" />
-    <ClInclude Include="includes\Atlas\core\Primitive.h" />
-    <ClInclude Include="includes\Atlas\core\Random.h" />
-    <ClInclude Include="includes\Atlas\core\Ray.h" />
-    <ClInclude Include="includes\Atlas\core\Reflection.h" />
-    <ClInclude Include="includes\Atlas\core\RgbSpectrum.h" />
-    <ClInclude Include="includes\Atlas\core\Sampler.h" />
-    <ClInclude Include="includes\Atlas\core\Sampling.h" />
-    <ClInclude Include="includes\Atlas\core\Shape.h" />
-    <ClInclude Include="includes\Atlas\core\simd\Simd.h" />
-    <ClInclude Include="includes\Atlas\core\simd\SPoints.h" />
-    <ClInclude Include="includes\Atlas\core\simd\SRay.h" />
-    <ClInclude Include="includes\Atlas\core\simd\SRgbSpectrum.h" />
-    <ClInclude Include="includes\Atlas\core\simd\SSurfaceInteraction.h" />
-    <ClInclude Include="includes\Atlas\core\simd\SVectors.h" />
-    <ClInclude Include="includes\Atlas\core\Texture.h" />
-    <ClInclude Include="includes\Atlas\core\Transform.h" />
-    <ClInclude Include="includes\Atlas\core\Vectors.h" />
-    <ClInclude Include="includes\Atlas\materials\Glass.h" />
-    <ClInclude Include="includes\Atlas\materials\Metal.h" />
-    <ClInclude Include="includes\Atlas\primitives\Aggregate.h" />
-    <ClInclude Include="includes\Atlas\primitives\BvhAccel.h" />
-    <ClInclude Include="includes\Atlas\primitives\GeometricPrimitive.h" />
-    <ClInclude Include="includes\Atlas\shapes\Sphere.h" />
+    <ClInclude Include="BSDF.h" />
+    <ClInclude Include="BSDFShader.h" />
+    <ClInclude Include="AtlasShadingLibHeader.h" />
+    <ClInclude Include="Glass.h" />
+    <ClInclude Include="Lambert.h" />
+    <ClInclude Include="Material.h" />
+    <ClInclude Include="Metal.h" />
+    <ClInclude Include="Shader.h" />
+    <ClInclude Include="ShadingIO.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="sources\BvhAccel.cpp" />
-    <ClCompile Include="sources\Camera.cpp" />
-    <ClCompile Include="sources\ConeBoxIntersection.cpp" />
-    <ClCompile Include="sources\Film.cpp" />
-    <ClCompile Include="sources\GeometricPrimitive.cpp" />
-    <ClCompile Include="sources\Glass.cpp" />
-    <ClCompile Include="sources\Interaction.cpp" />
-    <ClCompile Include="sources\Matrix4x4.cpp" />
-    <ClCompile Include="sources\Medium.cpp" />
-    <ClCompile Include="sources\Metal.cpp" />
-    <ClCompile Include="sources\Microfacet.cpp" />
-    <ClCompile Include="sources\PerspectiveCamera.cpp" />
-    <ClCompile Include="sources\Random.cpp" />
-    <ClCompile Include="sources\Reflection.cpp" />
-    <ClCompile Include="sources\Sampler.cpp" />
-    <ClCompile Include="sources\Sampling.cpp" />
-    <ClCompile Include="sources\Shape.cpp" />
-    <ClCompile Include="sources\Sphere.cpp" />
-    <ClCompile Include="sources\Texture.cpp" />
+    <ClCompile Include="Glass.cpp" />
+    <ClCompile Include="Lambert.cpp" />
+    <ClCompile Include="Metal.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Atlas\Atlas.vcxproj">
+      <Project>{141761c3-ae02-4211-9282-d37f3146cca4}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
