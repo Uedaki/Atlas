@@ -187,20 +187,22 @@ atlas::Spectrum rayColor(const atlas::Ray &r, const atlas::Primitive &scene, int
 	atlas::SurfaceInteraction s;
 	if (scene.intersect(r, s))
 	{
+#if !defined(SHADING)
 		Float pdf;
 		atlas::Vec3f wi;
-#if !defined(SHADING)
 		s.primitive->computeScatteringFunctions(s, atlas::TransportMode::Radiance, true);
-		atlas::Spectrum color = s.bsdf->sampleF(-r.dir, wi, atlas::Point2f(0, 0)/*sampler.get2D()*/, pdf);
-#else
-		const atlas::sh::Material *m = s.primitive->getMaterial();
-		atlas::sh::BSDF bsdf = m->sample(-r.dir, s, sampler.get2D());
-		wi = bsdf.wi;
-		atlas::Spectrum color = bsdf.color;
-#endif
+		atlas::Spectrum color = s.bsdf->sampleF(-r.dir, wi, sampler.get2D(), pdf);
+
 		if (color.isBlack())
 			return (color);
 		return (/* pdf * */ color * rayColor(atlas::Ray(s.p, wi), scene, depth - 1, sampler));
+#else
+		atlas::sh::BSDF bsdf = s.primitive->getMaterial()->sample(-r.dir, s, sampler.get2D());
+		if (bsdf.color.isBlack())
+			return (bsdf.color);
+		return (/* bsdf.pdf * */ bsdf.color * rayColor(atlas::Ray(s.p, bsdf.wi), scene, depth - 1, sampler));
+#endif
+
 	}
 	atlas::Vec3f unitDir = normalize(r.dir);
 	auto t = 0.5 * (unitDir.y + 1.0);
@@ -222,7 +224,7 @@ int main()
 
 	const uint32_t width = 720;
 	const uint32_t height = 500;
-	const uint32_t spp = 16;
+	const uint32_t spp = 2;
 
 	atlas::FilmInfo filmInfo;
 	filmInfo.filename = "film.ppm";
@@ -244,7 +246,7 @@ int main()
 	atlas::StratifiedSamplerInfo samplerInfo;
 	atlas::Sampler *sampler = atlas::StratifiedSampler::create(samplerInfo);
 
-#if 0
+#if 1
 	atlas::Acheron::Info achInfo;
 	achInfo.resolution = atlas::Point2i(width, height);
 	achInfo.spp = spp;
@@ -283,6 +285,8 @@ int main()
 
 	film.writeImage();
 #endif
+	printf("Finished\n");
+	return (0);
 }
 
 using namespace atlas;

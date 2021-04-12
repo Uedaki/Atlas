@@ -45,6 +45,9 @@
     <ClInclude Include="TraceRays.h">
       <Filter>Header Files\Task</Filter>
     </ClInclude>
+    <ClInclude Include="SortInteractions.h">
+      <Filter>Header Files\Task</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Acheron.cpp">

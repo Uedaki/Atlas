@@ -10,6 +10,11 @@
 
 namespace atlas
 {
+	namespace sh
+	{
+		class Material;
+	}
+
 	struct Interaction
 	{
 		Point3f p;
@@ -111,6 +116,7 @@ namespace atlas
 			Normal dndv;
 		} shading;
 		const Primitive *primitive = nullptr;
+		sh::Material *material = nullptr;
 		BSDF *bsdf = nullptr;
 
 		mutable Vec3f dpdx;

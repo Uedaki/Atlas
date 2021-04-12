@@ -10,10 +10,10 @@ namespace atlas
 {
 	enum class ThreadedTaskState
 	{
+		CLOSED,
 		WAITING,
 		RUNNING,
-		FINISHING,
-		CLOSED
+		FINISHING
 	};
 
 	class ThreadedTask
@@ -23,15 +23,20 @@ namespace atlas
 		virtual void execute() = 0;
 		virtual void postExecute() = 0;
 
-		void assignThread()	{ assignedThreadCount++; }
-		bool removeThread()	{ return (--assignedThreadCount); }
+		void release()
+		{
+			delete this;
+		}
 
-		const std::atomic<ThreadedTaskState> &getState() const { return (state); }
-		std::atomic<ThreadedTaskState> &getAtomicState() { return (state); }
-		void setState(ThreadedTaskState newState) { state = newState; }
-
+		inline void assignThread()
+		{
+			assignedThreadCount++;
+		}
+		inline bool removeThread()
+		{
+			return (--assignedThreadCount);
+		}
 	private:
-		std::atomic<ThreadedTaskState> state = ThreadedTaskState::WAITING;
 		std::atomic<uint32_t> assignedThreadCount = 0;
 	};
 
@@ -50,43 +55,49 @@ namespace atlas
 					{
 						while (isRunning)
 						{
+							uint32_t taskIdx;
 							{ // lock scope
 								std::unique_lock<std::mutex> lock(guard);
 								sleepCtrl.wait(lock, [this]()
 									{
+										uint32_t taskId = currentTask;
 										return (!isRunning
-											|| (taskBuffer[currentTask] && taskBuffer[currentTask]->getState() == ThreadedTaskState::WAITING)
-											|| (taskBuffer[currentTask] && taskBuffer[currentTask]->getState() == ThreadedTaskState::RUNNING));
+											|| (taskStates[taskId] == ThreadedTaskState::WAITING)
+											|| (taskStates[taskId] == ThreadedTaskState::RUNNING));
 									});						
 							
 								if (!isRunning)
 									break;
 
-								if (taskBuffer[currentTask]->getState() == ThreadedTaskState::WAITING)
+								taskIdx = currentTask;  // it is better to stock currentTask inside a variable to reduce access to an atomic variable
+								if (taskStates[taskIdx] == ThreadedTaskState::WAITING)
 								{
-									if (taskBuffer[currentTask]->preExecute())
-										taskBuffer[currentTask]->setState(ThreadedTaskState::RUNNING);
+									if (taskBuffer[taskIdx]->preExecute())
+										taskStates[taskIdx] = ThreadedTaskState::RUNNING;
 									else
 									{
-										taskBuffer[currentTask]->setState(ThreadedTaskState::CLOSED);
+										taskBuffer[taskIdx]->release();
+										taskBuffer[taskIdx] = nullptr;
+										taskStates[taskIdx] = ThreadedTaskState::CLOSED;
 										continue;
 									}
 								}
 							}
 
-							uint32_t taskIdx = currentTask;
+							if (taskStates[taskIdx] == ThreadedTaskState::FINISHING || taskStates[taskIdx] == ThreadedTaskState::CLOSED)
+								continue;
 							taskBuffer[taskIdx]->assignThread();
 							taskBuffer[taskIdx]->execute();
-							taskBuffer[taskIdx]->setState(ThreadedTaskState::FINISHING);
+							taskStates[taskIdx] = ThreadedTaskState::FINISHING;
 
 							if (taskBuffer[taskIdx]->removeThread() == 0)
 							{
-								if (currentTask != lastTask)
-									currentTask = (currentTask + 1) % BufferSize;
+								currentTask = (currentTask + 1) % BufferSize;
 								sleepCtrl.notify_all();
 								taskBuffer[taskIdx]->postExecute();
-								taskBuffer[taskIdx]->setState(ThreadedTaskState::CLOSED);
-								sleepCtrl.notify_all();
+								taskBuffer[taskIdx]->release();
+								taskBuffer[taskIdx] = nullptr;
+								taskStates[taskIdx] = ThreadedTaskState::CLOSED;
 							}
 						}
 					}));
@@ -105,57 +116,68 @@ namespace atlas
 			}
 		}
 
-		void execute(ThreadedTask *task)
+		template <typename T, typename ...Args>
+		void execute(Args... args)
 		{
 			uint32_t newTask = (lastTask + 1) % BufferSize;
-			taskBuffer[newTask] = task;
+			taskBuffer[newTask] = new T(args...);
+			taskStates[newTask] = ThreadedTaskState::WAITING;
 			lastTask = newTask;
-			if (taskBuffer[currentTask]->getState() == ThreadedTaskState::CLOSED)
-				currentTask = (currentTask + 1) % BufferSize;
 			sleepCtrl.notify_all();
 		}
 
 		void join()
 		{
+			//while (taskStates[currentTask] != ThreadedTaskState::CLOSED)
+			//	;
+			//return;
+
 			while (true)
 			{
+				uint32_t taskIdx;
 				{
 					std::unique_lock<std::mutex> lock(guard);
 					sleepCtrl.wait(lock, [this]()
 						{
+							uint32_t taskIdx = currentTask;
 							return (!isRunning
-								|| (taskBuffer[currentTask] && taskBuffer[currentTask]->getState() == ThreadedTaskState::WAITING)
-								|| (taskBuffer[currentTask] && taskBuffer[currentTask]->getState() == ThreadedTaskState::RUNNING)
-								|| (taskBuffer[currentTask] && taskBuffer[currentTask]->getState() == ThreadedTaskState::CLOSED && currentTask == lastTask));
+								|| taskStates[taskIdx] == ThreadedTaskState::WAITING
+								|| taskStates[taskIdx] == ThreadedTaskState::RUNNING
+								|| taskStates[taskIdx] == ThreadedTaskState::CLOSED);
 						});
 				
-					if (!isRunning || (taskBuffer[currentTask] && taskBuffer[currentTask]->getState() == ThreadedTaskState::CLOSED && currentTask == lastTask))
+					taskIdx = currentTask;
+					if (!isRunning || taskStates[taskIdx] == ThreadedTaskState::CLOSED)
 						break;
 
-					if (taskBuffer[currentTask]->getState() == ThreadedTaskState::WAITING)
+					if (taskStates[taskIdx] == ThreadedTaskState::WAITING)
 					{
-						if (taskBuffer[currentTask]->preExecute())
-							taskBuffer[currentTask]->setState(ThreadedTaskState::RUNNING);
+						if (taskBuffer[taskIdx]->preExecute())
+							taskStates[taskIdx] = ThreadedTaskState::RUNNING;
 						else
 						{
-							taskBuffer[currentTask]->setState(ThreadedTaskState::CLOSED);
+							taskBuffer[taskIdx]->release();
+							taskBuffer[taskIdx] = nullptr;
+							taskStates[taskIdx] = ThreadedTaskState::CLOSED;
 							continue;
 						}
 					}
 				}
 
-				uint32_t taskIdx = currentTask;
+				if (taskStates[taskIdx] == ThreadedTaskState::FINISHING || taskStates[taskIdx] == ThreadedTaskState::CLOSED)
+					continue;
 				taskBuffer[taskIdx]->assignThread();
 				taskBuffer[taskIdx]->execute();
-				taskBuffer[taskIdx]->setState(ThreadedTaskState::FINISHING);
+				taskStates[taskIdx] = ThreadedTaskState::FINISHING;
 
 				if (taskBuffer[taskIdx]->removeThread() == 0)
 				{
-					if (currentTask != lastTask)
-						currentTask = (currentTask + 1) % BufferSize;
+					currentTask = (currentTask + 1) % BufferSize;
 					sleepCtrl.notify_all();
 					taskBuffer[taskIdx]->postExecute();
-					taskBuffer[taskIdx]->setState(ThreadedTaskState::CLOSED);
+					taskBuffer[taskIdx]->release();
+					taskBuffer[taskIdx] = nullptr;
+					taskStates[taskIdx] = ThreadedTaskState::CLOSED;
 				}
 			}
 		}
@@ -170,5 +192,6 @@ namespace atlas
 		std::atomic<uint32_t> currentTask = 0;
 		std::atomic<uint32_t> lastTask = BufferSize - 1;
 		std::array<ThreadedTask *, BufferSize> taskBuffer = { 0 };
+		std::array<ThreadedTaskState, BufferSize> taskStates = { ThreadedTaskState::CLOSED };
 	};
 }

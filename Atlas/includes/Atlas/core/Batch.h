@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <vector>
 
 #include "Atlas/Atlas.h"
@@ -12,6 +13,8 @@
 #include "Atlas/core/simd/SRgbSpectrum.h"
 #include "Atlas/core/simd/SVectors.h"
 
+#include "../AtlasRenderer/Bin.h"
+
 namespace atlas
 {
 	struct Batch
@@ -23,21 +26,28 @@ namespace atlas
 		std::vector<uint16_t> sampleIDs;
 		std::vector<uint16_t> depths;
 		std::vector<Float> tNears;
+		uint32_t usedSize;
 
-		uint32_t size() const
+		Batch(uint32_t maxSize)
+			: origins(maxSize)
+			, directions(maxSize)
+			, colors(maxSize)
+			, pixelIDs(maxSize)
+			, sampleIDs(maxSize)
+			, depths(maxSize)
+			, tNears(maxSize)
 		{
-			return (static_cast<uint32_t>(origins.size()));
+
 		}
 
-		void resize(size_t size)
+		inline uint32_t size() const
 		{
-			origins.resize(size);
-			directions.resize(size);
-			colors.resize(size);
-			pixelIDs.resize(size);
-			sampleIDs.resize(size);
-			depths.resize(size);
-			tNears.resize(size);
+			return (usedSize);
+		}
+
+		void resize(size_t newSize)
+		{
+			usedSize = newSize;
 		}
 
 		void swap(uint32_t a, uint32_t b)

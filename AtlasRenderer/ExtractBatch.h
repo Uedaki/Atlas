@@ -41,7 +41,7 @@ namespace atlas
 				
 				if (filename.empty())
 				{
-					Bin *uncompletedBin;
+					Bin *uncompletedBin = nullptr;
 					if ((uncompletedBin = data.batchManager->getUncompledBatch()))
 					{
 						filename = uncompletedBin->filename;
@@ -98,7 +98,6 @@ namespace atlas
 			{
 				if (size == 0)
 					return;
-
 				Bin::unmap(handle);
 			}
 
@@ -141,7 +140,7 @@ namespace atlas
 
 				if (filename.empty())
 				{
-					Bin *uncompletedBin;
+					Bin *uncompletedBin = nullptr;
 					if ((uncompletedBin = data.batchManager->getUncompledBatch()))
 					{
 						filename = uncompletedBin->filename;
@@ -211,7 +210,7 @@ namespace atlas
 
 			std::string filename;
 			Bin::FileHandles handle;
-			uint32_t size = Bin::MaxSize;
+			uint32_t size = 0;
 
 			std::atomic<uint32_t> index = 0;
 		};

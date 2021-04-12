@@ -79,6 +79,8 @@ namespace atlas
 	class BatchManager
 	{
 	public:
+		BatchManager();
+
 		void openBins();
 		void mapBins();
 		void unmapBins();

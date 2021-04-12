@@ -309,12 +309,14 @@ namespace atlas
 				sortingPacks[0].order = data.batch->size() > 64 ? reinterpret_cast<std::vector<Vec3f> *>(&data.batch->origins) : &data.batch->directions;
 
 				isRunning = true;
-
+				printf("batch %d\n", sortingPacks.size());
 				return (true);
 			}
 
 			void execute() override
 			{
+				CHECK(sortingPacks.size() != 0);
+
 				SortingPack pack;
 				{ // lock scope
 					std::unique_lock<std::mutex> lock(guard);

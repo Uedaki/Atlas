@@ -14,6 +14,9 @@ bool GeometricPrimitive::intersect(const Ray &r, SurfaceInteraction &intersectio
 		return (false);
 	r.tmax = tHit;
 	intersection.primitive = this;
+#if SHADING
+	intersection.material = material.get();
+#endif
 
 	if (mediumInterface.isMediumTransition())
 		intersection.mediumInterface = mediumInterface;

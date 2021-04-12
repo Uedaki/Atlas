@@ -7,6 +7,9 @@
 #include "SortRays.h"
 #include "traceRays.h"
 
+#include "BSDF.h"
+#include "Material.h"
+
 using namespace atlas;
 
 Acheron::Acheron(const Info &info)
@@ -51,8 +54,7 @@ void Acheron::renderIteration(const Camera &camera, const Primitive &scene, Film
 		data.camera = &camera;
 		data.sampler = info.sampler;
 		data.batchManager = &manager;
-		task::GenerateFirstRays genFirstRays(data);
-		threads.execute(&genFirstRays);
+		threads.execute<task::GenerateFirstRays>(data);
 		threads.join();
 	}
 
@@ -65,8 +67,8 @@ void Acheron::processBatches(const Primitive &scene, Film &film)
 	while (true)
 	{
 		{
-			Batch batch;
-			std::vector<SurfaceInteraction> interactions;
+			Batch batch(Bin::MaxSize);
+			std::vector<SurfaceInteraction> interactions(Bin::MaxSize);
 
 			// extract batch
 			{
@@ -74,16 +76,16 @@ void Acheron::processBatches(const Primitive &scene, Film &film)
 				task::ExtractBatch::Data data;
 				data.dst = &batch;
 				data.batchManager = &manager;
-				task::ExtractBatch *task = new task::ExtractBatch(data);
+				threads.execute<task::ExtractBatch>(data);
 #else
 				task::S4ExtractBatch::Data data;
 				data.dst = &s4Batch;
 				data.batchManager = &manager;
 				task::S4ExtractBatch task(data);
+				threads.execute<task::S4ExtractBatch>(data);
 #endif
-				threads.execute(task);
 				threads.join();
-				if (!task->hasBatchToProcess())
+				if (batch.size() == 0)//!task->hasBatchToProcess())
 					return;
 			}
 
@@ -91,48 +93,73 @@ void Acheron::processBatches(const Primitive &scene, Film &film)
 			{
 				task::SortRays::Data data;
 				data.batch = &batch;
-				task::SortRays task(data);
-				threads.execute(&task);
+				threads.execute<task::SortRays>(data);
+				threads.join();
 			}
-
+			
 			// traverse
 			{
 				task::TraceRays::Data data;
 				data.batch = &batch;
 				data.scene = &scene;
 				data.interactions = &interactions;
-				task::TraceRays task(data);
-				threads.execute(&task);
-			}
-			threads.join();
-
-			printf("Hit\n");
-			{
+				threads.execute<task::TraceRays>(data);
 				threads.join();
-				for (uint32_t i = 0; i < batch.size(); i++)
-				{
-					//SurfaceInteraction s;
-					//atlas::Ray r(batch.origins[i], batch.directions[i]);
-					//if (scene.intersect(r, s))
-					//{
-					//	film.addSample(batch.pixelIDs[i], Spectrum(1, 0, 0));
-					//}
-					//else
-					//{
-					//	film.addSample(batch.pixelIDs[i], Spectrum(0, 0, 0));
-					//}
+			}
 
-					if (interactions[i].primitive)
+			//std::sort(interactions.begin(), interactions.end(), [](const SurfaceInteraction &s1, const SurfaceInteraction &s2)
+			//	{
+			//		return ((uint64_t)s1.material < (uint64_t)s2.material);
+			//	});
+
+			manager.mapBins();
+			std::array<LocalBin, 6> localBins;
+			for (uint32_t i = 0; i < batch.size(); i++)
+			{
+				if (interactions[i].material)
+				{
+					if (batch.depths[i] >= 16)
 					{
-						film.addSample(batch.pixelIDs[i], Spectrum(1, 0, 0));
+						film.addSample(batch.pixelIDs[i], Spectrum(0.f));
+						continue;
 					}
-					else
+
+					sh::BSDF bsdf = interactions[i].material->sample(-batch.directions[i], interactions[i], info.sampler->get2D());
+					if (bsdf.color.isBlack())
 					{
-						film.addSample(batch.pixelIDs[i], Spectrum(0, 0, 0));
+						film.addSample(batch.pixelIDs[i], bsdf.color);
+						continue;
 					}
+
+					if (bsdf.wi.length() == 0)
+					{
+						film.addSample(batch.pixelIDs[i], Spectrum(0.f));
+						continue;
+					}
+
+					Ray r(interactions[i].p, bsdf.wi);
+
+					const uint8_t vectorIndex = abs(bsdf.wi).maxDimension();
+					const bool isNegative = std::signbit(bsdf.wi[vectorIndex]);
+					const uint8_t index = vectorIndex * 2 + isNegative;
+					if (localBins[index].feed(CompactRay(r, batch.colors[i] * bsdf.color, batch.pixelIDs[i], batch.sampleIDs[i], batch.depths[i] + 1)))
+						manager.feed(index, localBins[index]);
+				}
+				else
+				{
+					atlas::Vec3f unitDir = normalize(batch.directions[i]);
+					auto t = 0.5 * (unitDir.y + 1.0);
+					Spectrum color((1.0 - t) * atlas::Spectrum(1.f) + t * atlas::Spectrum(0.5, 0.7, 1.0));
+					film.addSample(batch.pixelIDs[i], batch.colors[i] * color);
 				}
 			}
-			printf("end\n");
+
+			for (uint32_t i = 0; i < localBins.size(); i++)
+			{
+				manager.feed(i, localBins[i]);
+			}
+
+			manager.unmapBins();
 		}
 
 		// sort hitpoints

@@ -39,13 +39,13 @@ namespace atlas
 			{
 				tmax.resize(data.batch->size());
 				memset(tmax.data(), std::numeric_limits<Float>::max(), data.batch->size());
-
-				data.interactions->resize(data.batch->size());
 				return (true);
 			}
 
 			void execute() override
 			{
+				CHECK(data.interactions->size() != 0);
+
 				while (true)
 				{
 					uint32_t index = traceRaysIndex.fetch_add(maxPackSize);
@@ -56,7 +56,7 @@ namespace atlas
 					for (uint32_t i = 0; i < size; i += maxConeSize)
 					{
 #if 1
-						uint32_t rayCount = i + maxConeSize <= size ? maxConeSize : i + maxConeSize - size;
+						uint32_t rayCount = i + maxConeSize <= size ? maxConeSize : size - i;
 						for (uint32_t j = 0; j < rayCount; j++)
 						{
 							Ray r(data.batch->origins[index + i + j], data.batch->directions[index + i + j]);

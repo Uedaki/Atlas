@@ -52,6 +52,13 @@ void Bin::reset(Bin &bin)
 
 }
 
+BatchManager::BatchManager()
+{
+	std::ifstream file("stack.tmp", std::ios::trunc);
+	if (file)
+		file.close();
+}
+
 void BatchManager::openBins()
 {
 	for (auto &bin : bins)
