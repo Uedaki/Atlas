@@ -25,8 +25,11 @@ namespace atlas
 			Sampler *sampler;
 			Filter *filter;
 
+			uint32_t maxDepth = 9;
+
 			struct
 			{
+
 				uint8_t threadCount = std::thread::hardware_concurrency() - 1;
 				std::string tmpFolder = "./";
 			} parameter;
@@ -38,6 +41,9 @@ namespace atlas
 		ATLAS_RENDERER void render(const Camera &camera, const Primitive &scene);
 		ATLAS_RENDERER void renderIteration(const Camera &camera, const Primitive &scene, Film &film, uint32_t spp);
 		ATLAS_RENDERER void processBatches(const Primitive &scene, Film &film);
+
+		ATLAS_RENDERER void processSmallBatches(Batch &batch, const Primitive &scene, Film &film);
+		ATLAS_RENDERER Spectrum getColorAlongRay(const atlas::Ray &r, const atlas::Primitive &scene, atlas::Sampler &sampler, int depth);
 
 		// atlas::Film film(filmInfo);
 

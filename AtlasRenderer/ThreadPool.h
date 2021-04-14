@@ -51,7 +51,7 @@ namespace atlas
 			workers.reserve(threadCount);
 			for (uint32_t i = 0; i < threadCount; i++)
 			{
-				workers.push_back(std::thread([this]()
+				workers.emplace_back([this]()
 					{
 						while (isRunning)
 						{
@@ -66,16 +66,20 @@ namespace atlas
 											|| (taskStates[taskId] == ThreadedTaskState::RUNNING));
 									});						
 							
+								taskIdx = currentTask;  // it is better to stock currentTask inside a variable to reduce access to an atomic variable
 								if (!isRunning)
 									break;
+								else if (taskStates[taskIdx] == ThreadedTaskState::FINISHING
+									|| taskStates[taskIdx] == ThreadedTaskState::CLOSED)
+									continue;
 
-								taskIdx = currentTask;  // it is better to stock currentTask inside a variable to reduce access to an atomic variable
 								if (taskStates[taskIdx] == ThreadedTaskState::WAITING)
 								{
 									if (taskBuffer[taskIdx]->preExecute())
 										taskStates[taskIdx] = ThreadedTaskState::RUNNING;
 									else
 									{
+										currentTask = (currentTask + 1) % BufferSize;
 										taskBuffer[taskIdx]->release();
 										taskBuffer[taskIdx] = nullptr;
 										taskStates[taskIdx] = ThreadedTaskState::CLOSED;
@@ -100,7 +104,7 @@ namespace atlas
 								taskStates[taskIdx] = ThreadedTaskState::CLOSED;
 							}
 						}
-					}));
+					});
 			}
 		}
 
@@ -128,27 +132,26 @@ namespace atlas
 
 		void join()
 		{
-			//while (taskStates[currentTask] != ThreadedTaskState::CLOSED)
-			//	;
-			//return;
-
 			while (true)
 			{
 				uint32_t taskIdx;
-				{
+				{ // lock scope
 					std::unique_lock<std::mutex> lock(guard);
-					sleepCtrl.wait(lock, [this]()
+					sleepCtrl.wait_for(lock, std::chrono::milliseconds(1),[this]()
 						{
-							uint32_t taskIdx = currentTask;
+							uint32_t taskId = currentTask;
 							return (!isRunning
-								|| taskStates[taskIdx] == ThreadedTaskState::WAITING
-								|| taskStates[taskIdx] == ThreadedTaskState::RUNNING
-								|| taskStates[taskIdx] == ThreadedTaskState::CLOSED);
+								|| (taskStates[taskId] == ThreadedTaskState::WAITING)
+								|| (taskStates[taskId] == ThreadedTaskState::RUNNING)
+								|| (taskStates[lastTask] == ThreadedTaskState::CLOSED));
 						});
-				
-					taskIdx = currentTask;
-					if (!isRunning || taskStates[taskIdx] == ThreadedTaskState::CLOSED)
+
+					taskIdx = currentTask;  // it is better to stock currentTask inside a variable to reduce access to an atomic variable
+					if (!isRunning || taskStates[lastTask] == ThreadedTaskState::FINISHING || taskStates[lastTask] == ThreadedTaskState::CLOSED)
 						break;
+					else if (taskStates[taskIdx] == ThreadedTaskState::FINISHING
+						|| taskStates[taskIdx] == ThreadedTaskState::CLOSED)
+						continue;
 
 					if (taskStates[taskIdx] == ThreadedTaskState::WAITING)
 					{
@@ -156,9 +159,10 @@ namespace atlas
 							taskStates[taskIdx] = ThreadedTaskState::RUNNING;
 						else
 						{
+							currentTask = (currentTask + 1) % BufferSize;
+							taskStates[taskIdx] = ThreadedTaskState::CLOSED;
 							taskBuffer[taskIdx]->release();
 							taskBuffer[taskIdx] = nullptr;
-							taskStates[taskIdx] = ThreadedTaskState::CLOSED;
 							continue;
 						}
 					}
@@ -175,9 +179,9 @@ namespace atlas
 					currentTask = (currentTask + 1) % BufferSize;
 					sleepCtrl.notify_all();
 					taskBuffer[taskIdx]->postExecute();
+					taskStates[taskIdx] = ThreadedTaskState::CLOSED;
 					taskBuffer[taskIdx]->release();
 					taskBuffer[taskIdx] = nullptr;
-					taskStates[taskIdx] = ThreadedTaskState::CLOSED;
 				}
 			}
 		}

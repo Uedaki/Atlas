@@ -37,6 +37,7 @@ namespace atlas
 			bool preExecute() override
 			{
 				filename = data.batchManager->popBatchName();
+				data.dst->resize(0);
 				size = 0;
 				
 				if (filename.empty())

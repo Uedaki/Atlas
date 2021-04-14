@@ -150,6 +150,7 @@
     <ClInclude Include="Metal.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShadingIO.h" />
+    <ClInclude Include="Texture.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Glass.cpp" />

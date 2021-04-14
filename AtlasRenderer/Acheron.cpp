@@ -28,7 +28,7 @@ void Acheron::render(const Camera &camera, const Primitive &scene)
 {
 	uint32_t it = 0;
 	uint32_t sppStep = 2;
-	info.spp = 1;
+	info.spp = 2;
 	for (uint32_t i = 0; i < info.spp; i += sppStep)
 	{
 		uint32_t currentSpp = i + sppStep <= info.spp ? sppStep : i + sppStep - info.spp;
@@ -85,18 +85,22 @@ void Acheron::processBatches(const Primitive &scene, Film &film)
 				threads.execute<task::S4ExtractBatch>(data);
 #endif
 				threads.join();
-				if (batch.size() == 0)//!task->hasBatchToProcess())
+				if (batch.size() == 0)//< 512)//!task->hasBatchToProcess())
+				{
+					processSmallBatches(batch, scene, film);
 					return;
+				}
+				printf("Batch %d\n", batch.size());
 			}
 
 			// sort rays
-			{
-				task::SortRays::Data data;
-				data.batch = &batch;
-				threads.execute<task::SortRays>(data);
-				threads.join();
-			}
-			
+			//{
+			//	task::SortRays::Data data;
+			//	data.batch = &batch;
+			//	threads.execute<task::SortRays>(data);
+			//	threads.join();
+			//}
+
 			// traverse
 			{
 				task::TraceRays::Data data;
@@ -118,7 +122,10 @@ void Acheron::processBatches(const Primitive &scene, Film &film)
 			{
 				if (interactions[i].material)
 				{
-					if (batch.depths[i] >= 16)
+					film.addSample(batch.pixelIDs[i], Spectrum(1.f, 0, 0));
+					continue;
+
+					if (batch.depths[i] >= info.maxDepth)
 					{
 						film.addSample(batch.pixelIDs[i], Spectrum(0.f));
 						continue;
@@ -167,5 +174,45 @@ void Acheron::processBatches(const Primitive &scene, Film &film)
 		// process hitpoints
 
 		// launch one thread to addsample to the film
+	}
+}
+
+Spectrum Acheron::getColorAlongRay(const atlas::Ray &r, const atlas::Primitive &scene, atlas::Sampler &sampler, int depth)
+{
+	if (depth >= info.maxDepth)
+		return (atlas::Spectrum(0.f));
+
+	atlas::SurfaceInteraction s;
+	if (scene.intersect(r, s))
+	{
+		atlas::sh::BSDF bsdf = s.material->sample(-r.dir, s, sampler.get2D());
+		if (bsdf.color.isBlack())
+			return (bsdf.color);
+		return (/* bsdf.pdf * */ bsdf.color * getColorAlongRay(atlas::Ray(s.p, bsdf.wi), scene, sampler, depth + 1));
+	}
+	atlas::Vec3f unitDir = normalize(r.dir);
+	auto t = 0.5 * (unitDir.y + 1.0);
+	return ((1.0 - t) * atlas::Spectrum(1.f) + t * atlas::Spectrum(0.5, 0.7, 1.0));
+}
+
+void Acheron::processSmallBatches(Batch &batch, const Primitive &scene, Film &film)
+{
+	while (batch.size())
+	{
+		printf("Small batch %d\n", batch.size());
+		for (uint32_t i = 0; i < batch.size(); i++)
+		{
+			Ray r(batch.origins[i], batch.directions[i]);
+			Spectrum color = batch.colors[i] * getColorAlongRay(r, scene, *info.sampler, batch.depths[i]);
+			film.addSample(batch.pixelIDs[i], color);
+		}
+
+		{
+			task::ExtractBatch::Data data;
+			data.dst = &batch;
+			data.batchManager = &manager;
+			threads.execute<task::ExtractBatch>(data);
+			threads.join();
+		}
 	}
 }

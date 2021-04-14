@@ -9,7 +9,7 @@ namespace atlas
 	{
 		struct Shader
 		{
-			virtual void registerOutputs(uint32_t &size) {}
+			virtual void registerOutputs(uint32_t &size) = 0;
 			virtual void evaluate(const Vec3f &wo, const SurfaceInteraction &si, const Point2f &sample, std::vector<uint8_t> &data) const = 0;
 		};
 

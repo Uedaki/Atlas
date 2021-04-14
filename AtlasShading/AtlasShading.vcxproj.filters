@@ -45,6 +45,9 @@
     <ClInclude Include="Glass.h">
       <Filter>Shaders</Filter>
     </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>Shaders</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Lambert.cpp">
