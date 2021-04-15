@@ -128,7 +128,7 @@ namespace atlas
 				}
 				cone.tmax = std::numeric_limits<Float>::max();
 
-#if 0 // test if all rays are inside the cone
+#if 1 // test if all rays are inside the cone
 				for (uint32_t j = 0; j < size; j++)
 				{
 					if (dot(normalize(data.batch->origins[startingIndex + j] - cone.origin), dir) < cone.dot)

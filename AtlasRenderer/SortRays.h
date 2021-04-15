@@ -317,15 +317,16 @@ namespace atlas
 				CHECK(sortingPacks.size() != 0);
 
 				SortingPack pack;
+				if (isRunning && !getNextPack(pack))
 				{ // lock scope
 					std::unique_lock<std::mutex> lock(guard);
-					sleepCtrl.wait(lock, [this, &pack]()
-						{
-							return (!isRunning || getNextPack(pack));
-						});
-					if (!isRunning)
+					sleepCtrl.wait(lock);
+
+					if (!isRunning || !getNextPack(pack))
 						return;
 				}
+				else if (!isRunning)
+					return;
 
 				while (true)
 				{
@@ -344,7 +345,19 @@ namespace atlas
 
 					for (uint32_t i = 0; i < size; i++)
 					{
-						data.batch->swap(pack.start + i, ref[i]);
+						if (i < ref[i])
+						{
+							data.batch->swap(pack.start + i, ref[i]);
+						}
+						else if (ref[i] < i)
+						{
+							uint32_t ib = i;
+							while (ref[ib] < i)
+							{
+								ib = ref[ib];
+							}
+							data.batch->swap(pack.start + i, ref[ref[ib]]);
+						}
 					}
 
 					if (med > 64)
@@ -426,7 +439,7 @@ namespace atlas
 
 			Data data;
 
-			bool isRunning;
+			std::atomic<bool> isRunning;
 
 			std::mutex guard;
 			std::mutex guard2;

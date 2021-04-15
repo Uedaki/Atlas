@@ -1,11 +1,15 @@
 #include "Acheron.h"
 
 #include <string>
+#include <filesystem>
+
+#include "atlas/core/Telemetry.h"
 
 #include "GenerateFirstRays.h"
 #include "ExtractBatch.h"
 #include "SortRays.h"
 #include "traceRays.h"
+#include "Shade.h"
 
 #include "BSDF.h"
 #include "Material.h"
@@ -26,6 +30,12 @@ Acheron::~Acheron()
 
 void Acheron::render(const Camera &camera, const Primitive &scene)
 {
+	TELEMETRY(achRender, "Acheron/render");
+
+	char currentDir[256];
+	GetCurrentDirectoryA(256, currentDir);
+	cleanTemporaryFolder();
+
 	uint32_t it = 0;
 	uint32_t sppStep = 2;
 	info.spp = 2;
@@ -43,11 +53,16 @@ void Acheron::render(const Camera &camera, const Primitive &scene)
 		renderIteration(camera, scene, film, currentSpp);
 		sppStep = std::max(sppStep * 2, 16u);
 	}
+
+	SetCurrentDirectoryA(currentDir);
 }
 
 void Acheron::renderIteration(const Camera &camera, const Primitive &scene, Film &film, uint32_t spp)
 {
+	TELEMETRY(achIteration, "Acheron/render/iteration");
+
 	{
+		TELEMETRY(achGenFirstRays, "Acheron/render/iteration/generateFirstRays");
 		task::GenerateFirstRays::Data data;
 		data.resolution = resolution;
 		data.spp = spp;
@@ -66,12 +81,15 @@ void Acheron::processBatches(const Primitive &scene, Film &film)
 {
 	while (true)
 	{
+		TELEMETRY(achProcessBatch, "acheron/render/processBatches");
+
 		{
 			Batch batch(Bin::MaxSize);
 			std::vector<SurfaceInteraction> interactions(Bin::MaxSize);
 
 			// extract batch
 			{
+				TELEMETRY(achExtractBatch, "acheron/render/processBatches/extractBatch");
 #if 1
 				task::ExtractBatch::Data data;
 				data.dst = &batch;
@@ -94,15 +112,17 @@ void Acheron::processBatches(const Primitive &scene, Film &film)
 			}
 
 			// sort rays
-			//{
-			//	task::SortRays::Data data;
-			//	data.batch = &batch;
-			//	threads.execute<task::SortRays>(data);
-			//	threads.join();
-			//}
+			{
+				TELEMETRY(achSortRays, "acheron/render/processBatches/sortRays");
+				task::SortRays::Data data;
+				data.batch = &batch;
+				threads.execute<task::SortRays>(data);
+				threads.join();
+			}
 
 			// traverse
 			{
+				TELEMETRY(achTraceRays, "acheron/render/processBatches/traceRays");
 				task::TraceRays::Data data;
 				data.batch = &batch;
 				data.scene = &scene;
@@ -111,62 +131,104 @@ void Acheron::processBatches(const Primitive &scene, Film &film)
 				threads.join();
 			}
 
-			//std::sort(interactions.begin(), interactions.end(), [](const SurfaceInteraction &s1, const SurfaceInteraction &s2)
+			//for (uint32_t i = 0; i < batch.size(); i++)
+			//{
+			//	if (interactions[i].material)
 			//	{
-			//		return ((uint64_t)s1.material < (uint64_t)s2.material);
-			//	});
+			//		film.addSample(batch.pixelIDs[i], Spectrum(1, 0, 0));
+			//	}
+			//	else
+			//	{
+			//		film.addSample(batch.pixelIDs[i], Spectrum(0, 0, 0));
+			//	}
+			//}
+			//continue;
 
-			manager.mapBins();
-			std::array<LocalBin, 6> localBins;
-			for (uint32_t i = 0; i < batch.size(); i++)
 			{
-				if (interactions[i].material)
+				TELEMETRY(achSortSi, "acheron/render/processBatches/sortSi");
+				
+				std::vector<uint32_t> ref(batch.size());
+				for (uint32_t i = 0; i < batch.size(); i++)
+					ref[i] = i;
+		
+				std::sort(ref.begin(), ref.end(), [&interactions](const uint32_t &s1, const uint32_t &s2)
+					{
+						return ((uint64_t)interactions[s1].material < (uint64_t)interactions[s2].material);
+					});
+
+				std::vector<SurfaceInteraction> si(interactions.size());
+				for (uint32_t i = 0; i < batch.size(); i++)
 				{
-					film.addSample(batch.pixelIDs[i], Spectrum(1.f, 0, 0));
-					continue;
-
-					if (batch.depths[i] >= info.maxDepth)
+					if (i < ref[i])
 					{
-						film.addSample(batch.pixelIDs[i], Spectrum(0.f));
-						continue;
+						batch.swap(i, ref[i]);
+						std::swap(interactions[i], interactions[ref[i]]);
 					}
-
-					sh::BSDF bsdf = interactions[i].material->sample(-batch.directions[i], interactions[i], info.sampler->get2D());
-					if (bsdf.color.isBlack())
+					else if (ref[i] < i)
 					{
-						film.addSample(batch.pixelIDs[i], bsdf.color);
-						continue;
+						uint32_t ib = i;
+						while (ref[ib] < i)
+						{
+							ib = ref[ib];
+						}
+						batch.swap(i, ref[ib]);
+						std::swap(interactions[i], interactions[ref[ib]]);
 					}
-
-					if (bsdf.wi.length() == 0)
-					{
-						film.addSample(batch.pixelIDs[i], Spectrum(0.f));
-						continue;
-					}
-
-					Ray r(interactions[i].p, bsdf.wi);
-
-					const uint8_t vectorIndex = abs(bsdf.wi).maxDimension();
-					const bool isNegative = std::signbit(bsdf.wi[vectorIndex]);
-					const uint8_t index = vectorIndex * 2 + isNegative;
-					if (localBins[index].feed(CompactRay(r, batch.colors[i] * bsdf.color, batch.pixelIDs[i], batch.sampleIDs[i], batch.depths[i] + 1)))
-						manager.feed(index, localBins[index]);
-				}
-				else
-				{
-					atlas::Vec3f unitDir = normalize(batch.directions[i]);
-					auto t = 0.5 * (unitDir.y + 1.0);
-					Spectrum color((1.0 - t) * atlas::Spectrum(1.f) + t * atlas::Spectrum(0.5, 0.7, 1.0));
-					film.addSample(batch.pixelIDs[i], batch.colors[i] * color);
 				}
 			}
 
-			for (uint32_t i = 0; i < localBins.size(); i++)
 			{
-				manager.feed(i, localBins[i]);
-			}
+				TELEMETRY(achShading, "acheron/render/processBatches/shading");
 
-			manager.unmapBins();
+				std::mutex samplesGuard;
+				std::vector<Sample> samples;
+
+				std::vector<ShadingPack> shadingPack(1);
+				shadingPack[0].start = 0;
+				shadingPack[0].end = 0;
+				shadingPack[0].material = interactions[0].material;
+				for (uint32_t i = 1; i < batch.size(); i++)
+				{
+					if (shadingPack.back().material != interactions[i].material)
+					{
+						shadingPack.emplace_back();
+						shadingPack.back().start = i;
+						shadingPack.back().material = interactions[i].material;
+						CHECK(interactions[i].material);
+					}
+					shadingPack.back().end = i;
+				}
+
+				task::Shade::Data data;
+				data.startingIndex = shadingPack.front().material ? 0 : 1;
+				data.maxDepth = info.maxDepth;
+				data.batch = &batch;
+				data.interactions = &interactions;
+				data.shadingPack = &shadingPack;
+				data.sampler = info.sampler;
+				data.samples = &samples;
+				data.samplesGuard = &samplesGuard;
+				data.batchManager = &manager;
+				threads.execute<task::Shade>(data);
+
+				if (!shadingPack.front().material)
+				{
+					for (uint32_t i = shadingPack.front().start; i < shadingPack.front().end; i++)
+					{
+						atlas::Vec3f unitDir = normalize(batch.directions[i]);
+						auto t = 0.5 * (unitDir.y + 1.0);
+						Spectrum color((1.0 - t) *atlas::Spectrum(1.f) + t * atlas::Spectrum(0.5, 0.7, 1.0));
+						film.addSample(batch.pixelIDs[i], batch.colors[i] * color);
+					}
+				}
+
+				threads.join();
+
+				for (Sample &sample : samples)
+				{
+					film.addSample(sample.pixelID, sample.color);
+				}
+			}
 		}
 
 		// sort hitpoints
@@ -215,4 +277,22 @@ void Acheron::processSmallBatches(Batch &batch, const Primitive &scene, Film &fi
 			threads.join();
 		}
 	}
+}
+
+void Acheron::cleanTemporaryFolder()
+{
+	BOOL res;
+	info.parameter.tmpFolder += "/render";
+	if (!CreateDirectoryA(info.parameter.tmpFolder.c_str(), nullptr))
+	{
+		res = GetLastError();
+		if (res == ERROR_ALREADY_EXISTS)
+		{
+			for (const auto &entry : std::filesystem::directory_iterator(info.parameter.tmpFolder.c_str()))
+				std::filesystem::remove_all(entry.path());
+		}
+		else if (res == ERROR_PATH_NOT_FOUND)
+			CHECK_WIN_CALL(false);
+	}
+	SetCurrentDirectoryA(info.parameter.tmpFolder.c_str());
 }

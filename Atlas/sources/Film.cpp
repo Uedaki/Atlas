@@ -47,6 +47,12 @@ Bounds2f Film::getPhysicalExtent() const
 
 void Film::addSample(const uint32_t pixelID, const Spectrum &LIn, Float sampleWeight)
 {
+    if (LIn.isBlack())
+    {
+        int a;
+        a = 9;
+    }
+
     Pixel &pixel = pixels[pixelID];
     pixel.color += LIn * sampleWeight;
     pixel.filterWeightSum += 1;

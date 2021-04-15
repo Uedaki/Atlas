@@ -46,7 +46,7 @@ namespace atlas
 
 	struct Bin
 	{
-		static constexpr uint32_t MaxSize = 32768;
+		static constexpr uint32_t MaxSize = 65536;// 32768;
 
 		struct FileHandles
 		{

@@ -51,6 +51,7 @@ namespace atlas
 						
 						uncompletedBin->filename = data.batchManager->getNewBatchName();
 						Bin::open(*uncompletedBin);
+						Bin::unmap(uncompletedBin->currentFile);
 					}
 					else
 						return (false);
@@ -62,9 +63,15 @@ namespace atlas
 
 				uint32_t flags = OPEN_EXISTING;
 
-				handle.file = CreateFileA(filename.c_str(), GENERIC_READ, 0, nullptr, flags, FILE_ATTRIBUTE_READONLY | FILE_ATTRIBUTE_TEMPORARY | FILE_FLAG_DELETE_ON_CLOSE, nullptr);
+				handle.file = CreateFileA(filename.c_str(), GENERIC_READ, 0, nullptr, flags, FILE_ATTRIBUTE_READONLY | FILE_ATTRIBUTE_TEMPORARY, nullptr);
+				CHECK_WIN_CALL(handle.file != INVALID_HANDLE_VALUE);
+
 				handle.mapping = CreateFileMappingA(handle.file, nullptr, PAGE_READONLY, 0, byteSize, nullptr);
+				CHECK_WIN_CALL(handle.mapping);
+
 				handle.buffer = (CompactRay *)MapViewOfFile(handle.mapping, FILE_MAP_READ, 0, 0, byteSize);
+				CHECK_WIN_CALL(handle.buffer);
+
 				data.dst->resize(size);
 				return (true);
 			}
@@ -90,6 +97,12 @@ namespace atlas
 						data.dst->sampleIDs[i] = handle.buffer[i].sampleID;
 						data.dst->depths[i] = handle.buffer[i].depth;
 						data.dst->tNears[i] = handle.buffer[i].tNear;
+
+						if (data.dst->colors[i].isBlack())
+						{
+							int a;
+							a = handle.buffer[i].weight;
+						}
 					}
 				}
 

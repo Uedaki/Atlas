@@ -147,7 +147,7 @@ namespace atlas
 						});
 
 					taskIdx = currentTask;  // it is better to stock currentTask inside a variable to reduce access to an atomic variable
-					if (!isRunning || taskStates[lastTask] == ThreadedTaskState::FINISHING || taskStates[lastTask] == ThreadedTaskState::CLOSED)
+					if (!isRunning || taskStates[lastTask] == ThreadedTaskState::CLOSED)
 						break;
 					else if (taskStates[taskIdx] == ThreadedTaskState::FINISHING
 						|| taskStates[taskIdx] == ThreadedTaskState::CLOSED)

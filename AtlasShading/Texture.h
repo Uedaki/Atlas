@@ -35,5 +35,15 @@ namespace atlas
 			ShadingInput<Spectrum> color2;
 			ShadingInput<Float> scale;
 		};
+
+		struct NoiseTexture : public Texture
+		{
+
+		};
+
+		struct ImageTexture : public Texture
+		{
+
+		};
 	}
 }

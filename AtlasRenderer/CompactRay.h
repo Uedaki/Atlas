@@ -57,7 +57,13 @@ namespace atlas
 			, sampleID(sample)
 			, depth(depth)
 			, tNear(tNear)
-		{}
+		{
+			if (color.isBlack())
+			{
+				int a;
+				a = 8;
+			}
+		}
 
 		CompactRay(const Ray &ray, uint32_t pixel, uint32_t sample, float tNear = 0)
 			: origin(ray.origin)
@@ -67,7 +73,13 @@ namespace atlas
 			, sampleID(sample)
 			, depth(0)
 			, tNear(tNear)
-		{}
+		{
+			if (weight == 0)
+			{
+				int a;
+				a = 8;
+			}
+		}
 
 		//void extract(NRay &ray)
 		//{
