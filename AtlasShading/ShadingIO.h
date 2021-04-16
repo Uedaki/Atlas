@@ -3,41 +3,38 @@
 #include <cstdint>
 
 #include "atlas/core/Logging.h"
+#include "DataBlock.h"
 
 namespace atlas
 {
 	namespace sh
 	{
-		template <typename T, size_t Size = 1>
+		template <typename T>
 		class ShadingOutput
 		{
 		public:
-			static constexpr size_t byteSize = sizeof(T) * Size;
-
 			ShadingOutput() = default;
 			ShadingOutput(uint32_t &size)
 				: pos(size)
 			{
-				size += sizeof(T) * Size;
+				size += sizeof(T);
 			}
 
 			void registerOutput(uint32_t &size)
 			{
 				pos = size;
-				size += sizeof(T) * Size;
+				size += sizeof(T);
 			}
 
-			void set(std::vector<uint8_t> &data, const T &value, uint32_t idx = 0) const
+			void set(DataBlock &block, const T &value) const
 			{
-				CHECK(pos != -1);
-				T *dst = (T *)&data[pos + idx];
-				*dst = value;
+				block.set(value, pos);
 			}
 
-			uint32_t getPos(uint32_t index = 0) const
+			uint32_t getPos() const
 			{
 				CHECK(pos != -1);
-				return (pos + index * sizeof(T));
+				return (pos);
 			}
 		private:
 			uint32_t pos = -1;
@@ -47,17 +44,14 @@ namespace atlas
 		class ShadingInput
 		{
 		public:
-			void connect(const ShadingOutput<T> &o, uint32_t index = 0)
+			void bind(const ShadingOutput<T> &o)
 			{
-				pos = o.getPos(index);
+				pos = o.getPos();
 			}
 
-			const T &getValue(const std::vector<uint8_t> &data) const
+			const T &get(const DataBlock &block) const
 			{
-				CHECK(pos != -1);
-
-				T *input = (T *)&data[pos];
-				return (*input);
+				return (block.get<T>(pos));
 			}
 
 		private:

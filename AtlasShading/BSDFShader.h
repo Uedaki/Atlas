@@ -19,7 +19,7 @@ namespace atlas
 				out.registerOutput(size);
 			}
 
-			void evaluate(const Vec3f &wo, const SurfaceInteraction &si, const Point2f &sample, std::vector<uint8_t> &data) const override
+			void evaluate(const Vec3f &wo, const SurfaceInteraction &si, const Point2f &sample, DataBlock &data) const override
 			{
 				BSDF bsdf;
 				bsdf.wi = cosineSampleHemisphere(sample);
@@ -30,7 +30,7 @@ namespace atlas
 				out.set(data, bsdf);
 			}
 
-			virtual Spectrum f(const Vec3f &wo, const Vec3f &wi, const std::vector<uint8_t> &data) const = 0;
+			virtual Spectrum f(const Vec3f &wo, const Vec3f &wi, const DataBlock &data) const = 0;
 
 			virtual Float pdf(const Vec3f &wo, const Vec3f &wi) const
 			{

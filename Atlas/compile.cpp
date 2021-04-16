@@ -61,22 +61,39 @@ std::vector<std::shared_ptr<atlas::Primitive>> createPrimitives()
 	std::shared_ptr<atlas::sh::Material> checkerMaterial = std::make_shared<atlas::sh::Material>();
 	{
 		auto &l = checkerMaterial->addShader<atlas::sh::Lambert>();
-		checkerMaterial->link(l);
+		checkerMaterial->bind(l);
 
 		auto &t = checkerMaterial->addShader<atlas::sh::CheckerTexture>();
-		l.r.connect(t.color);
+		l.iR.bind(t.color);
 
 		auto &c1 = checkerMaterial->addShader<atlas::sh::ConstantShader<atlas::Spectrum>>();
 		c1.value = atlas::Spectrum(0.2, 0.3, 0.1);
-		t.color1.connect(c1.out);
+		t.iColor1.bind(c1.out);
 
 		auto &c2 = checkerMaterial->addShader<atlas::sh::ConstantShader<atlas::Spectrum>>();
 		c2.value = atlas::Spectrum(0.9);
-		t.color2.connect(c2.out);
+		t.iColor2.bind(c2.out);
 
 		auto &s = checkerMaterial->addShader<atlas::sh::ConstantShader<Float>>();
 		s.value = 10;
-		t.scale.connect(s.out);
+		t.iScale.bind(s.out);
+	}
+
+	std::shared_ptr<atlas::sh::Material> noiseMaterial = std::make_shared<atlas::sh::Material>();
+	{
+		auto &l = noiseMaterial->addShader<atlas::sh::Lambert>();
+		noiseMaterial->bind(l);
+
+		auto &t = noiseMaterial->addShader<atlas::sh::TurbulenceNoiseTexture>();
+		l.iR.bind(t.color);
+
+		auto &s = noiseMaterial->addShader<atlas::sh::ConstantShader<Float>>();
+		s.value = 4;
+		t.iScale.bind(s.out);
+
+		auto &d = noiseMaterial->addShader<atlas::sh::ConstantShader<uint32_t>>();
+		d.value = 1;
+		t.iDepth.bind(d.out);
 	}
 
 	atlas::SphereInfo sphereInfo;
@@ -88,72 +105,74 @@ std::vector<std::shared_ptr<atlas::Primitive>> createPrimitives()
 	scene.push_back(std::make_shared<atlas::GeometricPrimitive>(
 		atlas::Sphere::createShape(sphereInfo),
 #if defined(SHADING)
-		checkerMaterial //atlas::sh::createLambertMaterial(atlas::Spectrum(0.5))
+		//checkerMaterial
+		noiseMaterial
+		//atlas::sh::createLambertMaterial(atlas::Spectrum(0.5))
 #else
 		atlas::MatteMaterial::create()
 #endif
 		));
 	
-	for (int a = -11; a < 11; a++)
-	{
-		for (int b = -11; b < 11; b++)
-		{
-			Float choose_mat = atlas::random();
-			atlas::Vec3f center(a + 0.9 * atlas::random(), 0.2, b + 0.9 * atlas::random());
-			sphereInfo.objectToWorld = setTransform(center.x, center.y, center.z);
-			sphereInfo.worldToObject = setInverse(sphereInfo.objectToWorld);
-			sphereInfo.radius = 0.2f;
-			if ((center - atlas::Vec3f(4, 0.2, 0)).length() > 0.9)
-			{
-#if defined(SHADING)
-				std::shared_ptr<atlas::sh::Material> material = nullptr;
-#else
-				std::shared_ptr<atlas::Material> material = nullptr;
-#endif
-				if (choose_mat < 0.8)
-				{
-#if defined(SHADING)
-					material = atlas::sh::createLambertMaterial(atlas::Spectrum(atlas::random() * atlas::random(), atlas::random() * atlas::random(), atlas::random() * atlas::random()));
-#else
-					atlas::MatteMaterialInfo info;
-					info.kd = atlas::createSpectrumConstant(atlas::random() * atlas::random(), atlas::random() * atlas::random(), atlas::random() * atlas::random());
-					material = atlas::MatteMaterial::create(info);
-#endif
-				}
-				else if (choose_mat < 0.95)
-				{
-#if defined(SHADING)
-					material = atlas::sh::createMetalMaterial(atlas::Spectrum(
-						0.5f * (1.0f + atlas::random(),
-							0.5f * (1.0f + atlas::random()),
-							0.5f * (1.0f + atlas::random()))));
-#else
-					atlas::MetalMaterialInfo info;
-					info.eta = atlas::createSpectrumConstant(
-						0.5f * (1.0f + atlas::random(),
-						0.5f * (1.0f + atlas::random()), 
-						0.5f * (1.0f + atlas::random())));
-					material = atlas::MetalMaterial::create(info);
-#endif
-				}
-				else
-				{
-#if defined(SHADING)
-					material = atlas::sh::createGlassMaterial(1.5f);
-#else
-					material = atlas::GlassMaterial::create();
-#endif
-				}
-				scene.push_back(std::make_shared<atlas::GeometricPrimitive>(
-					atlas::Sphere::createShape(sphereInfo), material
-					));
-			}
-		}
-	}
+//	for (int a = -11; a < 11; a++)
+//	{
+//		for (int b = -11; b < 11; b++)
+//		{
+//			Float choose_mat = atlas::random();
+//			atlas::Vec3f center(a + 0.9 * atlas::random(), 0.2, b + 0.9 * atlas::random());
+//			sphereInfo.objectToWorld = setTransform(center.x, center.y, center.z);
+//			sphereInfo.worldToObject = setInverse(sphereInfo.objectToWorld);
+//			sphereInfo.radius = 0.2f;
+//			if ((center - atlas::Vec3f(4, 0.2, 0)).length() > 0.9)
+//			{
+//#if defined(SHADING)
+//				std::shared_ptr<atlas::sh::Material> material = nullptr;
+//#else
+//				std::shared_ptr<atlas::Material> material = nullptr;
+//#endif
+//				if (choose_mat < 0.8)
+//				{
+//#if defined(SHADING)
+//					material = atlas::sh::createLambertMaterial(atlas::Spectrum(atlas::random() * atlas::random(), atlas::random() * atlas::random(), atlas::random() * atlas::random()));
+//#else
+//					atlas::MatteMaterialInfo info;
+//					info.kd = atlas::createSpectrumConstant(atlas::random() * atlas::random(), atlas::random() * atlas::random(), atlas::random() * atlas::random());
+//					material = atlas::MatteMaterial::create(info);
+//#endif
+//				}
+//				else if (choose_mat < 0.95)
+//				{
+//#if defined(SHADING)
+//					material = atlas::sh::createMetalMaterial(atlas::Spectrum(
+//						0.5f * (1.0f + atlas::random(),
+//							0.5f * (1.0f + atlas::random()),
+//							0.5f * (1.0f + atlas::random()))));
+//#else
+//					atlas::MetalMaterialInfo info;
+//					info.eta = atlas::createSpectrumConstant(
+//						0.5f * (1.0f + atlas::random(),
+//						0.5f * (1.0f + atlas::random()), 
+//						0.5f * (1.0f + atlas::random())));
+//					material = atlas::MetalMaterial::create(info);
+//#endif
+//				}
+//				else
+//				{
+//#if defined(SHADING)
+//					material = atlas::sh::createGlassMaterial(1.5f);
+//#else
+//					material = atlas::GlassMaterial::create();
+//#endif
+//				}
+//				scene.push_back(std::make_shared<atlas::GeometricPrimitive>(
+//					atlas::Sphere::createShape(sphereInfo), material
+//					));
+//			}
+//		}
+//	}
 
-	sphereInfo.radius = 1.f;
-	sphereInfo.zMax = 1.f;
-	sphereInfo.zMin = -1.f;
+	sphereInfo.radius = 2.f;
+	sphereInfo.zMax = 2.f;
+	sphereInfo.zMin = -2.f;
 
 	std::shared_ptr<atlas::Material> material = nullptr;
 	atlas::MatteMaterialInfo matteInfo;
@@ -162,43 +181,43 @@ std::vector<std::shared_ptr<atlas::Primitive>> createPrimitives()
 
 	atlas::GlassMaterialInfo glassInfo;
 	glassInfo.index = atlas::createFloatConstant(1.3f);
+//
+//	sphereInfo.objectToWorld = setTransform(0, 1, 0);
+//	sphereInfo.worldToObject = setInverse(sphereInfo.objectToWorld);
+//	scene.push_back(std::make_shared<atlas::GeometricPrimitive>(
+//		atlas::Sphere::createShape(sphereInfo),
+//#if defined(SHADING)
+//		atlas::sh::createGlassMaterial(1.3f)
+//#else
+//		atlas::GlassMaterial::create(glassInfo)
+//#endif
+//		));
 
-	sphereInfo.objectToWorld = setTransform(0, 1, 0);
+	sphereInfo.objectToWorld = setTransform(0, 2, 0);
 	sphereInfo.worldToObject = setInverse(sphereInfo.objectToWorld);
 	scene.push_back(std::make_shared<atlas::GeometricPrimitive>(
 		atlas::Sphere::createShape(sphereInfo),
 #if defined(SHADING)
-		atlas::sh::createGlassMaterial(1.3f)
-#else
-		atlas::GlassMaterial::create(glassInfo)
-#endif
-		));
-
-	sphereInfo.objectToWorld = setTransform(-4, 1, 0);
-	sphereInfo.worldToObject = setInverse(sphereInfo.objectToWorld);
-	scene.push_back(std::make_shared<atlas::GeometricPrimitive>(
-		atlas::Sphere::createShape(sphereInfo),
-#if defined(SHADING)
-		atlas::sh::createLambertMaterial(atlas::Spectrum(0.8, 0.2, 0.1))
+		noiseMaterial //atlas::sh::createLambertMaterial(atlas::Spectrum(0.8, 0.2, 0.1))
 #else
 		material
 #endif
 		));
 
-	atlas::MetalMaterialInfo metalInfo;
-	metalInfo.eta = atlas::createSpectrumConstant(0.7, 0.6, 0.5);
-	metalInfo.roughness = atlas::createFloatConstant(0);
-
-	sphereInfo.objectToWorld = setTransform(4, 1, 0);
-	sphereInfo.worldToObject = setInverse(sphereInfo.objectToWorld);
-	scene.push_back(std::make_shared<atlas::GeometricPrimitive>(
-		atlas::Sphere::createShape(sphereInfo),
-#if defined(SHADING)
-		atlas::sh::createMetalMaterial(atlas::Spectrum(0.7, 0.6, 0.5))
-#else
-		atlas::MetalMaterial::create(metalInfo)
-#endif
-		));
+//	atlas::MetalMaterialInfo metalInfo;
+//	metalInfo.eta = atlas::createSpectrumConstant(0.7, 0.6, 0.5);
+//	metalInfo.roughness = atlas::createFloatConstant(0);
+//
+//	sphereInfo.objectToWorld = setTransform(4, 1, 0);
+//	sphereInfo.worldToObject = setInverse(sphereInfo.objectToWorld);
+//	scene.push_back(std::make_shared<atlas::GeometricPrimitive>(
+//		atlas::Sphere::createShape(sphereInfo),
+//#if defined(SHADING)
+//		atlas::sh::createMetalMaterial(atlas::Spectrum(0.7, 0.6, 0.5))
+//#else
+//		atlas::MetalMaterial::create(metalInfo)
+//#endif
+//		));
 	return (scene);
 }
 

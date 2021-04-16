@@ -2,10 +2,11 @@
 
 #include "Material.h"
 
-void atlas::sh::Glass::evaluate(const Vec3f &wo, const SurfaceInteraction &si, const Point2f &sample, std::vector<uint8_t> &data) const
+void atlas::sh::Glass::evaluate(const Vec3f &wo, const SurfaceInteraction &si, const Point2f &sample, DataBlock &block) const
 {
 	BSDF bsdf;
 
+	Float eta = iEta.get(block);
 	bool entering = cosTheta(wo) > 0;
 	Float etaI = entering ? 1.f : eta;
 	Float etaT = entering ? eta : 1.f;
@@ -19,10 +20,10 @@ void atlas::sh::Glass::evaluate(const Vec3f &wo, const SurfaceInteraction &si, c
 		bsdf.pdf = 0;
 		bsdf.color = Spectrum(0.f);
 	}
-	out.set(data, bsdf);
+	out.set(block, bsdf);
 }
 
-atlas::Spectrum atlas::sh::Glass::f(const Vec3f &wo, const Vec3f &wi, const std::vector<uint8_t> &data) const
+atlas::Spectrum atlas::sh::Glass::f(const Vec3f &wo, const Vec3f &wi, const DataBlock &block) const
 {
 	return (Spectrum(0.f));
 }
@@ -31,7 +32,11 @@ std::shared_ptr<atlas::sh::Material> atlas::sh::createGlassMaterial(Float eta)
 {
 	std::shared_ptr<Material> m = std::make_shared<Material>();
 	Glass &glass = m->addShader<Glass>();
-	glass.eta = eta;
-	m->link(glass);
+	m->bind(glass);
+
+	auto &c = m->addShader<ConstantShader<Float>>();
+	c.value = eta;
+	glass.iEta.bind(c.out);
+
 	return (m);
 }

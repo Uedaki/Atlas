@@ -2,9 +2,9 @@
 
 #include "Material.h"
 
-atlas::Spectrum atlas::sh::Lambert::f(const Vec3f &wo, const Vec3f &wi, const std::vector<uint8_t> &data) const
+atlas::Spectrum atlas::sh::Lambert::f(const Vec3f &wo, const Vec3f &wi, const DataBlock &data) const
 {
-	return (r.getValue(data));
+	return (iR.get(data));
 }
 
 std::shared_ptr<atlas::sh::Material> atlas::sh::createLambertMaterial(const Spectrum &r)
@@ -13,7 +13,7 @@ std::shared_ptr<atlas::sh::Material> atlas::sh::createLambertMaterial(const Spec
 	Lambert &lambert = m->addShader<Lambert>();
 	ConstantShader<Spectrum> &color = m->addShader<ConstantShader<Spectrum>>();
 	color.value = r;
-	lambert.r.connect(color.out);
-	m->link(lambert);
+	lambert.iR.bind(color.out);
+	m->bind(lambert);
 	return (m);
 }

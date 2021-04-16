@@ -11,10 +11,10 @@ namespace atlas
 
 		struct Metal : public BSDFShader
 		{
-			ATLAS_SH void evaluate(const Vec3f &wo, const SurfaceInteraction &si, const Point2f &sample, std::vector<uint8_t> &data) const override;
-			ATLAS_SH Spectrum f(const Vec3f &wo, const Vec3f &wi, const std::vector<uint8_t> &data) const override;
+			ATLAS_SH void evaluate(const Vec3f &wo, const SurfaceInteraction &si, const Point2f &sample, DataBlock &block) const override;
+			ATLAS_SH Spectrum f(const Vec3f &wo, const Vec3f &wi, const DataBlock &block) const override;
 
-			Spectrum r;
+			ShadingInput<Spectrum> iR;
 		};
 
 		ATLAS_SH std::shared_ptr<Material> createMetalMaterial(const Spectrum &r);

@@ -7,6 +7,7 @@
 #include "BSDF.h"
 #include "Shader.h"
 #include "BSDFShader.h"
+#include "DataBlock.h"
 
 namespace atlas
 {
@@ -36,12 +37,12 @@ namespace atlas
 				Vec3f wo = Vec3f(dot(woWorld, ss), dot(woWorld, ts), dot(woWorld, ns));
 
 				{
-					std::vector<uint8_t> data(dataSize);
+					DataBlock block(dataSize);
 					for (uint32_t i = shaders.size() - 1; i < shaders.size(); i--)
 					{
-						shaders[i]->evaluate(wo, si, sample, data);
+						shaders[i]->evaluate(wo, si, sample, block);
 					}
-					bsdf = bsdfInput.getValue(data);
+					bsdf = bsdfInput.get(block);
 				}
 
 				// transform wi from local to world
@@ -52,9 +53,9 @@ namespace atlas
 				return (bsdf);
 			}
 
-			void link(const BSDFShader &shader)
+			void bind(const BSDFShader &shader)
 			{
-				bsdfInput.connect(shader.out);
+				bsdfInput.bind(shader.out);
 			}
 
 		private:

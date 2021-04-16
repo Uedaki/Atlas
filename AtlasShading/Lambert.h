@@ -11,9 +11,9 @@ namespace atlas
 
 		struct Lambert : public BSDFShader
 		{
-			ATLAS_SH Spectrum f(const Vec3f &wo, const Vec3f &wi, const std::vector<uint8_t> &data) const override;
+			ATLAS_SH Spectrum f(const Vec3f &wo, const Vec3f &wi, const DataBlock &block) const override;
 
-			ShadingInput<Spectrum> r;
+			ShadingInput<Spectrum> iR;
 		};
 
 		ATLAS_SH std::shared_ptr<Material> createLambertMaterial(const Spectrum &r);

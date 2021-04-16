@@ -103,7 +103,7 @@ void Acheron::processBatches(const Primitive &scene, Film &film)
 				threads.execute<task::S4ExtractBatch>(data);
 #endif
 				threads.join();
-				if (batch.size() == 0)//< 512)//!task->hasBatchToProcess())
+				if (batch.size() < 512)//!task->hasBatchToProcess())
 				{
 					processSmallBatches(batch, scene, film);
 					return;
@@ -111,16 +111,16 @@ void Acheron::processBatches(const Primitive &scene, Film &film)
 				printf("Batch %d\n", batch.size());
 			}
 
-			// sort rays
-			{
-				TELEMETRY(achSortRays, "acheron/render/processBatches/sortRays");
-				task::SortRays::Data data;
-				data.batch = &batch;
-				threads.execute<task::SortRays>(data);
-				threads.join();
-			}
+			//// sort rays
+			//{
+			//	TELEMETRY(achSortRays, "acheron/render/processBatches/sortRays");
+			//	task::SortRays::Data data;
+			//	data.batch = &batch;
+			//	threads.execute<task::SortRays>(data);
+			//	threads.join();
+			//}
 
-			// traverse
+			// trace rays
 			{
 				TELEMETRY(achTraceRays, "acheron/render/processBatches/traceRays");
 				task::TraceRays::Data data;
@@ -131,19 +131,7 @@ void Acheron::processBatches(const Primitive &scene, Film &film)
 				threads.join();
 			}
 
-			//for (uint32_t i = 0; i < batch.size(); i++)
-			//{
-			//	if (interactions[i].material)
-			//	{
-			//		film.addSample(batch.pixelIDs[i], Spectrum(1, 0, 0));
-			//	}
-			//	else
-			//	{
-			//		film.addSample(batch.pixelIDs[i], Spectrum(0, 0, 0));
-			//	}
-			//}
-			//continue;
-
+			// sort hitpoints
 			{
 				TELEMETRY(achSortSi, "acheron/render/processBatches/sortSi");
 				
@@ -177,6 +165,7 @@ void Acheron::processBatches(const Primitive &scene, Film &film)
 				}
 			}
 
+			// process hitpoints
 			{
 				TELEMETRY(achShading, "acheron/render/processBatches/shading");
 
@@ -230,12 +219,6 @@ void Acheron::processBatches(const Primitive &scene, Film &film)
 				}
 			}
 		}
-
-		// sort hitpoints
-
-		// process hitpoints
-
-		// launch one thread to addsample to the film
 	}
 }
 
@@ -262,8 +245,10 @@ void Acheron::processSmallBatches(Batch &batch, const Primitive &scene, Film &fi
 	while (batch.size())
 	{
 		printf("Small batch %d\n", batch.size());
+		TELEMETRY(achrSmallBatches, "acheron/render/processBatches/smallBatches");
 		for (uint32_t i = 0; i < batch.size(); i++)
 		{
+			info.sampler->startPixel(Point2i(0, 0));
 			Ray r(batch.origins[i], batch.directions[i]);
 			Spectrum color = batch.colors[i] * getColorAlongRay(r, scene, *info.sampler, batch.depths[i]);
 			film.addSample(batch.pixelIDs[i], color);
