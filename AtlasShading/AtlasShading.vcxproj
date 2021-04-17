@@ -148,17 +148,21 @@
     <ClInclude Include="AtlasShadingLibHeader.h" />
     <ClInclude Include="DataBlock.h" />
     <ClInclude Include="Glass.h" />
+    <ClInclude Include="ImageLibrary.h" />
     <ClInclude Include="Lambert.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Metal.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShadingIO.h" />
+    <ClInclude Include="stb_image.h" />
     <ClInclude Include="Texture.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Glass.cpp" />
+    <ClCompile Include="ImageLibrary.cpp" />
     <ClCompile Include="Lambert.cpp" />
     <ClCompile Include="Metal.cpp" />
+    <ClCompile Include="stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Atlas\Atlas.vcxproj">

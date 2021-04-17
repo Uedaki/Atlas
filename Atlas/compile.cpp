@@ -64,7 +64,7 @@ std::vector<std::shared_ptr<atlas::Primitive>> createPrimitives()
 		checkerMaterial->bind(l);
 
 		auto &t = checkerMaterial->addShader<atlas::sh::CheckerTexture>();
-		l.iR.bind(t.color);
+		l.iR.bind(t.oColor);
 
 		auto &c1 = checkerMaterial->addShader<atlas::sh::ConstantShader<atlas::Spectrum>>();
 		c1.value = atlas::Spectrum(0.2, 0.3, 0.1);
@@ -85,7 +85,7 @@ std::vector<std::shared_ptr<atlas::Primitive>> createPrimitives()
 		noiseMaterial->bind(l);
 
 		auto &t = noiseMaterial->addShader<atlas::sh::TurbulenceNoiseTexture>();
-		l.iR.bind(t.color);
+		l.iR.bind(t.oColor);
 
 		auto &s = noiseMaterial->addShader<atlas::sh::ConstantShader<Float>>();
 		s.value = 4;
@@ -94,6 +94,20 @@ std::vector<std::shared_ptr<atlas::Primitive>> createPrimitives()
 		auto &d = noiseMaterial->addShader<atlas::sh::ConstantShader<uint32_t>>();
 		d.value = 1;
 		t.iDepth.bind(d.out);
+	}
+
+	std::shared_ptr<atlas::sh::Material> imageMaterial = std::make_shared<atlas::sh::Material>();
+	{
+		auto &l = imageMaterial->addShader<atlas::sh::Lambert>();
+		imageMaterial->bind(l);
+
+		auto &t = imageMaterial->addShader<atlas::sh::ImageTexture>();
+		l.iR.bind(t.oColor);
+		t.imageID = atlas::sh::ImageLibrary::requestID("../earthmap.jpg");
+
+		auto &c = imageMaterial->addShader<atlas::sh::ConstantShader<atlas::Vec2f>>();
+		c.value = atlas::Vec2f(0, 0);
+		t.iOffset.bind(c.out);
 	}
 
 	atlas::SphereInfo sphereInfo;
@@ -198,7 +212,7 @@ std::vector<std::shared_ptr<atlas::Primitive>> createPrimitives()
 	scene.push_back(std::make_shared<atlas::GeometricPrimitive>(
 		atlas::Sphere::createShape(sphereInfo),
 #if defined(SHADING)
-		noiseMaterial //atlas::sh::createLambertMaterial(atlas::Spectrum(0.8, 0.2, 0.1))
+		imageMaterial//noiseMaterial //atlas::sh::createLambertMaterial(atlas::Spectrum(0.8, 0.2, 0.1))
 #else
 		material
 #endif

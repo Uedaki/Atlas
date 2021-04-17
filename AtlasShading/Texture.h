@@ -5,6 +5,8 @@
 
 #include "atlas/core/Random.h"
 
+#include "ImageLibrary.h"
+
 namespace atlas
 {
 	namespace sh
@@ -15,12 +17,12 @@ namespace atlas
 		{
 			void registerOutputs(uint32_t &size) override
 			{
-				color.registerOutput(size);
-				alpha.registerOutput(size);
+				oColor.registerOutput(size);
+				oAlpha.registerOutput(size);
 			}
 
-			ShadingOutput<Spectrum> color;
-			ShadingOutput<Float> alpha;
+			ShadingOutput<Spectrum> oColor;
+			ShadingOutput<Float> oAlpha;
 		};
 
 		struct CheckerTexture : public Texture
@@ -29,8 +31,8 @@ namespace atlas
 			{
 				Float scale = iScale.get(block);
 				Float sines = sin(si.p.x * scale) * sin(si.p.y * scale) * sin(si.p.z * scale);
-				color.set(block, sines < 0 ? iColor1.get(block) : iColor2.get(block));
-				alpha.set(block, 1);
+				oColor.set(block, sines < 0 ? iColor1.get(block) : iColor2.get(block));
+				oAlpha.set(block, 1);
 			}
 
 			ShadingInput<Spectrum> iColor1;
@@ -70,8 +72,8 @@ namespace atlas
 				Float scale = iScale.get(block);
 				Point3f p = scale * si.p;
 				Float value = 0.5 * (1 + noise(p));
-				color.set(block, Spectrum(value));
-				alpha.set(block, value);
+				oColor.set(block, Spectrum(value));
+				oAlpha.set(block, value);
 			}
 
 			ShadingInput<Float> iScale;
@@ -166,8 +168,8 @@ namespace atlas
 				}
 
 				Float value = 0.5 * (1 + sin(scale * si.p.z + 10 * fabs(acc)));
-				color.set(block, Spectrum(value));
-				alpha.set(block, value);
+				oColor.set(block, Spectrum(value));
+				oAlpha.set(block, value);
 			}
 
 			ShadingInput<uint32_t> iDepth;
@@ -175,7 +177,18 @@ namespace atlas
 
 		struct ImageTexture : public Texture
 		{
+			void evaluate(const Vec3f &wo, const SurfaceInteraction &si, const Point2f &sample, DataBlock &block) const override
+			{
+				Vec2f offset = iOffset.get(block);
 
+				Float alpha;
+				Spectrum color = ImageLibrary::sample(imageID, si.uv + offset, alpha);
+				oColor.set(block, color);
+				oAlpha.set(block, alpha);
+			}
+
+			ShadingInput<Vec2f> iOffset;
+			ImageID imageID;
 		};
 	}
 }
