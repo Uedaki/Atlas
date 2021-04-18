@@ -192,6 +192,7 @@
     <ClInclude Include="includes\Atlas\primitives\BvhAccel.h" />
     <ClInclude Include="includes\Atlas\primitives\GeometricPrimitive.h" />
     <ClInclude Include="includes\Atlas\shapes\Sphere.h" />
+    <ClInclude Include="Light.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="sources\BvhAccel.cpp" />

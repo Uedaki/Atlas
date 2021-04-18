@@ -17,10 +17,10 @@ namespace atlas
 		Float b;
 
 		RgbSpectrum() = default;
-		RgbSpectrum(Float v)
+		constexpr RgbSpectrum(Float v)
 			: r(v), g(v), b(v)
 		{}
-		RgbSpectrum(Float r, Float g, Float b)
+		constexpr RgbSpectrum(Float r, Float g, Float b)
 			: r(r), g(g), b(b)
 		{}
 
@@ -158,6 +158,12 @@ namespace atlas
 			return (std::isnan(r) && std::isnan(g) && std::isnan(b));
 		}
 	};
+
+	static constexpr RgbSpectrum BLACK = RgbSpectrum(0);
+	static constexpr RgbSpectrum WHITE = RgbSpectrum(1);
+	static constexpr RgbSpectrum RED = RgbSpectrum(1, 0, 0);
+	static constexpr RgbSpectrum GREEN = RgbSpectrum(0, 1, 0);
+	static constexpr RgbSpectrum BLUE = RgbSpectrum(0, 0, 1);
 
 	inline RgbSpectrum operator+(Float scalar, const RgbSpectrum &s)
 	{

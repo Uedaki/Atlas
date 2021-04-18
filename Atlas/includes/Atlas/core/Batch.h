@@ -28,6 +28,8 @@ namespace atlas
 		std::vector<Float> tNears;
 		uint32_t usedSize;
 
+		Batch() = default;
+
 		Batch(uint32_t maxSize)
 			: origins(maxSize)
 			, directions(maxSize)
@@ -45,9 +47,32 @@ namespace atlas
 			return (usedSize);
 		}
 
+		void reserve(size_t size)
+		{
+			origins.resize(size);
+			directions.resize(size);
+			colors.resize(size);
+			pixelIDs.resize(size);
+			sampleIDs.resize(size);
+			depths.resize(size);
+			tNears.resize(size);
+		}
+
 		void resize(size_t newSize)
 		{
 			usedSize = newSize;
+		}
+
+		void clear()
+		{
+			usedSize = 0;
+			origins.clear();
+			directions.clear();
+			colors.clear();
+			pixelIDs.clear();
+			sampleIDs.clear();
+			depths.clear();
+			tNears.clear();
 		}
 
 		void swap(uint32_t a, uint32_t b)

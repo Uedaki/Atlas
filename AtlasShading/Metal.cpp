@@ -4,10 +4,10 @@
 
 void atlas::sh::Metal::evaluate(const Vec3f &wo, const SurfaceInteraction &si, const Point2f &sample, DataBlock &block) const
 {
-	BSDF bsdf;
+	BSDF bsdf = {};
 	bsdf.wi = Vec3f(-wo.x, -wo.y, wo.z);
 	bsdf.pdf = 1;
-	bsdf.color = iR.get(block);
+	bsdf.Li = iR.get(block);
 	out.set(block, bsdf);
 }
 

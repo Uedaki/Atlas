@@ -81,36 +81,26 @@ namespace atlas
 					{
 						data.sampler->startPixel(Point2i(0, 0));
 						if (data.batch->depths[i] >= data.maxDepth)
-						{
-							samples.emplace_back();
-							samples.back().color = Spectrum(0);
-							samples.back().pixelID = data.batch->pixelIDs[i];
 							continue;
-						}
 
 						sh::BSDF bsdf = data.shadingPack->at(idx).material->sample(-data.batch->directions[i], data.interactions->at(i), sampler->get2D());
-						if ((data.batch->colors[i] * bsdf.color).isBlack())
+						if (!bsdf.Le.isBlack())
 						{
-							samples.emplace_back();
-							samples.back().color = Spectrum(0);
-							samples.back().pixelID = data.batch->pixelIDs[i];
-							continue;
+							Sample s;
+							s.color = data.batch->colors[i] * bsdf.Le;
+							s.pixelID = data.batch->pixelIDs[i];
+							samples.push_back(s);
 						}
 
-						if (bsdf.wi.length() == 0)
-						{
-							samples.emplace_back();
-							samples.back().color = Spectrum(0);
-							samples.back().pixelID = data.batch->pixelIDs[i];
+						if ((data.batch->colors[i] * bsdf.Li).isBlack() || bsdf.wi.length() == 0)
 							continue;
-						}
 
 						Ray r(data.interactions->at(i).p, bsdf.wi);
 
 						const uint8_t vectorIndex = abs(bsdf.wi).maxDimension();
 						const bool isNegative = std::signbit(bsdf.wi[vectorIndex]);
 						const uint8_t index = vectorIndex * 2 + isNegative;
-						if (localBins[index].feed(CompactRay(r, data.batch->colors[i] * bsdf.color, data.batch->pixelIDs[i], data.batch->sampleIDs[i], data.batch->depths[i] + 1)))
+						if (localBins[index].feed(CompactRay(r, data.batch->colors[i] * bsdf.Li, data.batch->pixelIDs[i], data.batch->sampleIDs[i], data.batch->depths[i] + 1)))
 							data.batchManager->feed(index, localBins[index]);
 					}
 				}

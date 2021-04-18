@@ -19,18 +19,21 @@ namespace atlas
 				out.registerOutput(size);
 			}
 
-			void evaluate(const Vec3f &wo, const SurfaceInteraction &si, const Point2f &sample, DataBlock &data) const override
+			void evaluate(const Vec3f &wo, const SurfaceInteraction &si, const Point2f &sample, DataBlock &block) const override
 			{
-				BSDF bsdf;
+				BSDF bsdf = {};
 				bsdf.wi = cosineSampleHemisphere(sample);
 				if (wo.z < 0)
 					bsdf.wi.z *= -1;
 				bsdf.pdf = pdf(wo, bsdf.wi);
-				bsdf.color = f(wo, bsdf.wi, data);
-				out.set(data, bsdf);
+				bsdf.Li = f(wo, bsdf.wi, block);
+				out.set(block, bsdf);
 			}
 
-			virtual Spectrum f(const Vec3f &wo, const Vec3f &wi, const DataBlock &data) const = 0;
+			virtual Spectrum f(const Vec3f &wo, const Vec3f &wi, const DataBlock &block) const
+			{
+				return (BLACK);
+			}
 
 			virtual Float pdf(const Vec3f &wo, const Vec3f &wi) const
 			{

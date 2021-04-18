@@ -10,6 +10,7 @@
 #include "SortRays.h"
 #include "traceRays.h"
 #include "Shade.h"
+#include "iterationFilm.h"
 
 #include "BSDF.h"
 #include "Material.h"
@@ -36,28 +37,31 @@ void Acheron::render(const Camera &camera, const Primitive &scene)
 	GetCurrentDirectoryA(256, currentDir);
 	cleanTemporaryFolder();
 
+	batch.reserve(Bin::MaxSize);
+
 	uint32_t it = 0;
 	uint32_t sppStep = 2;
 	info.spp = 2;
+
+	IterationFilm itFilm(info.resolution, info.region, 35);
 	for (uint32_t i = 0; i < info.spp; i += sppStep)
 	{
 		uint32_t currentSpp = i + sppStep <= info.spp ? sppStep : i + sppStep - info.spp;
-		
-		FilmInfo filmInfo;
-		filmInfo.resolution = info.resolution;
-		filmInfo.cropWindow = info.region;
-		filmInfo.filter = info.filter;
-		filmInfo.filename += "iteration-" + std::to_string(it) + ".ppm";
-		atlas::Film film(filmInfo);
+		itFilm.startIteration(currentSpp);
 
-		renderIteration(camera, scene, film, currentSpp);
+		renderIteration(camera, scene, itFilm, currentSpp);
 		sppStep = std::max(sppStep * 2, 16u);
 	}
+
+	batch.clear();
+
+	// for now, should be itFilm.buildFinalImage()
+	itFilm.writeImage();
 
 	SetCurrentDirectoryA(currentDir);
 }
 
-void Acheron::renderIteration(const Camera &camera, const Primitive &scene, Film &film, uint32_t spp)
+void Acheron::renderIteration(const Camera &camera, const Primitive &scene, IterationFilm &film, uint32_t spp)
 {
 	TELEMETRY(achIteration, "Acheron/render/iteration");
 
@@ -74,17 +78,15 @@ void Acheron::renderIteration(const Camera &camera, const Primitive &scene, Film
 	}
 
 	processBatches(scene, film);
-	film.writeImage();
 }
 
-void Acheron::processBatches(const Primitive &scene, Film &film)
+void Acheron::processBatches(const Primitive &scene, IterationFilm &film)
 {
 	while (true)
 	{
 		TELEMETRY(achProcessBatch, "acheron/render/processBatches");
 
 		{
-			Batch batch(Bin::MaxSize);
 			std::vector<SurfaceInteraction> interactions(Bin::MaxSize);
 
 			// extract batch
@@ -105,7 +107,7 @@ void Acheron::processBatches(const Primitive &scene, Film &film)
 				threads.join();
 				if (batch.size() < 512)//!task->hasBatchToProcess())
 				{
-					processSmallBatches(batch, scene, film);
+					processSmallBatches(scene, film);
 					return;
 				}
 				printf("Batch %d\n", batch.size());
@@ -231,16 +233,16 @@ Spectrum Acheron::getColorAlongRay(const atlas::Ray &r, const atlas::Primitive &
 	if (scene.intersect(r, s))
 	{
 		atlas::sh::BSDF bsdf = s.material->sample(-r.dir, s, sampler.get2D());
-		if (bsdf.color.isBlack())
-			return (bsdf.color);
-		return (/* bsdf.pdf * */ bsdf.color * getColorAlongRay(atlas::Ray(s.p, bsdf.wi), scene, sampler, depth + 1));
+		if (bsdf.Li.isBlack())
+			return (bsdf.Le);
+		return (bsdf.Le + /* bsdf.pdf * */ bsdf.Li * getColorAlongRay(atlas::Ray(s.p, bsdf.wi), scene, sampler, depth + 1));
 	}
 	atlas::Vec3f unitDir = normalize(r.dir);
 	auto t = 0.5 * (unitDir.y + 1.0);
 	return ((1.0 - t) * atlas::Spectrum(1.f) + t * atlas::Spectrum(0.5, 0.7, 1.0));
 }
 
-void Acheron::processSmallBatches(Batch &batch, const Primitive &scene, Film &film)
+void Acheron::processSmallBatches(const Primitive &scene, IterationFilm &film)
 {
 	while (batch.size())
 	{

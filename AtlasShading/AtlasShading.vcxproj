@@ -147,12 +147,14 @@
     <ClInclude Include="BSDFShader.h" />
     <ClInclude Include="AtlasShadingLibHeader.h" />
     <ClInclude Include="DataBlock.h" />
+    <ClInclude Include="Emission.h" />
     <ClInclude Include="Glass.h" />
     <ClInclude Include="ImageLibrary.h" />
     <ClInclude Include="Lambert.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Metal.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="ShaderGroup.h" />
     <ClInclude Include="ShadingIO.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Texture.h" />

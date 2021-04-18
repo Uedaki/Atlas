@@ -173,6 +173,9 @@
     <ClInclude Include="includes\Atlas\core\Telemetry.h">
       <Filter>Header Files\core</Filter>
     </ClInclude>
+    <ClInclude Include="Light.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="sources\BvhAccel.cpp">

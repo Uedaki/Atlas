@@ -38,6 +38,7 @@
 #include "Lambert.h"
 #include "Metal.h"
 #include "Glass.h"
+#include "Emission.h"
 #include "Texture.h"
 
 atlas::Transform *setTransform(Float x, Float y, Float z)
@@ -108,6 +109,20 @@ std::vector<std::shared_ptr<atlas::Primitive>> createPrimitives()
 		auto &c = imageMaterial->addShader<atlas::sh::ConstantShader<atlas::Vec2f>>();
 		c.value = atlas::Vec2f(0, 0);
 		t.iOffset.bind(c.out);
+	}
+
+	std::shared_ptr<atlas::sh::Material> emissiveMaterial = std::make_shared<atlas::sh::Material>();
+	{
+		auto &l = emissiveMaterial->addShader<atlas::sh::Emission>();
+		emissiveMaterial->bind(l);
+
+		auto &t = emissiveMaterial->addConstant<atlas::Spectrum>();
+		t.value = atlas::Spectrum(1);
+		l.iColor.bind(t.out);
+
+		auto &c = emissiveMaterial->addConstant<Float>();
+		c.value = 1.f;
+		l.iStrength.bind(c.out);
 	}
 
 	atlas::SphereInfo sphereInfo;
@@ -212,7 +227,7 @@ std::vector<std::shared_ptr<atlas::Primitive>> createPrimitives()
 	scene.push_back(std::make_shared<atlas::GeometricPrimitive>(
 		atlas::Sphere::createShape(sphereInfo),
 #if defined(SHADING)
-		imageMaterial//noiseMaterial //atlas::sh::createLambertMaterial(atlas::Spectrum(0.8, 0.2, 0.1))
+		emissiveMaterial// imageMaterial//noiseMaterial //atlas::sh::createLambertMaterial(atlas::Spectrum(0.8, 0.2, 0.1))
 #else
 		material
 #endif
@@ -254,9 +269,9 @@ atlas::Spectrum rayColor(const atlas::Ray &r, const atlas::Primitive &scene, int
 		return (/* pdf * */ color * rayColor(atlas::Ray(s.p, wi), scene, depth - 1, sampler));
 #else
 		atlas::sh::BSDF bsdf = s.primitive->getMaterial()->sample(-r.dir, s, sampler.get2D());
-		if (bsdf.color.isBlack())
-			return (bsdf.color);
-		return (/* bsdf.pdf * */ bsdf.color * rayColor(atlas::Ray(s.p, bsdf.wi), scene, depth - 1, sampler));
+		if (bsdf.Li.isBlack())
+			return (bsdf.Le);
+		return (bsdf.Le + /* bsdf.pdf * */ bsdf.Li * rayColor(atlas::Ray(s.p, bsdf.wi), scene, depth - 1, sampler));
 #endif
 
 	}

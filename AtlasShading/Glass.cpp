@@ -4,7 +4,7 @@
 
 void atlas::sh::Glass::evaluate(const Vec3f &wo, const SurfaceInteraction &si, const Point2f &sample, DataBlock &block) const
 {
-	BSDF bsdf;
+	BSDF bsdf = {};
 
 	Float eta = iEta.get(block);
 	bool entering = cosTheta(wo) > 0;
@@ -13,12 +13,12 @@ void atlas::sh::Glass::evaluate(const Vec3f &wo, const SurfaceInteraction &si, c
 	if (refract(wo, faceForward(Normal(0, 0, 1), wo), etaI / etaT, bsdf.wi))
 	{
 		bsdf.pdf = 1;
-		bsdf.color = Spectrum(1.f);
+		bsdf.Li = Spectrum(1.f);
 	}
 	else
 	{
 		bsdf.pdf = 0;
-		bsdf.color = Spectrum(0.f);
+		bsdf.Le = Spectrum(0.f);
 	}
 	out.set(block, bsdf);
 }

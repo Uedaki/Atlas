@@ -10,9 +10,10 @@ namespace atlas
 	{
 		struct BSDF
 		{
-			Spectrum color;
-			Vec3f wi;
-			Float pdf;
+			Spectrum Li = BLACK;
+			Spectrum Le = BLACK;
+			Vec3f wi = Vec3f(0, 0, 0);
+			Float pdf = 0;
 		};
 	}
 }

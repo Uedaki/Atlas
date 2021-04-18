@@ -97,12 +97,6 @@ namespace atlas
 						data.dst->sampleIDs[i] = handle.buffer[i].sampleID;
 						data.dst->depths[i] = handle.buffer[i].depth;
 						data.dst->tNears[i] = handle.buffer[i].tNear;
-
-						if (data.dst->colors[i].isBlack())
-						{
-							int a;
-							a = handle.buffer[i].weight;
-						}
 					}
 				}
 

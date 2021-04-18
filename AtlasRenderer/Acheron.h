@@ -9,6 +9,7 @@
 #include "ThreadPool.h"
 #include "Bin.h"
 #include "atlas/core/Batch.h"
+#include "IterationFilm.h"
 
 namespace atlas
 {
@@ -39,12 +40,12 @@ namespace atlas
 		ATLAS_RENDERER ~Acheron();
 
 		ATLAS_RENDERER void render(const Camera &camera, const Primitive &scene);
-		ATLAS_RENDERER void renderIteration(const Camera &camera, const Primitive &scene, Film &film, uint32_t spp);
-		ATLAS_RENDERER void processBatches(const Primitive &scene, Film &film);
+		ATLAS_RENDERER void renderIteration(const Camera &camera, const Primitive &scene, IterationFilm &film, uint32_t spp);
+		ATLAS_RENDERER void processBatches(const Primitive &scene, IterationFilm &film);
 		
 		ATLAS_RENDERER void cleanTemporaryFolder();
 
-		ATLAS_RENDERER void processSmallBatches(Batch &batch, const Primitive &scene, Film &film);
+		ATLAS_RENDERER void processSmallBatches(const Primitive &scene, IterationFilm &film);
 		ATLAS_RENDERER Spectrum getColorAlongRay(const atlas::Ray &r, const atlas::Primitive &scene, atlas::Sampler &sampler, int depth);
 
 		// atlas::Film film(filmInfo);
@@ -63,7 +64,7 @@ namespace atlas
 		BatchManager manager;
 	private:
 		Info info;
-
+		Batch batch;
 		ThreadPool<8> threads;
 	};
 }

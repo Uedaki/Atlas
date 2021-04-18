@@ -17,12 +17,18 @@ namespace atlas
 		{
 		public:
 			template <typename T>
-			T &addShader()
+			inline T &addShader()
 			{
 				T *ptr = new T;
 				ptr->registerOutputs(dataSize);
 				shaders.push_back(ptr);
 				return (*ptr);
+			}
+
+			template <typename T>
+			inline ConstantShader<T> &addConstant()
+			{
+				return (addShader<ConstantShader<T>>());
 			}
 
 			BSDF sample(const Vec3f &woWorld, const SurfaceInteraction &si, const Point2f &sample) const

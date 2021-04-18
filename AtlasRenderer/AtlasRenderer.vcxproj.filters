@@ -51,6 +51,9 @@
     <ClInclude Include="Shade.h">
       <Filter>Header Files\Task</Filter>
     </ClInclude>
+    <ClInclude Include="IterationFilm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Acheron.cpp">

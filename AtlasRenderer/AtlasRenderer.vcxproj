@@ -30,6 +30,7 @@
     <ClInclude Include="CompactRay.h" />
     <ClInclude Include="ExtractBatch.h" />
     <ClInclude Include="GenerateFirstRays.h" />
+    <ClInclude Include="IterationFilm.h" />
     <ClInclude Include="Shade.h" />
     <ClInclude Include="SortInteractions.h" />
     <ClInclude Include="SortRays.h" />
