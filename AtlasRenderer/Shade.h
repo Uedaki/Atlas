@@ -77,7 +77,7 @@ namespace atlas
 					if (idx >= data.shadingPack->size())
 						break;
 
-#if 0
+#if 1
 					for (uint32_t i = data.shadingPack->at(idx).start; i <= data.shadingPack->at(idx).end; i++)
 					{
 						data.sampler->startPixel(Point2i(0, 0));
@@ -140,16 +140,14 @@ namespace atlas
 						{
 							Ray r(data.interactions->at(data.shadingPack->at(idx).start + i).p, bsdfs[i].wi);
 
-							{
-								const uint8_t vectorIndex = abs(bsdfs[i].wi).maxDimension();
-								const bool isNegative = std::signbit(bsdfs[i].wi[vectorIndex]);
-								const uint8_t index = vectorIndex * 2 + isNegative;
-								if (localBins[index].feed(CompactRay(r, data.batch->colors[data.shadingPack->at(idx).start + i]
-										* bsdfs[i].Li, data.batch->pixelIDs[data.shadingPack->at(idx).start + i],
-										data.batch->sampleIDs[data.shadingPack->at(idx).start + i],
-										data.batch->depths[data.shadingPack->at(idx).start + i] + 1)))
-									data.batchManager->feed(index, localBins[index]);
-							}
+							const uint8_t vectorIndex = abs(bsdfs[i].wi).maxDimension();
+							const bool isNegative = std::signbit(bsdfs[i].wi[vectorIndex]);
+							const uint8_t index = vectorIndex * 2 + isNegative;
+							if (localBins[index].feed(CompactRay(r, data.batch->colors[data.shadingPack->at(idx).start + i]
+									* bsdfs[i].Li, data.batch->pixelIDs[data.shadingPack->at(idx).start + i],
+									data.batch->sampleIDs[data.shadingPack->at(idx).start + i],
+									data.batch->depths[data.shadingPack->at(idx).start + i] + 1)))
+								data.batchManager->feed(index, localBins[index]);
 						}
 					}
 #endif

@@ -297,6 +297,7 @@ int main()
 	const uint32_t height = 500;
 	const uint32_t spp = 2;
 
+#if 1
 	atlas::FilmInfo filmInfo;
 	filmInfo.filename = "film.ppm";
 	filmInfo.resolution = atlas::Point2i(width, height);
@@ -317,7 +318,6 @@ int main()
 	atlas::StratifiedSamplerInfo samplerInfo;
 	atlas::Sampler *sampler = atlas::StratifiedSampler::create(samplerInfo);
 
-#if 1
 	atlas::Acheron::Info achInfo;
 	achInfo.resolution = atlas::Point2i(width, height);
 	achInfo.spp = spp;
@@ -330,6 +330,25 @@ int main()
 	ach.render(camera, bvh);
 
 #else
+	atlas::FilmInfo filmInfo;
+	filmInfo.filename = "film.ppm";
+	filmInfo.resolution = atlas::Point2i(width, height);
+	filmInfo.filter = new atlas::BoxFilter(atlas::Vec2f(0.5, 0.5));
+	atlas::Film film(filmInfo);
+
+	atlas::Bounds2f screen;
+	screen.min.x = -1.f;
+	screen.max.x = 1.f;
+	screen.min.y = -1.f;
+	screen.max.y = 1.f;
+	atlas::Transform worldToCam = atlas::Transform::lookAt(atlas::Point3f(13, 2, 3), atlas::Point3f(0, 0, 0), atlas::Vec3f(0, 1, 0));
+	atlas::PerspectiveCamera camera(worldToCam.inverse(), screen, 0.f, 1.f, 0, 10, 40, &film, nullptr);
+
+	std::vector<std::shared_ptr<atlas::Primitive>> primitives = createPrimitives();
+	atlas::BvhAccel bvh(primitives);
+
+	atlas::StratifiedSamplerInfo samplerInfo;
+	atlas::Sampler *sampler = atlas::StratifiedSampler::create(samplerInfo);
 
 	Float invSpp = 1.f / spp;
 	Float *rgb = new Float[width * height * 3];
