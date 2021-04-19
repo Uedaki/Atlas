@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "atlas/core/ImageIO.h"
+#include "atlas/core/FilmIterator.h"
 
 using namespace atlas;
 
@@ -43,6 +44,16 @@ Bounds2f Film::getPhysicalExtent() const
 	Float x = std::sqrt(diagonal * diagonal / (1 + aspect * aspect));
 	Float y = aspect * x;
 	return Bounds2f(Point2f(-x / 2, -y / 2), Point2f(x / 2, y / 2));
+}
+
+FilmIterator Film::createIterator()
+{
+    return (FilmIterator(pixels.get(), croppedPixelBounds.surfaceArea()));
+}
+
+void Film::build(const FilmIterator &iterator)
+{
+
 }
 
 void Film::addSample(const uint32_t pixelID, const Spectrum &LIn, Float sampleWeight)
@@ -108,8 +119,6 @@ const Film::Pixel &Film::getPixel(const Point2i &p) const
     int offset = (p.x - croppedPixelBounds.min.x) + (p.y - croppedPixelBounds.min.y) * width;
     return pixels[offset];
 }
-
-#include <iostream>
 
 void Film::writeImage(Float splatScale)
 {

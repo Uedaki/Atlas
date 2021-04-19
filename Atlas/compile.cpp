@@ -295,9 +295,24 @@ int main()
 
 	const uint32_t width = 720;
 	const uint32_t height = 500;
-	const uint32_t spp = 2;
+	const uint32_t spp = 16;
 
 #if 1
+	// setup rendering configuration
+	atlas::StratifiedSampler sampler;
+
+	atlas::Acheron::Info achInfo;
+	achInfo.samplePerPixel = spp;
+	achInfo.minLightBounce = 0;
+	achInfo.maxLightBounce = 16;
+	achInfo.lightTreshold = 0.01;
+	achInfo.sampler = &sampler;
+	achInfo.assetFolder = "./";
+	achInfo.temporaryFolder = "./render/";
+	atlas::Acheron ach(achInfo);
+
+	// the renderer is setup and running
+	// now we can create a camera and a scene for rendering
 	atlas::FilmInfo filmInfo;
 	filmInfo.filename = "film.ppm";
 	filmInfo.resolution = atlas::Point2i(width, height);
@@ -315,20 +330,9 @@ int main()
 	std::vector<std::shared_ptr<atlas::Primitive>> primitives = createPrimitives();
 	atlas::BvhAccel bvh(primitives);
 
-	atlas::StratifiedSamplerInfo samplerInfo;
-	atlas::Sampler *sampler = atlas::StratifiedSampler::create(samplerInfo);
+	ach.render(camera, bvh, film);
 
-	atlas::Acheron::Info achInfo;
-	achInfo.resolution = atlas::Point2i(width, height);
-	achInfo.spp = spp;
-	achInfo.region = screen;
-	achInfo.sampler = sampler;
-	achInfo.filter = new atlas::BoxFilter(atlas::Vec2f(0.5, 0.5));
-	achInfo.maxDepth = 16;
-	atlas::Acheron ach(achInfo);
-
-	ach.render(camera, bvh);
-
+	film.writeImage();
 #else
 	atlas::FilmInfo filmInfo;
 	filmInfo.filename = "film.ppm";

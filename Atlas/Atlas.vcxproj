@@ -157,6 +157,7 @@
     <ClInclude Include="includes\Atlas\core\ConeBoxIntersection.h" />
     <ClInclude Include="includes\Atlas\core\EFloat.h" />
     <ClInclude Include="includes\Atlas\core\Film.h" />
+    <ClInclude Include="includes\Atlas\core\FilmIterator.h" />
     <ClInclude Include="includes\Atlas\core\Filter.h" />
     <ClInclude Include="includes\Atlas\core\Geometry.h" />
     <ClInclude Include="includes\Atlas\core\ImageIO.h" />
@@ -200,6 +201,7 @@
     <ClCompile Include="sources\Camera.cpp" />
     <ClCompile Include="sources\ConeBoxIntersection.cpp" />
     <ClCompile Include="sources\Film.cpp" />
+    <ClCompile Include="sources\FilmIterator.cpp" />
     <ClCompile Include="sources\GeometricPrimitive.cpp" />
     <ClCompile Include="sources\Glass.cpp" />
     <ClCompile Include="sources\Interaction.cpp" />

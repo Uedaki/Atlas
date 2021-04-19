@@ -179,6 +179,9 @@
     <ClInclude Include="includes\Atlas\core\Block.h">
       <Filter>Header Files\core</Filter>
     </ClInclude>
+    <ClInclude Include="includes\Atlas\core\FilmIterator.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="sources\BvhAccel.cpp">
@@ -239,6 +242,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="sources\Telemetry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\FilmIterator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -101,12 +101,12 @@ namespace atlas
 			int sd = 4;
 		};
 
-		static Sampler *create(const Info &info)
+		static Sampler *create(const Info &info = Info())
 		{
 			return (new StratifiedSampler(info));
 		}
 
-		StratifiedSampler(const Info &info)
+		StratifiedSampler(const Info &info = Info())
 			: PixelSampler(info.xsamp * info.ysamp, info.sd)
 			, xPixelSamples(info.xsamp)
 			, yPixelSamples(info.ysamp)

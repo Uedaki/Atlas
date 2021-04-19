@@ -20,12 +20,12 @@ void Bin::open(Bin &bin)
 
 	uint32_t flags = CREATE_ALWAYS;
 	const size_t size = sizeof(uint32_t) + Bin::MaxSize * sizeof(CompactRay);
-	bin.currentFile.file = CreateFileA(bin.filename.c_str(), GENERIC_WRITE | GENERIC_READ, 0, nullptr, flags, 0 /* FILE_ATTRIBUTE_TEMPORARY */, nullptr);
+	bin.currentFile.file = CreateFileA(bin.filename.c_str(), GENERIC_WRITE | GENERIC_READ, 0, nullptr, flags, FILE_ATTRIBUTE_TEMPORARY, nullptr);
 	CHECK_WIN_CALL(bin.currentFile.file != INVALID_HANDLE_VALUE);
 	bin.currentFile.mapping = CreateFileMappingA(bin.currentFile.file, nullptr, PAGE_READWRITE, 0, size, nullptr);
-	CHECK_WIN_CALL(bin.currentFile.file != INVALID_HANDLE_VALUE);
+	CHECK_WIN_CALL(bin.currentFile.mapping != INVALID_HANDLE_VALUE);
 	bin.currentFile.buffer = (CompactRay *)MapViewOfFile(bin.currentFile.mapping, FILE_MAP_WRITE | FILE_MAP_READ, 0, 0, size);
-	CHECK_WIN_CALL(bin.currentFile.file != INVALID_HANDLE_VALUE);
+	CHECK_WIN_CALL(bin.currentFile.buffer != nullptr);
 
 	bin.pos = 0;
 }
@@ -41,9 +41,9 @@ void Bin::map(Bin &bin)
 	bin.currentFile.file = CreateFileA(bin.filename.c_str(), GENERIC_WRITE | GENERIC_READ, 0, nullptr, flags, FILE_ATTRIBUTE_TEMPORARY, nullptr);
 	CHECK_WIN_CALL(bin.currentFile.file != INVALID_HANDLE_VALUE);
 	bin.currentFile.mapping = CreateFileMappingA(bin.currentFile.file, nullptr, PAGE_READWRITE, 0, size, nullptr);
-	CHECK_WIN_CALL(bin.currentFile.file != INVALID_HANDLE_VALUE);
+	CHECK_WIN_CALL(bin.currentFile.mapping != INVALID_HANDLE_VALUE);
 	bin.currentFile.buffer = (CompactRay *)MapViewOfFile(bin.currentFile.mapping, FILE_MAP_WRITE | FILE_MAP_READ, 0, 0, size);
-	CHECK_WIN_CALL(bin.currentFile.file != INVALID_HANDLE_VALUE);
+	CHECK_WIN_CALL(bin.currentFile.buffer != nullptr);
 }
 
 void Bin::unmap(Bin::FileHandles &handles)

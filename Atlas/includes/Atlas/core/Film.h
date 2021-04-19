@@ -9,6 +9,8 @@
 
 namespace atlas
 {
+	class FilmIterator;
+
 	class Film
 	{
 	public:
@@ -33,6 +35,9 @@ namespace atlas
 
 		ATLAS Bounds2i getSampleBounds() const;
 		ATLAS Bounds2f getPhysicalExtent() const;
+
+		ATLAS FilmIterator createIterator();
+		ATLAS void build(const FilmIterator &iterator);
 
 		ATLAS void addSample(uint32_t pixelID, const Spectrum &L, Float sampleWeight = 1.f);
 		ATLAS void addSample(const Point2f &pFilm, const Spectrum &L, Float sampleWeight = 1.f);

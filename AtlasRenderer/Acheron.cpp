@@ -3,6 +3,7 @@
 #include <string>
 #include <filesystem>
 
+#include "atlas/core/FilmIterator.h"
 #include "atlas/core/Telemetry.h"
 
 #include "GenerateFirstRays.h"
@@ -18,10 +19,17 @@
 using namespace atlas;
 
 Acheron::Acheron(const Info &info)
-	: info(info)
-	, resolution(info.resolution)
+	: samplePerPixel(info.samplePerPixel)
+	, minLightBounce(info.minLightBounce)
+	, maxLightBounce(info.maxLightBounce)
+	, lightTreshold(info.lightTreshold)
+	, sampler(*info.sampler)
+	, localBinSize(info.localBinSize)
+	, batchSize(info.batchSize)
+	, temporaryFolder(info.temporaryFolder)
+	, assetFolder(info.assetFolder)
 {
-	threads.init(info.parameter.threadCount);
+	threads.init(info.threadCount);
 }
 
 Acheron::~Acheron()
@@ -29,58 +37,49 @@ Acheron::~Acheron()
 	threads.shutdown();
 }
 
-void Acheron::render(const Camera &camera, const Primitive &scene)
+void Acheron::render(const Camera &camera, const Primitive &scene, Film &film)
 {
 	TELEMETRY(achRender, "Acheron/render");
 
-	char currentDir[256];
-	GetCurrentDirectoryA(256, currentDir);
-	cleanTemporaryFolder();
-
+	//cleanTemporaryFolder(); need to make sure everything works perfectly to prevents erasing the wrong file
 	batch.reserve(Bin::MaxSize);
 
-	uint32_t it = 0;
-	uint32_t sppStep = 2;
-	info.spp = 2;
-
-	IterationFilm itFilm(info.resolution, info.region, 35);
-	for (uint32_t i = 0; i < info.spp; i += sppStep)
+	uint32_t sppStep = 1;
+	FilmIterator iteration = film.createIterator();
+	for (uint32_t i = 0; i < samplePerPixel; i += sppStep)
 	{
-		uint32_t currentSpp = i + sppStep <= info.spp ? sppStep : i + sppStep - info.spp;
-		itFilm.startIteration(currentSpp);
+		sppStep = std::min(sppStep * 2, 16u);
+		uint32_t currentSpp = i + sppStep <= samplePerPixel ? sppStep : samplePerPixel - i;
+		printf("i %d sppStep %d currentSpp %d samplePerPixel %d\n", i, sppStep, currentSpp, samplePerPixel);
 
-		renderIteration(camera, scene, itFilm, currentSpp);
-		sppStep = std::max(sppStep * 2, 16u);
+		printf("new Iteration (%d spp)\n", currentSpp);
+		iteration.start(currentSpp);
+		renderIteration(camera, scene, film, iteration);
 	}
-
+	iteration.accumulate();
 	batch.clear();
-
-	// for now, should be itFilm.buildFinalImage()
-	itFilm.writeImage();
-
-	SetCurrentDirectoryA(currentDir);
 }
 
-void Acheron::renderIteration(const Camera &camera, const Primitive &scene, IterationFilm &film, uint32_t spp)
+void Acheron::renderIteration(const Camera &camera, const Primitive &scene, const Film &film, FilmIterator &iteration)
 {
 	TELEMETRY(achIteration, "Acheron/render/iteration");
 
 	{
 		TELEMETRY(achGenFirstRays, "Acheron/render/iteration/generateFirstRays");
 		task::GenerateFirstRays::Data data;
-		data.resolution = resolution;
-		data.spp = spp;
+		data.resolution = film.resolution;
+		data.spp = iteration.getSampleCount();
 		data.camera = &camera;
-		data.sampler = info.sampler;
-		data.batchManager = &manager;
+		data.sampler = &sampler;
+		data.batchManager = &batchManager;
 		threads.execute<task::GenerateFirstRays>(data);
 		threads.join();
 	}
 
-	processBatches(scene, film);
+	processBatches(scene, iteration);
 }
 
-void Acheron::processBatches(const Primitive &scene, IterationFilm &film)
+void Acheron::processBatches(const Primitive &scene, FilmIterator &iteration)
 {
 	while (true)
 	{
@@ -95,7 +94,7 @@ void Acheron::processBatches(const Primitive &scene, IterationFilm &film)
 #if 1
 				task::ExtractBatch::Data data;
 				data.dst = &batch;
-				data.batchManager = &manager;
+				data.batchManager = &batchManager;
 				threads.execute<task::ExtractBatch>(data);
 #else
 				task::S4ExtractBatch::Data data;
@@ -107,7 +106,7 @@ void Acheron::processBatches(const Primitive &scene, IterationFilm &film)
 				threads.join();
 				if (batch.size() < 512)//!task->hasBatchToProcess())
 				{
-					processSmallBatches(scene, film);
+					processSmallBatches(scene, iteration);
 					return;
 				}
 				printf("Batch %d\n", batch.size());
@@ -193,14 +192,14 @@ void Acheron::processBatches(const Primitive &scene, IterationFilm &film)
 
 				task::Shade::Data data;
 				data.startingIndex = shadingPack.front().material ? 0 : 1;
-				data.maxDepth = info.maxDepth;
+				data.maxDepth = maxLightBounce;
 				data.batch = &batch;
 				data.interactions = &interactions;
 				data.shadingPack = &shadingPack;
-				data.sampler = info.sampler;
+				data.sampler = &sampler;
 				data.samples = &samples;
 				data.samplesGuard = &samplesGuard;
-				data.batchManager = &manager;
+				data.batchManager = &batchManager;
 				threads.execute<task::Shade>(data);
 
 				if (!shadingPack.front().material)
@@ -210,7 +209,7 @@ void Acheron::processBatches(const Primitive &scene, IterationFilm &film)
 						atlas::Vec3f unitDir = normalize(batch.directions[i]);
 						auto t = 0.5 * (unitDir.y + 1.0);
 						Spectrum color((1.0 - t) * atlas::Spectrum(1.f) + t * atlas::Spectrum(0.5, 0.7, 1.0));
-						film.addSample(batch.pixelIDs[i], batch.colors[i] * color);
+						iteration.addSample(batch.pixelIDs[i], batch.colors[i] * color);
 					}
 				}
 
@@ -219,7 +218,7 @@ void Acheron::processBatches(const Primitive &scene, IterationFilm &film)
 				{
 					for (Sample &sample : samples)
 					{
-						film.addSample(sample.pixelID, sample.color);
+						iteration.addSample(sample.pixelID, sample.color);
 					}
 				}
 			}
@@ -229,7 +228,7 @@ void Acheron::processBatches(const Primitive &scene, IterationFilm &film)
 
 Spectrum Acheron::getColorAlongRay(const atlas::Ray &r, const atlas::Primitive &scene, atlas::Sampler &sampler, int depth)
 {
-	if (depth >= info.maxDepth)
+	if (depth >= maxLightBounce)
 		return (atlas::Spectrum(0.f));
 
 	atlas::SurfaceInteraction s;
@@ -245,7 +244,7 @@ Spectrum Acheron::getColorAlongRay(const atlas::Ray &r, const atlas::Primitive &
 	return ((1.0 - t) * atlas::Spectrum(1.f) + t * atlas::Spectrum(0.5, 0.7, 1.0));
 }
 
-void Acheron::processSmallBatches(const Primitive &scene, IterationFilm &film)
+void Acheron::processSmallBatches(const Primitive &scene, FilmIterator &iteration)
 {
 	while (batch.size())
 	{
@@ -253,16 +252,16 @@ void Acheron::processSmallBatches(const Primitive &scene, IterationFilm &film)
 		TELEMETRY(achrSmallBatches, "acheron/render/processBatches/smallBatches");
 		for (uint32_t i = 0; i < batch.size(); i++)
 		{
-			info.sampler->startPixel(Point2i(0, 0));
+			sampler.startPixel(Point2i(0, 0));
 			Ray r(batch.origins[i], batch.directions[i]);
-			Spectrum color = batch.colors[i] * getColorAlongRay(r, scene, *info.sampler, batch.depths[i]);
-			film.addSample(batch.pixelIDs[i], color);
+			Spectrum color = batch.colors[i] * getColorAlongRay(r, scene, sampler, batch.depths[i]);
+			iteration.addSample(batch.pixelIDs[i], color);
 		}
 
 		{
 			task::ExtractBatch::Data data;
 			data.dst = &batch;
-			data.batchManager = &manager;
+			data.batchManager = &batchManager;
 			threads.execute<task::ExtractBatch>(data);
 			threads.join();
 		}
@@ -272,17 +271,18 @@ void Acheron::processSmallBatches(const Primitive &scene, IterationFilm &film)
 void Acheron::cleanTemporaryFolder()
 {
 	BOOL res;
-	info.parameter.tmpFolder += "/render";
-	if (!CreateDirectoryA(info.parameter.tmpFolder.c_str(), nullptr))
+	if (!CreateDirectoryA(temporaryFolder.c_str(), nullptr))
 	{
 		res = GetLastError();
 		if (res == ERROR_ALREADY_EXISTS)
 		{
-			for (const auto &entry : std::filesystem::directory_iterator(info.parameter.tmpFolder.c_str()))
+			for (const auto &entry : std::filesystem::directory_iterator(temporaryFolder.c_str()))
+			{
 				std::filesystem::remove_all(entry.path());
+			}
 		}
 		else if (res == ERROR_PATH_NOT_FOUND)
 			CHECK_WIN_CALL(false);
 	}
-	SetCurrentDirectoryA(info.parameter.tmpFolder.c_str());
+	SetCurrentDirectoryA(temporaryFolder.c_str());
 }

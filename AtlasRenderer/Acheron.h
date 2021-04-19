@@ -19,33 +19,32 @@ namespace atlas
 
 		struct Info
 		{
-			Point2i resolution;
-			Bounds2f region;
-			uint32_t spp;
+			uint32_t samplePerPixel = 16;
+			uint32_t minLightBounce = 0; // unused for now
+			uint32_t maxLightBounce = 9;
+			Float lightTreshold  = 0.01;
 
 			Sampler *sampler;
-			Filter *filter;
 
-			uint32_t maxDepth = 9;
+			std::string temporaryFolder = "./";
+			std::string assetFolder = "./";
 
-			struct
-			{
+			uint32_t localBinSize = 512;
+			uint32_t batchSize = 65536;
 
-				uint8_t threadCount = std::thread::hardware_concurrency() - 1;
-				std::string tmpFolder = "./";
-			} parameter;
+			uint32_t threadCount = std::thread::hardware_concurrency() - 1;
 		};
 
 		ATLAS_RENDERER Acheron(const Info &info);
 		ATLAS_RENDERER ~Acheron();
 
-		ATLAS_RENDERER void render(const Camera &camera, const Primitive &scene);
-		ATLAS_RENDERER void renderIteration(const Camera &camera, const Primitive &scene, IterationFilm &film, uint32_t spp);
-		ATLAS_RENDERER void processBatches(const Primitive &scene, IterationFilm &film);
+		ATLAS_RENDERER void render(const Camera &camera, const Primitive &scene, Film &film);
+		ATLAS_RENDERER void renderIteration(const Camera &camera, const Primitive &scene, const Film &film, FilmIterator &iteration);
+		ATLAS_RENDERER void processBatches(const Primitive &scene, FilmIterator &iteration);
 		
 		ATLAS_RENDERER void cleanTemporaryFolder();
 
-		ATLAS_RENDERER void processSmallBatches(const Primitive &scene, IterationFilm &film);
+		ATLAS_RENDERER void processSmallBatches(const Primitive &scene, FilmIterator &iteration);
 		ATLAS_RENDERER Spectrum getColorAlongRay(const atlas::Ray &r, const atlas::Primitive &scene, atlas::Sampler &sampler, int depth);
 
 		// atlas::Film film(filmInfo);
@@ -59,12 +58,23 @@ namespace atlas
 
 		// FilmInfo, bvh, sampler
 
-		const Point2i resolution;
-
-		BatchManager manager;
 	private:
-		Info info;
+		uint32_t samplePerPixel = 16;
+		uint32_t minLightBounce = 0; // unused for now
+		uint32_t maxLightBounce = 9;
+		Float lightTreshold = 0.01;
+
+		BatchManager batchManager;
 		Batch batch;
+
+		Sampler &sampler;
+
 		ThreadPool<8> threads;
+
+		uint32_t localBinSize;
+		uint32_t batchSize;
+
+		const std::string temporaryFolder = "./";
+		const std::string assetFolder = "./";
 	};
 }
