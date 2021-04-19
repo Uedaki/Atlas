@@ -149,6 +149,7 @@
     <ClInclude Include="includes\Atlas\AtlasLibHeader.h" />
     <ClInclude Include="includes\Atlas\cameras\PerspectiveCamera.h" />
     <ClInclude Include="includes\Atlas\core\Batch.h" />
+    <ClInclude Include="includes\Atlas\core\Block.h" />
     <ClInclude Include="includes\Atlas\core\Bounds.h" />
     <ClInclude Include="includes\Atlas\core\BSDF.h" />
     <ClInclude Include="includes\Atlas\core\BxDF.h" />

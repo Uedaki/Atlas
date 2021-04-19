@@ -3,11 +3,13 @@
 #include "Atlas/core/Interaction.h"
 #include "atlas/core/Vectors.h"
 
+#include "atlas/core/Telemetry.h"
+
 #include "ShadingIO.h"
 #include "BSDF.h"
 #include "Shader.h"
 #include "BSDFShader.h"
-#include "DataBlock.h"
+#include "atlas/core/Block.h"
 
 namespace atlas
 {
@@ -37,10 +39,10 @@ namespace atlas
 
 				const Normal ns = si.shading.n;
 				const Vec3f ss = normalize(si.shading.dpdu);
-				const Vec3f ts = cross(ns, ss);
+				const Vec3f ts = cross(si.shading.n, ss);
 
 				// Transform wo from world to local
-				Vec3f wo = Vec3f(dot(woWorld, ss), dot(woWorld, ts), dot(woWorld, ns));
+				const Vec3f wo = Vec3f(dot(woWorld, ss), dot(woWorld, ts), dot(woWorld, si.shading.n));
 
 				{
 					DataBlock block(dataSize);
@@ -52,11 +54,46 @@ namespace atlas
 				}
 
 				// transform wi from local to world
-				bsdf.wi = Vec3f(ss.x * bsdf.wi.x + ts.x * bsdf.wi.y + ns.x * bsdf.wi.z,
-					ss.y * bsdf.wi.x + ts.y * bsdf.wi.y + ns.y * bsdf.wi.z,
-					ss.z * bsdf.wi.x + ts.z * bsdf.wi.y + ns.z * bsdf.wi.z);
-
+				bsdf.wi = Vec3f(ss.x * bsdf.wi.x + ts.x * bsdf.wi.y + si.shading.n.x * bsdf.wi.z,
+					ss.y * bsdf.wi.x + ts.y * bsdf.wi.y + si.shading.n.y * bsdf.wi.z,
+					ss.z * bsdf.wi.x + ts.z * bsdf.wi.y + si.shading.n.z * bsdf.wi.z);
 				return (bsdf);
+			}
+
+			void sample(const Block<Vec3f> &negWoWorld, const Block<SurfaceInteraction> &sis, const Block<Point2f> &samples, Block<BSDF> &bsdfs)
+			{
+				std::vector<Normal> ns(bsdfs.size());
+				std::vector<Vec3f> ss(bsdfs.size());
+				std::vector<Vec3f> ts(bsdfs.size());
+				std::vector<Vec3f> wo(bsdfs.size());
+				for (uint32_t i = 0; i < bsdfs.size(); i++)
+				{
+					ns[i] = sis[i].shading.n;
+					ss[i] = normalize(sis[i].shading.dpdu);
+					ts[i] = cross(sis[i].shading.n, ss[i]);
+				}
+
+				// Transform wo from world to local
+				for (uint32_t i = 0; i < bsdfs.size(); i++)
+					wo[i] = Vec3f(dot(-negWoWorld[i], ss[i]), dot(-negWoWorld[i], ts[i]), dot(-negWoWorld[i], ns[i]));
+
+				{
+					DataBlock block(dataSize);
+					for (uint32_t i = 0; i < bsdfs.size(); i++)
+					{
+						for (uint32_t i = shaders.size() - 1; i < shaders.size(); i--)
+						{
+							shaders[i]->evaluate(wo[i], sis[i], samples[i], block);
+						}
+						bsdfs[i] = bsdfInput.get(block);
+					}
+				}
+
+				// transform wi from local to world
+				for (uint32_t i = 0; i < bsdfs.size(); i++)
+					bsdfs[i].wi = Vec3f(ss[i].x * bsdfs[i].wi.x + ts[i].x * bsdfs[i].wi.y + ns[i].x * bsdfs[i].wi.z,
+						ss[i].y * bsdfs[i].wi.x + ts[i].y * bsdfs[i].wi.y + ns[i].y * bsdfs[i].wi.z,
+						ss[i].z * bsdfs[i].wi.x + ts[i].z * bsdfs[i].wi.y + ns[i].z * bsdfs[i].wi.z);
 			}
 
 			void bind(const BSDFShader &shader)

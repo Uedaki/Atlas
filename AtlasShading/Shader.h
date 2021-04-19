@@ -2,7 +2,7 @@
 
 #include "atlas/core/Interaction.h"
 #include "ShadingIO.h"
-#include "DataBlock.h"
+#include "atlas/core/Block.h"
 
 namespace atlas
 {

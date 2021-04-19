@@ -278,7 +278,7 @@ namespace atlas
 				int32_t end;
 
 				int32_t target;
-				std::vector<Vec3f> *order;
+				Block<Vec3f> *order;
 			};
 
 		public:
@@ -306,7 +306,7 @@ namespace atlas
 				sortingPacks[0].end = data.batch->size() - 1;
 
 				sortingPacks[0].target = data.batch->size() > 64 ? 4096 : 64;
-				sortingPacks[0].order = data.batch->size() > 64 ? reinterpret_cast<std::vector<Vec3f> *>(&data.batch->origins) : &data.batch->directions;
+				sortingPacks[0].order = data.batch->size() > 64 ? reinterpret_cast<Block<Vec3f> *>(&data.batch->origins) : &data.batch->directions;
 
 				isRunning = true;
 				return (true);
@@ -363,12 +363,12 @@ namespace atlas
 					if (med > 64)
 					{
 						SortingPack newPack;
-						newPack.order = med >= 4096 ? reinterpret_cast<std::vector<Vec3f> *>(&data.batch->origins) : &data.batch->directions;
+						newPack.order = med >= 4096 ? reinterpret_cast<Block<Vec3f> *>(&data.batch->origins) : &data.batch->directions;
 						newPack.start = pack.start + med + 1;
 						newPack.end = pack.end;
 						pushPack(newPack);
 
-						pack.order = med >= 4096 ? reinterpret_cast<std::vector<Vec3f> *>(&data.batch->origins) : &data.batch->directions;
+						pack.order = med >= 4096 ? reinterpret_cast<Block<Vec3f> *>(&data.batch->origins) : &data.batch->directions;
 						pack.end = pack.start + med;
 					}
 					else if (!getNextPack(pack))
@@ -384,7 +384,7 @@ namespace atlas
 				sortingPacks.clear();
 			}
 
-			uint8_t pickLargestAxis(const std::vector<Vec3f> &ar, uint32_t firstIndex, uint32_t lastIndex) const
+			uint8_t pickLargestAxis(const Block<Vec3f> &ar, uint32_t firstIndex, uint32_t lastIndex) const
 			{
 				Vec2f rangeX(std::numeric_limits<float>::max(), std::numeric_limits<float>::min());
 				Vec2f rangeY(std::numeric_limits<float>::max(), std::numeric_limits<float>::min());

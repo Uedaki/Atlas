@@ -3,7 +3,7 @@
 #include <cstdint>
 
 #include "atlas/core/Logging.h"
-#include "DataBlock.h"
+#include "atlas/core/Block.h"
 
 namespace atlas
 {

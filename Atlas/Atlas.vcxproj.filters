@@ -176,6 +176,9 @@
     <ClInclude Include="Light.h">
       <Filter>Header Files\core</Filter>
     </ClInclude>
+    <ClInclude Include="includes\Atlas\core\Block.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="sources\BvhAccel.cpp">

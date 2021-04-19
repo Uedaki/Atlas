@@ -146,7 +146,6 @@
     <ClInclude Include="BSDF.h" />
     <ClInclude Include="BSDFShader.h" />
     <ClInclude Include="AtlasShadingLibHeader.h" />
-    <ClInclude Include="DataBlock.h" />
     <ClInclude Include="Emission.h" />
     <ClInclude Include="Glass.h" />
     <ClInclude Include="ImageLibrary.h" />

@@ -12,6 +12,7 @@
 #include "Atlas/core/simd/SPoints.h"
 #include "Atlas/core/simd/SRgbSpectrum.h"
 #include "Atlas/core/simd/SVectors.h"
+#include "atlas/core/block.h"
 
 #include "../AtlasRenderer/Bin.h"
 
@@ -19,13 +20,13 @@ namespace atlas
 {
 	struct Batch
 	{
-		std::vector<Point3f> origins;
-		std::vector<Vec3f> directions;
-		std::vector<Spectrum> colors;
-		std::vector<uint32_t> pixelIDs;
-		std::vector<uint16_t> sampleIDs;
-		std::vector<uint16_t> depths;
-		std::vector<Float> tNears;
+		Block<Point3f> origins;
+		Block<Vec3f> directions;
+		Block<Spectrum> colors;
+		Block<uint32_t> pixelIDs;
+		Block<uint16_t> sampleIDs;
+		Block<uint16_t> depths;
+		Block<Float> tNears;
 		uint32_t usedSize;
 
 		Batch() = default;

@@ -28,7 +28,7 @@ namespace atlas
 				Batch *batch;
 				const Primitive *scene;
 
-				std::vector<SurfaceInteraction> *interactions;
+				Block<SurfaceInteraction> *interactions;
 			};
 
 			TraceRays(Data &data)

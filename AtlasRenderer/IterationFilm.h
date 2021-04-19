@@ -41,8 +41,8 @@ namespace atlas
 
 		Bounds2i getSampleBounds() const
 		{
-			Bounds2f bounds(floor(Point2f(croppedPixelBounds.min) + Vec2f(0.5f, 0.5f) + Vec2f(0.f, 0.f) /* filter->radius */),
-				ceil(Point2f(croppedPixelBounds.max) + Vec2f(0.5f, 0.5f) + Vec2f(0.f, 0.f) /* filter->radius */));
+			Bounds2f bounds(floor(Point2f(croppedPixelBounds.min) + Vec2f(0.5f, 0.5f) + Vec2f(0.f, 0.f)),
+				ceil(Point2f(croppedPixelBounds.max) + Vec2f(0.5f, 0.5f) + Vec2f(0.f, 0.f)));
 			return (static_cast<Bounds2i>(bounds));
 		}
 

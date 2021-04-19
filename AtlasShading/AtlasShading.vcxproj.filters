@@ -48,9 +48,6 @@
     <ClInclude Include="Texture.h">
       <Filter>Shaders</Filter>
     </ClInclude>
-    <ClInclude Include="DataBlock.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ImageLibrary.h">
       <Filter>Header Files</Filter>
     </ClInclude>

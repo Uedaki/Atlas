@@ -87,7 +87,7 @@ void Acheron::processBatches(const Primitive &scene, IterationFilm &film)
 		TELEMETRY(achProcessBatch, "acheron/render/processBatches");
 
 		{
-			std::vector<SurfaceInteraction> interactions(Bin::MaxSize);
+			Block<SurfaceInteraction> interactions(Bin::MaxSize);
 
 			// extract batch
 			{
@@ -174,13 +174,14 @@ void Acheron::processBatches(const Primitive &scene, IterationFilm &film)
 				std::mutex samplesGuard;
 				std::vector<Sample> samples;
 
+				const uint32_t maxItPerPack = 512;
 				std::vector<ShadingPack> shadingPack(1);
 				shadingPack[0].start = 0;
 				shadingPack[0].end = 0;
 				shadingPack[0].material = interactions[0].material;
 				for (uint32_t i = 1; i < batch.size(); i++)
 				{
-					if (shadingPack.back().material != interactions[i].material)
+					if (shadingPack.back().material != interactions[i].material || (shadingPack.back().material && i - shadingPack.back().start >= maxItPerPack))
 					{
 						shadingPack.emplace_back();
 						shadingPack.back().start = i;
@@ -208,16 +209,18 @@ void Acheron::processBatches(const Primitive &scene, IterationFilm &film)
 					{
 						atlas::Vec3f unitDir = normalize(batch.directions[i]);
 						auto t = 0.5 * (unitDir.y + 1.0);
-						Spectrum color((1.0 - t) *atlas::Spectrum(1.f) + t * atlas::Spectrum(0.5, 0.7, 1.0));
+						Spectrum color((1.0 - t) * atlas::Spectrum(1.f) + t * atlas::Spectrum(0.5, 0.7, 1.0));
 						film.addSample(batch.pixelIDs[i], batch.colors[i] * color);
 					}
 				}
 
 				threads.join();
 
-				for (Sample &sample : samples)
 				{
-					film.addSample(sample.pixelID, sample.color);
+					for (Sample &sample : samples)
+					{
+						film.addSample(sample.pixelID, sample.color);
+					}
 				}
 			}
 		}
