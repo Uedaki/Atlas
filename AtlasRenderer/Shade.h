@@ -9,6 +9,7 @@
 
 #include "BSDF.h"
 #include "Material.h"
+#include "LocalBin.h"
 
 namespace atlas
 {
@@ -34,6 +35,8 @@ namespace atlas
 			{
 				uint32_t startingIndex;
 				uint32_t maxDepth;
+
+				uint32_t localBinSize;
 
 				std::vector<Sample> *samples;
 				std::mutex *samplesGuard;
@@ -66,7 +69,9 @@ namespace atlas
 
 			void execute() override
 			{
-				thread_local std::array<LocalBin, 6> localBins;
+				thread_local std::array<LocalBin, 6> localBins =
+					{ LocalBin(data.localBinSize), LocalBin(data.localBinSize), LocalBin(data.localBinSize),
+					LocalBin(data.localBinSize), LocalBin(data.localBinSize), LocalBin(data.localBinSize) };
 				std::unique_ptr<Sampler> sampler = data.sampler->clone(1);
 
 				std::vector<Sample> samples;

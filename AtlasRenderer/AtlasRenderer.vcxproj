@@ -26,11 +26,13 @@
   <ItemGroup>
     <ClInclude Include="Acheron.h" />
     <ClInclude Include="AtlasRendererLibHeader.h" />
+    <ClInclude Include="BatchManager.h" />
     <ClInclude Include="Bin.h" />
     <ClInclude Include="CompactRay.h" />
     <ClInclude Include="ExtractBatch.h" />
     <ClInclude Include="GenerateFirstRays.h" />
     <ClInclude Include="IterationFilm.h" />
+    <ClInclude Include="LocalBin.h" />
     <ClInclude Include="Shade.h" />
     <ClInclude Include="SortInteractions.h" />
     <ClInclude Include="SortRays.h" />
@@ -39,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Acheron.cpp" />
+    <ClCompile Include="BatchManager.cpp" />
     <ClCompile Include="Bin.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

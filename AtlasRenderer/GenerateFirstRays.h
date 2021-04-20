@@ -6,6 +6,7 @@
 #include "Bin.h"
 #include "CompactRay.h"
 #include "ThreadPool.h"
+#include "LocalBin.h"
 
 namespace atlas
 {
@@ -14,12 +15,14 @@ namespace atlas
 		class GenerateFirstRays : public ThreadedTask
 		{
 		public:
-			static constexpr uint64_t zOrderStep = 516;
+			static constexpr uint64_t zOrderStep = 1024;
 
 			struct Data
 			{
 				Point2i resolution;
 				uint32_t spp;
+
+				uint32_t localBinSize = 512;
 
 				const Camera *camera = nullptr;
 				Sampler *sampler = nullptr;
@@ -39,7 +42,9 @@ namespace atlas
 
 			void execute() override
 			{
-				thread_local std::array<LocalBin, 6> localBins;
+				thread_local std::array<LocalBin, 6> localBins =
+					{ LocalBin(data.localBinSize), LocalBin(data.localBinSize), LocalBin(data.localBinSize),
+					LocalBin(data.localBinSize), LocalBin(data.localBinSize), LocalBin(data.localBinSize) };
 				std::unique_ptr<Sampler> sampler = data.sampler->clone(1);
 
 				while (true)

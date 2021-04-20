@@ -1,5 +1,8 @@
 #pragma once
 
+#include <filesystem>
+#include <iostream>
+
 #include "Atlas/core/Camera.h"
 #include "Atlas/core/Film.h"
 #include "Atlas/core/Primitive.h"
@@ -9,6 +12,7 @@
 #include "ThreadPool.h"
 #include "Bin.h"
 #include "atlas/core/Batch.h"
+#include "BatchManager.h"
 #include "IterationFilm.h"
 
 namespace atlas
@@ -29,10 +33,13 @@ namespace atlas
 			std::string temporaryFolder = "./";
 			std::string assetFolder = "./";
 
+			uint32_t smallBatchTreshold = 512;
 			uint32_t localBinSize = 512;
 			uint32_t batchSize = 65536;
 
 			uint32_t threadCount = std::thread::hardware_concurrency() - 1;
+
+			std::ostream *console = &std::cout;
 		};
 
 		ATLAS_RENDERER Acheron(const Info &info);
@@ -42,7 +49,8 @@ namespace atlas
 		ATLAS_RENDERER void renderIteration(const Camera &camera, const Primitive &scene, const Film &film, FilmIterator &iteration);
 		ATLAS_RENDERER void processBatches(const Primitive &scene, FilmIterator &iteration);
 		
-		ATLAS_RENDERER void cleanTemporaryFolder();
+		ATLAS_RENDERER void prepareTemporaryDir();
+		ATLAS_RENDERER void restoreExecutionDir();
 
 		ATLAS_RENDERER void processSmallBatches(const Primitive &scene, FilmIterator &iteration);
 		ATLAS_RENDERER Spectrum getColorAlongRay(const atlas::Ray &r, const atlas::Primitive &scene, atlas::Sampler &sampler, int depth);
@@ -66,15 +74,20 @@ namespace atlas
 
 		BatchManager batchManager;
 		Batch batch;
+		//Block<SurfaceInteraction> interactions;
 
 		Sampler &sampler;
 
 		ThreadPool<8> threads;
 
+		uint32_t smallBatchTreshold;
 		uint32_t localBinSize;
 		uint32_t batchSize;
 
-		const std::string temporaryFolder = "./";
-		const std::string assetFolder = "./";
+		std::filesystem::path executionDir;
+		const std::filesystem::path temporaryDir = "./";
+		const std::filesystem::path assetDir = "./";
+
+		std::ostream &console;
 	};
 }

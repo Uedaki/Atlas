@@ -54,12 +54,21 @@
     <ClInclude Include="IterationFilm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="BatchManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LocalBin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Acheron.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Bin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BatchManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
