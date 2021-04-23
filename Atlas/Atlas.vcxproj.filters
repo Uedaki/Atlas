@@ -182,6 +182,12 @@
     <ClInclude Include="includes\Atlas\core\FilmIterator.h">
       <Filter>Header Files\core</Filter>
     </ClInclude>
+    <ClInclude Include="includes\Atlas\core\TriangleMesh.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\Atlas\shapes\Triangle.h">
+      <Filter>Header Files\shape</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="sources\BvhAccel.cpp">

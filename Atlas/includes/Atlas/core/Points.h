@@ -457,6 +457,16 @@ namespace atlas
 		return (Vector3<T>(std::abs(p.x), std::abs(p.y), std::abs(p.z)));
 	}
 
+	template <typename T>
+	Point2<T> permute(const Point2<T> &v, int x, int y) {
+		return Point2<T>(v[x], v[y]);
+	}
+
+	template <typename T>
+	Point3<T> permute(const Point3<T> &v, int x, int y, int z) {
+		return Point3<T>(v[x], v[y], v[z]);
+	}
+
 	typedef Point2<Float> Point2f;
 	typedef Point2<int32_t> Point2i;
 	typedef Point3<Float> Point3f;

@@ -11,7 +11,7 @@ using namespace atlas;
 
 void Bin::open(Bin &bin, uint32_t maxSize)
 {
-	DCHECK(pow(2, log2(MaxSize)) == maxSize);
+	DCHECK(pow(2, log2(maxSize)) == maxSize);
 
 	if (bin.prevFile.file)
 		Bin::unmap(bin.prevFile, maxSize);
@@ -31,7 +31,7 @@ void Bin::open(Bin &bin, uint32_t maxSize)
 
 void Bin::map(Bin &bin, uint32_t maxSize)
 {
-	DCHECK(pow(2, log2(MaxSize)) == maxSize);
+	DCHECK(pow(2, log2(maxSize)) == maxSize);
 
 	if (bin.prevFile.file)
 		Bin::unmap(bin.prevFile, maxSize);

@@ -35,6 +35,12 @@ namespace atlas
         return (Vec3f(d.x, d.y, z));
     }
 
+    inline Point2f uniformSampleTriangle(const Point2f &u)
+    {
+        Float su0 = std::sqrt(u[0]);
+        return Point2f(1 - su0, u[1] * su0);
+    }
+
     template <typename T>
     void shuffle(T *samp, int count, int nDimensions, RNG &rng)
     {

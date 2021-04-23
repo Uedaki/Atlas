@@ -39,6 +39,7 @@ namespace atlas
 			, sampleIDs(maxSize)
 			, depths(maxSize)
 			, tNears(maxSize)
+			, usedSize(maxSize)
 		{
 
 		}

@@ -362,6 +362,16 @@ namespace atlas
 	{
 		return (v * scalar);
 	}
+
+	template <typename T>
+	Vector2<T> permute(const Vector2<T> &v, int x, int y) {
+		return Vector2<T>(v[x], v[y]);
+	}
+
+	template <typename T>
+	Vector3<T> permute(const Vector3<T> &v, int x, int y, int z) {
+		return Vector3<T>(v[x], v[y], v[z]);
+	}
 		
 	typedef Vector2<Float> Vec2;
 	typedef Vector2<Float> Vec2f;

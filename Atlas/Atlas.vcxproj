@@ -187,6 +187,7 @@
     <ClInclude Include="includes\Atlas\core\Telemetry.h" />
     <ClInclude Include="includes\Atlas\core\Texture.h" />
     <ClInclude Include="includes\Atlas\core\Transform.h" />
+    <ClInclude Include="includes\Atlas\core\TriangleMesh.h" />
     <ClInclude Include="includes\Atlas\core\Vectors.h" />
     <ClInclude Include="includes\Atlas\materials\Glass.h" />
     <ClInclude Include="includes\Atlas\materials\Metal.h" />
@@ -194,6 +195,7 @@
     <ClInclude Include="includes\Atlas\primitives\BvhAccel.h" />
     <ClInclude Include="includes\Atlas\primitives\GeometricPrimitive.h" />
     <ClInclude Include="includes\Atlas\shapes\Sphere.h" />
+    <ClInclude Include="includes\Atlas\shapes\Triangle.h" />
     <ClInclude Include="Light.h" />
   </ItemGroup>
   <ItemGroup>
