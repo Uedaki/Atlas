@@ -78,13 +78,13 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\Uedaki\source\repos\Atlas\AtlasShading;$(SolutionDir)Atlas\includes;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>..\AtlasShading;.\includes;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
     <PublicIncludeDirectories>$(SolutionDir)Atlas\includes;</PublicIncludeDirectories>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <PublicIncludeDirectories>$(SolutionDir)Atlas\includes;$(PublicIncludeDirectories)</PublicIncludeDirectories>
-    <IncludePath>C:\Users\Uedaki\source\repos\Atlas\AtlasShading;$(SolutionDir)Atlas\includes;$(IncludePath)</IncludePath>
+    <IncludePath>..\AtlasShading;.\includes;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
