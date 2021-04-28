@@ -28,9 +28,11 @@ namespace atlas
 			}
 
 			template <typename T>
-			inline ConstantShader<T> &addConstant()
+			inline ConstantShader<T> &addConstant(const T &value = T())
 			{
-				return (addShader<ConstantShader<T>>());
+				ConstantShader<T> &shader = addShader<ConstantShader<T>>();
+				shader.value = value;
+				return (shader);
 			}
 
 			BSDF sample(const Vec3f &woWorld, const SurfaceInteraction &si, const Point2f &sample) const

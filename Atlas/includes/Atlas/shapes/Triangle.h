@@ -397,7 +397,7 @@ namespace atlas
             if (mesh->n) {
                 Normal ns(b[0] * mesh->n[v[0]] + b[1] * mesh->n[v[1]] +
                     (1 - b[0] - b[1]) * mesh->n[v[2]]);
-                it.n = faceforward(it.n, ns);
+                it.n = faceForward(it.n, ns);
             }
             else if (reverseOrientation ^ transformSwapsHandedness)
                 it.n *= -1;
@@ -435,11 +435,11 @@ namespace atlas
 	std::vector<std::shared_ptr<Shape>> createTriangleMesh(const Transform &objectToWorld, const Transform &worldToObject, bool reverseOrientation, uint32_t nTriangles, const uint32_t *vertexIndices, uint32_t nVertices, const Point3f *p
 		, const Vec3f *s, const Normal *n, const Point2f *uv)
 	{
-		std::shared_ptr<TriangleMesh> mesh = std::make_shared<TriangleMesh>(objectToWorld, worldToObject, nTriangles, vertexIndices, nVertices, p, s, n, uv);
+		std::shared_ptr<TriangleMesh> mesh = std::make_shared<TriangleMesh>(objectToWorld, nTriangles, vertexIndices, nVertices, p, s, n, uv, 0);
 		std::vector<std::shared_ptr<Shape>> tris;
 		for (uint32_t i = 0; i < nTriangles; i++)
 		{
-			tris.push_back(std::make_shared<Triangle>(objectToWorld, worldToObject, mesh, i));
+			tris.push_back(std::make_shared<Triangle>(objectToWorld, worldToObject, false, mesh, i));
 		}
 		return (tris);
 	}

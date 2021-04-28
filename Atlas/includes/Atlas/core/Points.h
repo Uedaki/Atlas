@@ -448,13 +448,13 @@ namespace atlas
 	template <typename T>
 	Point2<T> abs(const Point2<T> &p)
 	{
-		return (Vector2<T>(std::abs(p.x), std::abs(p.y)));
+		return (Point2<T>(std::abs(p.x), std::abs(p.y)));
 	}
 
 	template <typename T>
 	Point3<T> abs(const Point3<T> &p)
 	{
-		return (Vector3<T>(std::abs(p.x), std::abs(p.y), std::abs(p.z)));
+		return (Point3<T>(std::abs(p.x), std::abs(p.y), std::abs(p.z)));
 	}
 
 	template <typename T>
