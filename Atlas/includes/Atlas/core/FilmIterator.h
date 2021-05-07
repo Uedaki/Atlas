@@ -32,6 +32,11 @@ namespace atlas
 			return (sampleCount);
 		}
 
+		inline const Film::Pixel &getPixel(uint32_t pixelID) const
+		{
+			return (pixels[pixelID]);
+		}
+
 	private:
 		uint32_t itCount = 0;
 		uint32_t sampleCount = 0;

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <filesystem>
 #include <iostream>
 
@@ -38,6 +39,8 @@ namespace atlas
 			uint32_t batchSize = 65536;
 
 			uint32_t threadCount = std::thread::hardware_concurrency() - 1;
+
+			std::function<void(const atlas::Point2i &resolution, const atlas::FilmIterator &iterator)> endOfIterationCallback;
 
 			std::ostream *console = &std::cout;
 		};
@@ -87,6 +90,8 @@ namespace atlas
 		std::filesystem::path executionDir;
 		const std::filesystem::path temporaryDir = "./";
 		const std::filesystem::path assetDir = "./";
+
+		std::function<void(const atlas::Point2i &resolution, const atlas::FilmIterator &iterator)> endOfIterationCallback;
 
 		std::ostream &console;
 	};
