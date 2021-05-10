@@ -42,26 +42,21 @@ Acheron::~Acheron()
 
 void Acheron::render(const Camera &camera, const Primitive &scene, Film &film)
 {
-	printf("start\n");
 	TELEMETRY(achRender, "Acheron/render");
 
 	prepareTemporaryDir();
 	batch.reserve(batchSize);
-	printf("loop\n");
+
 	uint32_t sppStep = 1;
 	FilmIterator iteration = film.createIterator();
 	for (uint32_t i = 0; i < samplePerPixel; i += sppStep)
 	{
-		printf("sppstep\n");
 		sppStep = std::min(sppStep * 2, 16u);
-		printf("currentStep\n");
 		uint32_t currentSpp = i + sppStep <= samplePerPixel ? sppStep : samplePerPixel - i;
-		//console << "i " << i << " sppStep " << sppStep << " currentSpp " << currentSpp << " samplePerPixel " << samplePerPixel << std::endl;
+		console << "i " << i << " sppStep " << sppStep << " currentSpp " << currentSpp << " samplePerPixel " << samplePerPixel << std::endl;
 
 		iteration.start(currentSpp);
-		printf("renderIteration\n");
 		renderIteration(camera, scene, film, iteration);
-		printf("callback\n");
 		if (endOfIterationCallback)
 			endOfIterationCallback(film.resolution, iteration);
 	}
@@ -244,7 +239,7 @@ void Acheron::processSmallBatches(const Primitive &scene, FilmIterator &iteratio
 {
 	while (batch.size())
 	{
-		//console << "Small batch " << batch.size() << std::endl;
+		console << "Small batch " << batch.size() << std::endl;
 		TELEMETRY(achrSmallBatches, "acheron/render/processBatches/smallBatches");
 		for (uint32_t i = 0; i < batch.size(); i++)
 		{

@@ -316,7 +316,7 @@ int main()
 	atlas::Transform worldToCam = atlas::Transform::lookAt(atlas::Point3f(13, 2, 3), atlas::Point3f(0, 0, 0), atlas::Vec3f(0, 1, 0));
 	atlas::PerspectiveCamera camera(worldToCam.inverse(), screen, 0.f, 1.f, 0, 10, 40, &film, nullptr);
 
-	std::vector<std::shared_ptr<atlas::Primitive>> primitives = createPrimitives();
+	std::vector<std::shared_ptr<atlas::Primitive>> primitives;// = createPrimitives();
 	atlas::BvhAccel bvh(primitives);
 
 	ach.render(camera, bvh, film);

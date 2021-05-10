@@ -45,8 +45,8 @@ namespace atlas
 				thread_local std::array<LocalBin, 6> localBins =
 					{ LocalBin(data.localBinSize), LocalBin(data.localBinSize), LocalBin(data.localBinSize),
 					LocalBin(data.localBinSize), LocalBin(data.localBinSize), LocalBin(data.localBinSize) };
-				std::unique_ptr<Sampler> sampler = data.sampler->clone(1);
-
+				std::unique_ptr<Sampler> sampler(data.sampler->clone(1));
+				
 				while (true)
 				{
 					const uint64_t offset = zOrderPos.fetch_add(zOrderStep);

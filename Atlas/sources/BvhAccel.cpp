@@ -96,165 +96,14 @@ BvhBuildNode *BvhAccel::recursiveBuild(std::vector<BvhPrimitiveInfo> &primitiveI
 	int32_t start, int32_t end, int32_t &totalNodes,
 	std::vector<std::shared_ptr<Primitive>> &orderedPrims)
 {
-	//BvhBuildNode *node = new BvhBuildNode();
-	//totalNodes++;
-
-	//Bounds3f bounds = primitiveInfo[start].bounds;
-	//for (int32_t i = start + 1; i < end; i++)
-	//	bounds = expand(bounds, primitiveInfo[i].bounds);
-	//
-	//int32_t nPrimitives = end - start;
-	//if (nPrimitives == 1)
-	//{
-	//	int32_t firstPrimOffset = static_cast<int32_t>(orderedPrims.size());
-	//	for (int32_t i = start; i < end; i++)
-	//	{
-	//		int32_t primNum = primitiveInfo[i].primitiveNbr;
-	//		orderedPrims.push_back(primitives[primNum]);
-	//	}
-	//	node->initLeaf(firstPrimOffset, nPrimitives, bounds);
-	//	return (node);
-	//}
-	//else
-	//{
-	//	Bounds3f centroidBounds = primitiveInfo[start].bounds;
-	//	for (int32_t i = start + 1; i < end; i++)
-	//		centroidBounds = expand(centroidBounds, primitiveInfo[i].bounds);
-	//	int32_t dim = centroidBounds.maxExtent();
-
-	//	int32_t mid = (start + end) / 2;
-	//	if (centroidBounds.max[dim] == centroidBounds.min[dim])
-	//	{
-	//		int32_t firstPrimOffset = static_cast<int32_t>(orderedPrims.size());
-	//		for (int32_t i = start; i < end; i++)
-	//		{
-	//			int32_t primNum = primitiveInfo[i].primitiveNbr;
-	//			orderedPrims.push_back(primitives[primNum]);
-	//		}
-	//		node->initLeaf(firstPrimOffset, nPrimitives, bounds);
-	//		return (node);
-	//	}
-	//	else
-	//	{
-	//		if (nPrimitives <= 4)
-	//		{
-	//			mid = (start + end) / 2;
-	//			std::nth_element(&primitiveInfo[start], &primitiveInfo[mid], &primitiveInfo[end - 1] + 1,
-	//				[dim](const BvhPrimitiveInfo &a, const BvhPrimitiveInfo &b)
-	//				{ return (a.centroid[dim] < b.centroid[dim]); });
-	//		}
-	//		else
-	//		{
-	//			constexpr int32_t nbrBuckets = 12;
-	//			BucketInfo buckets[nbrBuckets];
-	//			for (int32_t i = start; i < end; i++)
-	//			{
-	//				int32_t b = static_cast<int32_t>(nbrBuckets * centroidBounds.offset(primitiveInfo[i].centroid)[dim]);
-	//				if (b == nbrBuckets)
-	//					b = nbrBuckets - 1;
-	//				buckets[b].count++;
-	//				buckets[b].bounds = expand(buckets[b].bounds, primitiveInfo[i].bounds);
-	//			}
-
-	//			Float cost[nbrBuckets - 1];
-	//			for (int32_t i = 0; i < nbrBuckets - 1; i++)
-	//			{
-	//				Bounds3f b0 = buckets[0].bounds;
-	//				Bounds3f b1 = buckets[i + 1].bounds;
-	//				int32_t count0 = buckets[0].count;
-	//				int32_t count1 = buckets[i + 1].count;
-	//				for (int32_t j = 1; j <= i; j++)
-	//				{
-	//					b0 = expand(b0, buckets[j].bounds);
-	//					count0 += buckets[j].count;
-	//				}
-	//				for (int32_t j = i + 2; j < nbrBuckets; j++)
-	//				{
-	//					b1 = expand(b1, buckets[j].bounds);
-	//					count1 += buckets[j].count;
-	//				}
-	//				cost[i] = 0.125f + (count0 * b0.surfaceArea() + count1 * b1.surfaceArea()) / bounds.surfaceArea();
-	//			}
-
-	//			Float minCost = cost[0];
-	//			int32_t minCostSplitBucket = 0;
-	//			for (int32_t i = 1; i < nbrBuckets - 1; i++)
-	//			{
-	//				if (cost[i] < minCost)
-	//				{
-	//					minCost = cost[i];
-	//					minCostSplitBucket = i;
-	//				}
-	//			}
-
-	//			Float leafCost = static_cast<Float>(nPrimitives);
-	//			if (nPrimitives > 2 || minCost < leafCost)
-	//			{
-	//				BvhPrimitiveInfo *pmid = std::partition(
-	//					&primitiveInfo[start], &primitiveInfo[end - 1] + 1,
-	//					[=](const BvhPrimitiveInfo &pi) {
-	//						int b = nbrBuckets *
-	//							centroidBounds.offset(pi.centroid)[dim];
-	//						if (b == nbrBuckets) b = nbrBuckets - 1;
-	//						return b <= minCostSplitBucket;
-	//					});
-	//				mid = pmid - &primitiveInfo[0];
-
-	//				//BvhPrimitiveInfo *pmid = std::partition(&primitiveInfo[start], &primitiveInfo[end - 1] + 1,
-	//				//	[=](const BvhPrimitiveInfo &pi)
-	//				//	{
-	//				//		int32_t b = static_cast<int32_t>(nbrBuckets * centroidBounds.offset(pi.centroid)[dim]);
-	//				//		if (b == nbrBuckets)
-	//				//			b = nbrBuckets - 1;
-	//				//		return (b <= minCostSplitBucket);
-	//				//	});
-	//				//mid = static_cast<int32_t>(pmid - &primitiveInfo[0]);
-	//			}
-	//			else
-	//			{
-	//				int32_t firstPrimOffset = static_cast<int32_t>(orderedPrims.size());
-	//				for (int32_t i = start; i < end; i++)
-	//				{
-	//					int primNum = primitiveInfo[i].primitiveNbr;
-	//					orderedPrims.push_back(primitives[primNum]);
-	//				}
-	//				node->initLeaf(firstPrimOffset, nPrimitives, bounds);
-	//				return (node);
-	//			}
-	//		}
-	//		node->initInterior(dim, recursiveBuild(primitiveInfo, start, mid, totalNodes, orderedPrims),
-	//			recursiveBuild(primitiveInfo, mid, end, totalNodes, orderedPrims));
-	//	}
-	//}
-	//return (node);
-
-BvhBuildNode *node = new BvhBuildNode;
-totalNodes++;
-// Compute bounds of all primitives in BVH node
-Bounds3f bounds;
-for (int i = start; i < end; ++i)
-	bounds = expand(bounds, primitiveInfo[i].bounds);
-int nPrimitives = end - start;
-if (nPrimitives == 1) {
-	// Create leaf _BVHBuildNode_
-	int32_t firstPrimOffset = static_cast<int32_t>(orderedPrims.size());
-	for (int i = start; i < end; ++i) {
-		int primNum = primitiveInfo[i].primitiveNbr;
-		orderedPrims.push_back(primitives[primNum]);
-	}
-	node->initLeaf(firstPrimOffset, nPrimitives, bounds);
-	return node;
-}
-else {
-	// Compute bound of primitive centroids, choose split dimension _dim_
-	Bounds3f centroidBounds;
+	BvhBuildNode *node = new BvhBuildNode;
+	totalNodes++;
+	// Compute bounds of all primitives in BVH node
+	Bounds3f bounds;
 	for (int i = start; i < end; ++i)
-		centroidBounds = expand(centroidBounds, primitiveInfo[i].centroid);
-	int dim = centroidBounds.maxExtent();
-
-	// Partition primitives into two sets and build children
-	int32_t mid = (start + end) / 2;
-	if (centroidBounds.max[dim] == centroidBounds.min[dim]) {
+		bounds = expand(bounds, primitiveInfo[i].bounds);
+	int nPrimitives = end - start;
+	if (nPrimitives == 1) {
 		// Create leaf _BVHBuildNode_
 		int32_t firstPrimOffset = static_cast<int32_t>(orderedPrims.size());
 		for (int i = start; i < end; ++i) {
@@ -265,37 +114,25 @@ else {
 		return node;
 	}
 	else {
-		// Partition primitives based on _splitMethod_
-		//switch (splitMethod) {
-		//case SplitMethod::Middle: {
-		//	// Partition primitives through node's midpoint
-		//	Float pmid =
-		//		(centroidBounds.pMin[dim] + centroidBounds.pMax[dim]) / 2;
-		//	BVHPrimitiveInfo *midPtr = std::partition(
-		//		&primitiveInfo[start], &primitiveInfo[end - 1] + 1,
-		//		[dim, pmid](const BVHPrimitiveInfo &pi) {
-		//			return pi.centroid[dim] < pmid;
-		//		});
-		//	mid = midPtr - &primitiveInfo[0];
-		//	// For lots of prims with large overlapping bounding boxes, this
-		//	// may fail to partition; in that case don't break and fall
-		//	// through
-		//	// to EqualCounts.
-		//	if (mid != start && mid != end) break;
-		//}
-		//case SplitMethod::EqualCounts: {
-		//	// Partition primitives into equally-sized subsets
-		//	mid = (start + end) / 2;
-		//	std::nth_element(&primitiveInfo[start], &primitiveInfo[mid],
-		//		&primitiveInfo[end - 1] + 1,
-		//		[dim](const BVHPrimitiveInfo &a,
-		//			const BVHPrimitiveInfo &b) {
-		//				return a.centroid[dim] < b.centroid[dim];
-		//		});
-		//	break;
-		//}
-		//case SplitMethod::SAH:
-		//default: {
+		// Compute bound of primitive centroids, choose split dimension _dim_
+		Bounds3f centroidBounds;
+		for (int i = start; i < end; ++i)
+			centroidBounds = expand(centroidBounds, primitiveInfo[i].centroid);
+		int dim = centroidBounds.maxExtent();
+
+		// Partition primitives into two sets and build children
+		int32_t mid = (start + end) / 2;
+		if (centroidBounds.max[dim] == centroidBounds.min[dim]) {
+			// Create leaf _BVHBuildNode_
+			int32_t firstPrimOffset = static_cast<int32_t>(orderedPrims.size());
+			for (int i = start; i < end; ++i) {
+				int primNum = primitiveInfo[i].primitiveNbr;
+				orderedPrims.push_back(primitives[primNum]);
+			}
+			node->initLeaf(firstPrimOffset, nPrimitives, bounds);
+			return node;
+		}
+		else {
 			// Partition primitives using approximate SAH
 			if (nPrimitives <= 2) {
 				// Partition primitives into equally-sized subsets
@@ -383,18 +220,15 @@ else {
 					node->initLeaf(firstPrimOffset, nPrimitives, bounds);
 					return node;
 				}
-		//	}
-		//	break;
-		//}
+			}
+			node->initInterior(dim,
+				recursiveBuild(primitiveInfo, start, mid,
+					totalNodes, orderedPrims),
+				recursiveBuild(primitiveInfo, mid, end,
+					totalNodes, orderedPrims));
 		}
-		node->initInterior(dim,
-			recursiveBuild(primitiveInfo, start, mid,
-				totalNodes, orderedPrims),
-			recursiveBuild(primitiveInfo, mid, end,
-				totalNodes, orderedPrims));
 	}
-}
-return node;
+	return node;
 }
 
 int32_t BvhAccel::flattenBvhTree(BvhBuildNode *node, int32_t &offset)
@@ -420,6 +254,9 @@ int32_t BvhAccel::flattenBvhTree(BvhBuildNode *node, int32_t &offset)
 
 bool BvhAccel::intersect(const Ray &r, SurfaceInteraction &intersection) const
 {
+	if (!nodes)
+		return (false);
+
 	bool hit = false;
 	Vec3f invDir(1.f / r.dir.x, 1.f / r.dir.y, 1.f / r.dir.z);
 	int8_t dirIsNeg[3] = { invDir.x < 0, invDir.y < 0, invDir.z < 0 };
@@ -593,88 +430,3 @@ void BvhAccel::intersect(const Payload &p, std::vector<SurfaceInteraction> &it, 
 		}
 	}
 }
-
-//void BvhAccel::intersect(const ConeRay &cone, SurfaceInteraction *intersections) const
-//{
-//	DCHECK(cone.rays && intersections);
-//
-//	Vec3f invDir(1.f / cone.dir.x, 1.f / cone.dir.y, 1.f / cone.dir.z);
-//	int8_t dirIsNeg[3] = { invDir.x < 0, invDir.y < 0, invDir.z < 0 };
-//
-//	int32_t toVisitOffset = 0;
-//	int32_t currentNodeIndex = 0;
-//	int32_t nodesToVisit[64];
-//	while (true)
-//	{
-//		const LinearBvhNode *node = &nodes[currentNodeIndex];
-//		if (1) //node->bounds)
-//		{
-//			if (node->nPrimitives > 0)
-//			{
-//				for (int32_t i = 0; i < node->nPrimitives; i++)
-//				{
-//					primitives[node->primitiveOffset + i]->intersect(cone, intersections);
-//					if (toVisitOffset == 0)
-//						break;
-//#if 0
-//					currentNodeIndex = nodesToVisit[--toVisitOffset];
-//#else
-//					currentNodeIndex = nodesToVisit[toVisitOffset - 1];
-//					toVisitOffset--;
-//#endif
-//				}
-//			}
-//			else
-//			{
-//				if (dirIsNeg[node->axis])
-//				{
-//					nodesToVisit[toVisitOffset++] = currentNodeIndex + 1;
-//					currentNodeIndex = node->secondChildOffset;
-//				}
-//				else
-//				{
-//					nodesToVisit[toVisitOffset++] = node->secondChildOffset;
-//					currentNodeIndex = currentNodeIndex + 1;
-//				}
-//			}
-//		}
-//		else
-//		{
-//			if (toVisitOffset == 0)
-//				break;
-//#if 0
-//			currentNodeIndex = nodesToVisit[--toVisitOffset];
-//#else
-//			currentNodeIndex = nodesToVisit[toVisitOffset - 1];
-//			toVisitOffset--;
-//#endif
-//		}
-//	}
-//}
-//
-//void BvhAccel::intersectP(const ConeRay &cone) const
-//{
-//	DCHECK(cone.rays);
-//}
-//
-//#ifdef _USE_SIMD
-//S4Bool BvhAccel::intersect(const S4Ray &ray, S4SurfaceInteraction &intersection) const
-//{
-//	return (S4Bool(0.f));
-//}
-//
-//S4Bool BvhAccel::intersectP(const S4Ray &ray) const
-//{
-//	return (S4Bool(0.f));
-//}
-//
-//void BvhAccel::intersect(const S4ConeRay &cone, S4SurfaceInteraction *intersections) const
-//{
-//	DCHECK(cone.rays && intersections);
-//}
-//
-//void BvhAccel::intersectP(const S4ConeRay &cone) const
-//{
-//	DCHECK(cone.rays);
-//}
-//#endif

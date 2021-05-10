@@ -45,6 +45,16 @@ namespace atlas
 		ATLAS Pixel &getPixel(const Point2i &p);
 		ATLAS const Pixel &getPixel(const Point2i &p) const;
 
+		inline Pixel &getPixel(uint32_t idx)
+		{
+			return (pixels[idx]);
+		}
+
+		inline const Pixel &getPixel(uint32_t idx) const
+		{
+			return (pixels[idx]);
+		}
+
 		ATLAS void writeImage(Float splatScale = 1);
 		ATLAS void clear();
 

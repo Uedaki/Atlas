@@ -46,11 +46,13 @@ public:
 	{
 	public:
 		MulTimeScope(SectorTime &sector)
-			: sector(sector), start(std::chrono::high_resolution_clock::now())
+			: sector(sector), start(std::chrono::high_resolution_clock::now()), bIsClosed(false)
 		{}
 
 		~MulTimeScope()
 		{
+			if (bIsClosed)
+				return;
 			float val = static_cast<float>(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start).count());
 			sector.t = (sector.t * sector.count + val) / (sector.count + 1);
 			sector.max = std::max(sector.max, val);
@@ -58,9 +60,20 @@ public:
 			sector.count += 1;
 		}
 
+		void stop()
+		{
+			float val = static_cast<float>(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start).count());
+			sector.t = (sector.t * sector.count + val) / (sector.count + 1);
+			sector.max = std::max(sector.max, val);
+			sector.min = std::min(sector.min, val);
+			sector.count += 1;
+			bIsClosed = true;
+		}
+
 	private:
 		SectorTime &sector;
 		std::chrono::time_point<std::chrono::high_resolution_clock> start;
+		bool bIsClosed;
 	};
 
 	ATLAS static void report();
@@ -87,4 +100,5 @@ private:
 
 //#define TELEMETRY(name, path) static Telemetry::SectorTime __tlm_st_##name(path); Telemetry::SingleTimeScope __tlm_stm_##name(__tlm_st_##name);
 #define TELEMETRY(name, path) static Telemetry::SectorTime __tlm_st_##name(path); Telemetry::MulTimeScope __tlm_mtm_##name(__tlm_st_##name);
+#define CLOSE_TELEMTRY(name) __tlm_mtm_##name.stop()
 #define PRINT_TELEMETRY_REPORT() Telemetry::report()
