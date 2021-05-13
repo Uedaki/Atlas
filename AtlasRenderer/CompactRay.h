@@ -48,7 +48,10 @@ namespace atlas
 		uint16_t depth; // suppose to be ray diameter
 		float tNear;
 
-		CompactRay() = default;
+		CompactRay()
+			: origin(0), direction(0), weight(0), pixelID(0), sampleID(0), depth(0), tNear(0)
+		{};
+
 		CompactRay(const Ray &ray, const Spectrum &color, uint32_t pixel, uint32_t sample, uint32_t depth, float tNear = 0)
 			: origin(ray.origin)
 			, direction(octEncode(ray.dir))

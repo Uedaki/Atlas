@@ -48,7 +48,7 @@ namespace atlas
 
 				{
 					DataBlock block(dataSize);
-					for (uint32_t i = shaders.size() - 1; i < shaders.size(); i--)
+					for (size_t i = shaders.size() - 1; i < shaders.size(); i--)
 					{
 						shaders[i]->evaluate(wo, si, sample, block);
 					}
@@ -83,7 +83,7 @@ namespace atlas
 					DataBlock block(dataSize);
 					for (uint32_t i = 0; i < bsdfs.size(); i++)
 					{
-						for (uint32_t i = shaders.size() - 1; i < shaders.size(); i--)
+						for (size_t i = shaders.size() - 1; i < shaders.size(); i--)
 						{
 							shaders[i]->evaluate(wo[i], sis[i], samples[i], block);
 						}

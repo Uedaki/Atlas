@@ -62,12 +62,12 @@ namespace atlas
 			return (buffer[idx]);
 		}
 
-		inline Type &operator[](const uint32_t idx)
+		inline Type &operator[](const size_t idx)
 		{
 			return (buffer[idx]);
 		}
 
-		inline const Type &operator[](const uint32_t idx) const
+		inline const Type &operator[](const size_t idx) const
 		{
 			return (buffer[idx]);
 		}

@@ -85,10 +85,10 @@ namespace atlas
 		virtual Float sampleDimension(int64_t index, int dimension) const = 0;
 
 	private:
-		int dimension;
-		int64_t intervalSampleIndex;
+		int dimension = 0;
+		int64_t intervalSampleIndex = 0;
 		static const int arrayStartDim = 5;
-		int arrayEndDim;
+		int arrayEndDim = 0;
 	};
 
 	class StratifiedSampler : public PixelSampler {
@@ -107,14 +107,14 @@ namespace atlas
 		}
 
 		StratifiedSampler(const Info &info = Info())
-			: PixelSampler(info.xsamp * info.ysamp, info.sd)
+			: PixelSampler((uint64_t)info.xsamp * info.ysamp, info.sd)
 			, xPixelSamples(info.xsamp)
 			, yPixelSamples(info.ysamp)
 			, jitterSamples(info.jitter)
 		{}
 
 		StratifiedSampler(int xPixelSamples, int yPixelSamples, bool jitterSamples, int nSampledDimensions)
-			: PixelSampler(xPixelSamples * yPixelSamples, nSampledDimensions)
+			: PixelSampler((uint64_t)xPixelSamples * yPixelSamples, nSampledDimensions)
 			, xPixelSamples(xPixelSamples)
 			, yPixelSamples(yPixelSamples)
 			, jitterSamples(jitterSamples)

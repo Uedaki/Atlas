@@ -245,4 +245,9 @@ namespace atlas
 
 		return (color);
 	}
+
+	inline Float luminance(const Spectrum &color)
+	{
+		return (color.r * (Float)0.299 + color.g * (Float)0.587 + color.b * (Float)0.114);
+	}
 }

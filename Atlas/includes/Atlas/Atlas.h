@@ -3,6 +3,7 @@
 #include <cmath>
 #include <cstdint>
 #include <cstring>
+#include <immintrin.h>
 #include <limits>
 
 #ifndef ATLAS_HAVE_HEX_FP_CONSTANTS
@@ -126,6 +127,18 @@ namespace atlas
 			dst |= (((src >> (offset + i)) & 1) << i);
 		}
 		return (dst);
+	}
+
+	inline uint64_t posToZOrderIndex(uint32_t x, uint32_t y)
+	{
+		return (_pdep_u32(x, 0x55555555) | _pdep_u32(y, 0xaaaaaaaa));
+	}
+
+	inline uint64_t zOrderIndexToPos(uint64_t index, uint32_t &x, uint32_t &y)
+	{
+		x = static_cast<uint32_t>(_pext_u64(index, 0x5555555555555555));
+		y = static_cast<uint32_t>(_pext_u64(index, 0xaaaaaaaaaaaaaaaa));
+		return (index);
 	}
 
 	inline Float gamma(int n)

@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
+#include <ostream>
 
 #include "atlas/Atlas.h"
 #include "atlas/core/Logging.h"
@@ -371,6 +372,20 @@ namespace atlas
 	template <typename T>
 	Vector3<T> permute(const Vector3<T> &v, int x, int y, int z) {
 		return Vector3<T>(v[x], v[y], v[z]);
+	}
+
+	template <typename T>
+	std::ostream &operator<<(std::ostream &os, const Vector2<T> &v)
+	{
+		os << "{" << v.x << ", " << v.y << "}";
+		return (os);
+	}
+
+	template <typename T>
+	std::ostream &operator<<(std::ostream &os, const Vector3<T> &v)
+	{
+		os << "{" << v.x << ", " << v.y << ", " << v.z << "}";
+		return (os);
 	}
 		
 	typedef Vector2<Float> Vec2;

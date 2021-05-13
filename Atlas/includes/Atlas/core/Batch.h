@@ -49,7 +49,7 @@ namespace atlas
 			return (usedSize);
 		}
 
-		void reserve(size_t size)
+		void reserve(uint32_t size)
 		{
 			origins.resize(size);
 			directions.resize(size);
@@ -60,7 +60,7 @@ namespace atlas
 			tNears.resize(size);
 		}
 
-		void resize(size_t newSize)
+		void resize(uint32_t newSize)
 		{
 			usedSize = newSize;
 		}

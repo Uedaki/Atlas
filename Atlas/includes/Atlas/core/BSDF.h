@@ -10,8 +10,8 @@ namespace atlas
 	{
 	public:
 		BSDF(const SurfaceInteraction &si, Float eta = 1)
-			: eta(eta), ns(si.shading.n), ng(si.n),
-			ss(normalize(si.shading.dpdu)), ts(cross(ns, ss))
+			: eta(eta), ns(si.shading.n), ng(si.n)
+			, ss(normalize(si.shading.dpdu)), ts(cross(ns, ss))
 		{}
 
 		void add(BxDF *b)
@@ -106,6 +106,8 @@ namespace atlas
 					break;
 				}
 			}
+			if (!bxdf)
+				return (BLACK);
 
 			Point2f uRemapped(std::min(u[0] * matchingComps - comp, OneMinusEpsilon), u[1]);
 
@@ -161,7 +163,7 @@ namespace atlas
 		
 		int nBxDFs = 0;
 		static constexpr int MaxBxDFs = 8;
-		BxDF *bxdfs[MaxBxDFs];
+		BxDF *bxdfs[MaxBxDFs] = {};
 
 		friend class MixMaterial;
 	};

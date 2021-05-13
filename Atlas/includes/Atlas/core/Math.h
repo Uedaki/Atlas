@@ -9,7 +9,7 @@ namespace atlas
 {
 	inline Float radians(Float v)
 	{
-		return (static_cast<Float>(v * PI / 180.0));
+		return (v * PI / (Float)180.0);
 	}
 
 	inline Float degrees(Float v)

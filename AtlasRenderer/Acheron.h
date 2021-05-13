@@ -14,7 +14,6 @@
 #include "Bin.h"
 #include "atlas/core/Batch.h"
 #include "BatchManager.h"
-#include "IterationFilm.h"
 
 namespace atlas
 {
@@ -27,7 +26,7 @@ namespace atlas
 			uint32_t samplePerPixel = 16;
 			uint32_t minLightBounce = 0; // unused for now
 			uint32_t maxLightBounce = 9;
-			Float lightTreshold  = 0.01;
+			Float lightTreshold  = (Float)0.01;
 
 			Sampler *sampler;
 
@@ -56,7 +55,7 @@ namespace atlas
 		ATLAS_RENDERER void restoreExecutionDir();
 
 		ATLAS_RENDERER void processSmallBatches(const Primitive &scene, FilmIterator &iteration);
-		ATLAS_RENDERER Spectrum getColorAlongRay(const atlas::Ray &r, const atlas::Primitive &scene, atlas::Sampler &sampler, int depth);
+		ATLAS_RENDERER Spectrum getColorAlongRay(const atlas::Ray &r, const atlas::Primitive &scene, atlas::Sampler &sampler, uint32_t depth);
 
 		// atlas::Film film(filmInfo);
 
@@ -73,7 +72,7 @@ namespace atlas
 		uint32_t samplePerPixel = 16;
 		uint32_t minLightBounce = 0; // unused for now
 		uint32_t maxLightBounce = 9;
-		Float lightTreshold = 0.01;
+		Float lightTreshold = (Float)0.01;
 
 		BatchManager batchManager;
 		Batch batch;

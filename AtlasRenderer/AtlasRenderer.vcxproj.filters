@@ -48,17 +48,14 @@
     <ClInclude Include="SortInteractions.h">
       <Filter>Header Files\Task</Filter>
     </ClInclude>
-    <ClInclude Include="Shade.h">
-      <Filter>Header Files\Task</Filter>
-    </ClInclude>
-    <ClInclude Include="IterationFilm.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="BatchManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="LocalBin.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ShadeInteractions.h">
+      <Filter>Header Files\Task</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -69,6 +66,21 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BatchManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ExtractBatch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GenerateFirstRays.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ShadeInteractions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SortRays.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TraceRays.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

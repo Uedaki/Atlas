@@ -71,7 +71,7 @@ namespace atlas
 #ifndef NDEBUG
         float GetRelativeError() const
         {
-            return std::abs((vPrecise - v) / vPrecise);
+            return ((float)(std::abs((vPrecise - v) / vPrecise)));
         }
         
         long double PreciseValue() const
@@ -274,7 +274,7 @@ namespace atlas
             return false;
         double rootDiscrim = std::sqrt(discrim);
 
-        EFloat floatRootDiscrim(rootDiscrim, MACHINE_EPSILON * rootDiscrim);
+        EFloat floatRootDiscrim((float)rootDiscrim, (float)(MACHINE_EPSILON * rootDiscrim));
 
         EFloat q;
         if ((float)b < 0)

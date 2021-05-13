@@ -38,8 +38,8 @@ namespace atlas
 
 		template <typename U>
 		explicit Point2(const Point2<U> &p)
-			: x(static_cast<U>(p.x))
-			, y(static_cast<U>(p.y))
+			: x(static_cast<T>(p.x))
+			, y(static_cast<T>(p.y))
 		{
 			//DCHECK(!hasNans());
 		}

@@ -122,7 +122,7 @@ void GlobalSampler::startPixel(const Point2i &p)
     int dim = arrayStartDim + samples1DArraySizes.size();
     for (size_t i = 0; i < samples2DArraySizes.size(); ++i)
     {
-        int nSamples = samples2DArraySizes[i] * samplesPerPixel;
+        int nSamples = samples2DArraySizes[i] * (int)samplesPerPixel;
         for (int j = 0; j < nSamples; ++j)
         {
             int64_t idx = getIndexForSample(j);

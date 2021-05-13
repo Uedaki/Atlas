@@ -9,8 +9,7 @@
 #include "ExtractBatch.h"
 #include "SortRays.h"
 #include "traceRays.h"
-#include "Shade.h"
-#include "iterationFilm.h"
+#include "ShadeInteractions.h"
 
 #include "BSDF.h"
 #include "Material.h"
@@ -181,9 +180,10 @@ void Acheron::processBatches(const Primitive &scene, FilmIterator &iteration)
 				shadingPack.back().end = i;
 			}
 
-			task::Shade::Data data;
+			task::ShadeInteractions::Data data;
 			data.startingIndex = shadingPack.front().material ? 0 : 1;
 			data.maxDepth = maxLightBounce;
+			data.lightTreshold = lightTreshold;
 			data.localBinSize = localBinSize;
 			data.batch = &batch;
 			data.interactions = &interactions;
@@ -192,15 +192,15 @@ void Acheron::processBatches(const Primitive &scene, FilmIterator &iteration)
 			data.samples = &samples;
 			data.samplesGuard = &samplesGuard;
 			data.batchManager = &batchManager;
-			threads.execute<task::Shade>(data);
+			threads.execute<task::ShadeInteractions>(data);
 
 			if (!shadingPack.front().material)
 			{
 				for (uint32_t i = shadingPack.front().start; i < shadingPack.front().end; i++)
 				{
 					atlas::Vec3f unitDir = normalize(batch.directions[i]);
-					auto t = 0.5 * (unitDir.y + 1.0);
-					Spectrum color((1.0 - t) * atlas::Spectrum(1.f) + t * atlas::Spectrum(0.5, 0.7, 1.0));
+					Float t = (Float)0.5 * (unitDir.y + (Float)1.0);
+					Spectrum color(((Float)1.0 - t) * atlas::Spectrum(1.f) + t * atlas::Spectrum((Float)0.5, (Float)0.7, (Float)1.0));
 					iteration.addSample(batch.pixelIDs[i], batch.colors[i] * color);
 				}
 			}
@@ -217,7 +217,7 @@ void Acheron::processBatches(const Primitive &scene, FilmIterator &iteration)
 	}
 }
 
-Spectrum Acheron::getColorAlongRay(const atlas::Ray &r, const atlas::Primitive &scene, atlas::Sampler &sampler, int depth)
+Spectrum Acheron::getColorAlongRay(const atlas::Ray &r, const atlas::Primitive &scene, atlas::Sampler &sampler, uint32_t depth)
 {
 	if (depth >= maxLightBounce)
 		return (atlas::Spectrum(0.f));
@@ -226,13 +226,13 @@ Spectrum Acheron::getColorAlongRay(const atlas::Ray &r, const atlas::Primitive &
 	if (scene.intersect(r, s))
 	{
 		atlas::sh::BSDF bsdf = s.material->sample(-r.dir, s, sampler.get2D());
-		if (bsdf.Li.isBlack())
+		if (luminance(bsdf.Li) < lightTreshold)
 			return (bsdf.Le);
 		return (bsdf.Le + /* bsdf.pdf * */ bsdf.Li * getColorAlongRay(atlas::Ray(s.p, bsdf.wi), scene, sampler, depth + 1));
 	}
 	atlas::Vec3f unitDir = normalize(r.dir);
-	auto t = 0.5 * (unitDir.y + 1.0);
-	return ((1.0 - t) * atlas::Spectrum(1.f) + t * atlas::Spectrum(0.5, 0.7, 1.0));
+	auto t = (Float)0.5 * (unitDir.y + (Float)1.0);
+	return (((Float)1.0 - t) * atlas::Spectrum(1) + t * atlas::Spectrum((Float)0.5, (Float)0.7, (Float)1.0));
 }
 
 void Acheron::processSmallBatches(const Primitive &scene, FilmIterator &iteration)
@@ -261,7 +261,6 @@ void Acheron::processSmallBatches(const Primitive &scene, FilmIterator &iteratio
 
 void Acheron::prepareTemporaryDir()
 {
-	BOOL res;
 	if (std::filesystem::exists(temporaryDir))
 	{
 		for (const auto &entry : std::filesystem::directory_iterator(temporaryDir))

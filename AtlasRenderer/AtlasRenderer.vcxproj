@@ -31,9 +31,8 @@
     <ClInclude Include="CompactRay.h" />
     <ClInclude Include="ExtractBatch.h" />
     <ClInclude Include="GenerateFirstRays.h" />
-    <ClInclude Include="IterationFilm.h" />
     <ClInclude Include="LocalBin.h" />
-    <ClInclude Include="Shade.h" />
+    <ClInclude Include="ShadeInteractions.h" />
     <ClInclude Include="SortInteractions.h" />
     <ClInclude Include="SortRays.h" />
     <ClInclude Include="ThreadPool.h" />
@@ -43,6 +42,11 @@
     <ClCompile Include="Acheron.cpp" />
     <ClCompile Include="BatchManager.cpp" />
     <ClCompile Include="Bin.cpp" />
+    <ClCompile Include="ExtractBatch.cpp" />
+    <ClCompile Include="GenerateFirstRays.cpp" />
+    <ClCompile Include="ShadeInteractions.cpp" />
+    <ClCompile Include="SortRays.cpp" />
+    <ClCompile Include="TraceRays.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

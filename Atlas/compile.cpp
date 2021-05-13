@@ -68,11 +68,11 @@ std::vector<std::shared_ptr<atlas::Primitive>> createPrimitives()
 		l.iR.bind(t.oColor);
 
 		auto &c1 = checkerMaterial->addShader<atlas::sh::ConstantShader<atlas::Spectrum>>();
-		c1.value = atlas::Spectrum(0.2, 0.3, 0.1);
+		c1.value = atlas::Spectrum((Float)0.2, (Float)0.3, (Float)0.1);
 		t.iColor1.bind(c1.out);
 
 		auto &c2 = checkerMaterial->addShader<atlas::sh::ConstantShader<atlas::Spectrum>>();
-		c2.value = atlas::Spectrum(0.9);
+		c2.value = atlas::Spectrum((Float)0.9);
 		t.iColor2.bind(c2.out);
 
 		auto &s = checkerMaterial->addShader<atlas::sh::ConstantShader<Float>>();
@@ -147,11 +147,11 @@ std::vector<std::shared_ptr<atlas::Primitive>> createPrimitives()
 		for (int b = -11; b < 11; b++)
 		{
 			Float choose_mat = atlas::random();
-			atlas::Vec3f center(a + 0.9 * atlas::random(), 0.2, b + 0.9 * atlas::random());
+			atlas::Vec3f center(a + (Float)0.9 * atlas::random(), (Float)0.2, b + (Float)0.9 * atlas::random());
 			sphereInfo.objectToWorld = setTransform(center.x, center.y, center.z);
 			sphereInfo.worldToObject = setInverse(sphereInfo.objectToWorld);
 			sphereInfo.radius = 0.2f;
-			if ((center - atlas::Vec3f(4, 0.2, 0)).length() > 0.9)
+			if ((center - atlas::Vec3f(4, (Float)0.2, 0)).length() > (Float)0.9)
 			{
 #if defined(SHADING)
 				std::shared_ptr<atlas::sh::Material> material = nullptr;
@@ -205,7 +205,7 @@ std::vector<std::shared_ptr<atlas::Primitive>> createPrimitives()
 
 	std::shared_ptr<atlas::Material> material = nullptr;
 	atlas::MatteMaterialInfo matteInfo;
-	matteInfo.kd = atlas::createSpectrumConstant(0.8, 0.2, 0.1);
+	matteInfo.kd = atlas::createSpectrumConstant((Float)0.8, (Float)0.2, (Float)0.1);
 	material = atlas::MatteMaterial::create(matteInfo);
 
 	atlas::GlassMaterialInfo glassInfo;
@@ -234,7 +234,7 @@ std::vector<std::shared_ptr<atlas::Primitive>> createPrimitives()
 		));
 
 	atlas::MetalMaterialInfo metalInfo;
-	metalInfo.eta = atlas::createSpectrumConstant(0.7, 0.6, 0.5);
+	metalInfo.eta = atlas::createSpectrumConstant((Float)0.7, (Float)0.6, (Float)0.5);
 	metalInfo.roughness = atlas::createFloatConstant(0);
 
 	sphereInfo.objectToWorld = setTransform(4, 1, 0);
@@ -242,7 +242,7 @@ std::vector<std::shared_ptr<atlas::Primitive>> createPrimitives()
 	scene.push_back(std::make_shared<atlas::GeometricPrimitive>(
 		atlas::Sphere::createShape(sphereInfo),
 #if defined(SHADING)
-		atlas::sh::createMetalMaterial(atlas::Spectrum(0.7, 0.6, 0.5))
+		atlas::sh::createMetalMaterial(atlas::Spectrum((Float)0.7, (Float)0.6, (Float)0.5))
 #else
 		atlas::MetalMaterial::create(metalInfo)
 #endif
@@ -276,8 +276,8 @@ atlas::Spectrum rayColor(const atlas::Ray &r, const atlas::Primitive &scene, int
 
 	}
 	atlas::Vec3f unitDir = normalize(r.dir);
-	auto t = 0.5 * (unitDir.y + 1.0);
-	return ((1.0 - t) * atlas::Spectrum(1.f) + t * atlas::Spectrum(0.5, 0.7, 1.0));
+	Float t = (Float)0.5 * (unitDir.y + (Float)1.0);
+	return (((Float)1.0 - t) * atlas::Spectrum(1) + t * atlas::Spectrum((Float)0.5, (Float)0.7, (Float)1.0));
 }
 
 int main()
@@ -294,7 +294,7 @@ int main()
 	achInfo.samplePerPixel = spp;
 	achInfo.minLightBounce = 0;
 	achInfo.maxLightBounce = 16;
-	achInfo.lightTreshold = 0.01;
+	achInfo.lightTreshold = (Float)0.01;
 	achInfo.sampler = &sampler;
 	achInfo.assetFolder = "./";
 	achInfo.temporaryFolder = "./render/";

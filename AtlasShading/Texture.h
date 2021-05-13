@@ -71,7 +71,7 @@ namespace atlas
 			{
 				Float scale = iScale.get(block);
 				Point3f p = scale * si.p;
-				Float value = 0.5 * (1 + noise(p));
+				Float value = (Float)0.5 * ((Float)1 + noise(p));
 				oColor.set(block, Spectrum(value));
 				oAlpha.set(block, value);
 			}
@@ -167,7 +167,7 @@ namespace atlas
 					p *= 2;
 				}
 
-				Float value = 0.5 * (1 + sin(scale * si.p.z + 10 * fabs(acc)));
+				Float value = (Float)0.5 * ((Float)1 + sin(scale * si.p.z + (Float)10 * fabs(acc)));
 				oColor.set(block, Spectrum(value));
 				oAlpha.set(block, value);
 			}
@@ -188,7 +188,7 @@ namespace atlas
 			}
 
 			ShadingInput<Vec2f> iOffset;
-			ImageID imageID;
+			ImageID imageID = -1;
 		};
 	}
 }

@@ -14,13 +14,15 @@ namespace atlas
 {
 	namespace sh
 	{
-		typedef uint32_t ImageID;
+		typedef size_t ImageID;
 
 		class ImageWrapper
 		{
 		public:
 			ImageWrapper(const std::string &filename)
-				: filename(filename), lastCallValue(0), bIsLoaded(false)
+				: filename(filename), buffer(nullptr)
+				, width(0), height(0), lastCallValue(0)
+				, bIsLoaded(false), bHasAlpha(false)
 			{}
 
 			ATLAS_SH bool load();
@@ -67,7 +69,7 @@ namespace atlas
 
 		private:
 			ATLAS_SH static ImageLibrary instance;
-			uint32_t nextCallValue;
+			uint32_t nextCallValue = 0;
 			std::vector<ImageWrapper> images;
 
 			ATLAS_SH ImageID privateRequestID(const std::string &filename);
