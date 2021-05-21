@@ -524,4 +524,14 @@ namespace atlas
 		Float invTanAng = 1 / std::tan(radians(fov) / 2);
 		return scale(invTanAng, invTanAng, 1) * Transform(persp);
 	}
+
+	inline Transform perspective(Float vFov, Float hFov, Float n, Float f)
+	{
+		Matrix4x4 persp(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, f / (f - n), -f * n / (f - n),
+			0, 0, 1, 0);
+
+		Float vInvTanAng = 1 / std::tan(radians(vFov) / 2);
+		Float hInvTanAng = 1 / std::tan(radians(hFov) / 2);
+		return scale(hInvTanAng, vInvTanAng, 1) * Transform(persp);
+	}
 }

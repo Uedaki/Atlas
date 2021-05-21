@@ -250,4 +250,10 @@ namespace atlas
 	{
 		return (color.r * (Float)0.299 + color.g * (Float)0.587 + color.b * (Float)0.114);
 	}
+
+	inline std::ostream &operator<<(std::ostream &os, const RgbSpectrum &v)
+	{
+		os << "{" << v.r << ", " << v.g << ", " << v.b << "}";
+		return (os);
+	}
 }

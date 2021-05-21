@@ -130,5 +130,46 @@ namespace atlas
 		const bool jitterSamples;
 	};
 
+	class TestSampler : Sampler
+	{
+	public:
+		static Sampler *create()
+		{
+			return (new TestSampler);
+		}
+
+		TestSampler()
+			: Sampler(0)
+		{}
+
+		bool startNextSample() override
+		{
+			return (true);
+		}
+
+		void startPixel(const Point2i &) override
+		{}
+
+		bool setSampleNumber(int64_t sampleNum) override
+		{
+			return (true);
+		}
+
+		Float get1D() override
+		{
+			return (0);
+		}
+
+		Point2f get2D() override
+		{
+			return (Point2f(0));
+		}
+
+		ATLAS std::unique_ptr<Sampler> clone(int seed)
+		{
+			return (std::unique_ptr<Sampler>(create()));
+		}
+	};
+
 	typedef StratifiedSampler::Info StratifiedSamplerInfo;
 }

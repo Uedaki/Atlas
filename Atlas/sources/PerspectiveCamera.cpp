@@ -5,6 +5,25 @@
 #include "atlas/core/Sampling.h"
 
 using namespace atlas;
+
+PerspectiveCamera::PerspectiveCamera(const Info &info)
+    : ProjectiveCamera(*info.cameraToWorld, perspective(info.verticalFov, info.horizontalFov, 1e-2f, 1000.f),
+        info.screenWindow, info.shutterOpen, info.shutterClose, info.lensRadius,
+        info.focalDistance, info.film, info.medium)
+{
+    dxCamera =
+        (RasterToCamera(Point3f(1, 0, 0)) - RasterToCamera(Point3f(0, 0, 0)));
+    dyCamera =
+        (RasterToCamera(Point3f(0, 1, 0)) - RasterToCamera(Point3f(0, 0, 0)));
+
+    Point2i res = film->resolution;
+    Point3f pMin = RasterToCamera(Point3f(0, 0, 0));
+    Point3f pMax = RasterToCamera(Point3f((Float)res.x, (Float)res.y, 0));
+    pMin /= pMin.z;
+    pMax /= pMax.z;
+    A = std::abs((pMax.x - pMin.x) * (pMax.y - pMin.y));
+}
+
 PerspectiveCamera::PerspectiveCamera(const Transform &CameraToWorld,
     const Bounds2f &screenWindow,
     Float shutterOpen, Float shutterClose,
@@ -12,6 +31,29 @@ PerspectiveCamera::PerspectiveCamera(const Transform &CameraToWorld,
     Float fov, Film *film,
     const Medium *medium)
     : ProjectiveCamera(CameraToWorld, perspective(fov, 1e-2f, 1000.f),
+        screenWindow, shutterOpen, shutterClose, lensRadius,
+        focalDistance, film, medium)
+{
+    dxCamera =
+        (RasterToCamera(Point3f(1, 0, 0)) - RasterToCamera(Point3f(0, 0, 0)));
+    dyCamera =
+        (RasterToCamera(Point3f(0, 1, 0)) - RasterToCamera(Point3f(0, 0, 0)));
+
+    Point2i res = film->resolution;
+    Point3f pMin = RasterToCamera(Point3f(0, 0, 0));
+    Point3f pMax = RasterToCamera(Point3f((Float)res.x, (Float)res.y, 0));
+    pMin /= pMin.z;
+    pMax /= pMax.z;
+    A = std::abs((pMax.x - pMin.x) * (pMax.y - pMin.y));
+}
+
+PerspectiveCamera::PerspectiveCamera(const Transform &CameraToWorld,
+    const Bounds2f &screenWindow,
+    Float shutterOpen, Float shutterClose,
+    Float lensRadius, Float focalDistance,
+    Float vFov, Float hfov, Film *film,
+    const Medium *medium)
+    : ProjectiveCamera(CameraToWorld, perspective(vFov, hfov, 1e-2f, 1000.f),
         screenWindow, shutterOpen, shutterClose, lensRadius,
         focalDistance, film, medium)
 {

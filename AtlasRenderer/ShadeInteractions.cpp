@@ -32,8 +32,6 @@ void atlas::task::ShadeInteractions::execute()
 		for (uint32_t i = data.shadingPack->at(idx).start; i <= data.shadingPack->at(idx).end; i++)
 		{
 			data.sampler->startPixel(Point2i(0, 0));
-			if (data.batch->depths[i] >= data.maxDepth)
-				continue;
 
 			sh::BSDF bsdf = data.shadingPack->at(idx).material->sample(-data.batch->directions[i], data.interactions->at(i), sampler->get2D());
 			if (!bsdf.Le.isBlack())
@@ -45,16 +43,27 @@ void atlas::task::ShadeInteractions::execute()
 			}
 
 			if (luminance(data.batch->colors[i] * bsdf.Li) < data.lightTreshold || bsdf.wi.length() == 0)
-				continue;
-
-			Ray r(data.interactions->at(i).p, bsdf.wi);
-
 			{
+				printf("luminance too low\n");
+				continue;
+			}
+
+			if (data.batch->depths[i] < data.maxDepth)
+			{
+				Ray r(data.interactions->at(i).p, bsdf.wi);
 				const uint8_t vectorIndex = abs(bsdf.wi).maxDimension();
 				const bool isNegative = std::signbit(bsdf.wi[vectorIndex]);
 				const uint8_t index = vectorIndex * 2 + isNegative;
 				if (localBins[index].feed(CompactRay(r, data.batch->colors[i] * bsdf.Li, data.batch->pixelIDs[i], data.batch->sampleIDs[i], data.batch->depths[i] + 1)))
 					data.batchManager->feed(index, localBins[index]);
+			}
+			else
+			{
+				printf("max depth\n");
+				Sample s;
+				s.color = data.batch->colors[i];
+				s.pixelID = data.batch->pixelIDs[i];
+				samples.push_back(s);
 			}
 		}
 #else

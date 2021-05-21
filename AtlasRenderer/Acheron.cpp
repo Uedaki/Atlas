@@ -98,7 +98,7 @@ void Acheron::processBatches(const Primitive &scene, FilmIterator &iteration)
 			data.batchManager = &batchManager;
 			threads.execute<task::ExtractBatch>(data);
 			threads.join();
-			if (batch.size() < smallBatchTreshold)
+			if (batch.size() <= smallBatchTreshold)
 			{
 				processSmallBatches(scene, iteration);
 				return;
@@ -180,23 +180,72 @@ void Acheron::processBatches(const Primitive &scene, FilmIterator &iteration)
 				shadingPack.back().end = i;
 			}
 
-			task::ShadeInteractions::Data data;
-			data.startingIndex = shadingPack.front().material ? 0 : 1;
-			data.maxDepth = maxLightBounce;
-			data.lightTreshold = lightTreshold;
-			data.localBinSize = localBinSize;
-			data.batch = &batch;
-			data.interactions = &interactions;
-			data.shadingPack = &shadingPack;
-			data.sampler = &sampler;
-			data.samples = &samples;
-			data.samplesGuard = &samplesGuard;
-			data.batchManager = &batchManager;
-			threads.execute<task::ShadeInteractions>(data);
+			bool hasTask = shadingPack.front().material || shadingPack.size() > 1;
+			if (hasTask)
+			{
+				task::ShadeInteractions::Data data;
+				data.startingIndex = shadingPack.front().material ? 0 : 1;
+				data.maxDepth = maxLightBounce;
+				data.lightTreshold = lightTreshold;
+				data.localBinSize = localBinSize;
+				data.batch = &batch;
+				data.interactions = &interactions;
+				data.shadingPack = &shadingPack;
+				data.sampler = &sampler;
+				data.samples = &samples;
+				data.samplesGuard = &samplesGuard;
+				data.batchManager = &batchManager;
+				threads.execute<task::ShadeInteractions>(data);
+			}
+
+			//if (shadingPack.front().material || shadingPack.size() > 1)
+			//{
+			//	batchManager.mapBins();
+
+			//	thread_local std::array<LocalBin, 6> localBins =
+			//	{ LocalBin(localBinSize), LocalBin(localBinSize), LocalBin(localBinSize),
+			//	LocalBin(localBinSize), LocalBin(localBinSize), LocalBin(localBinSize) };
+			//	for (uint32_t i = shadingPack.back().start; i <= shadingPack.back().end; i++)
+			//	{
+			//		sampler.startPixel(Point2i(0, 0));
+
+			//		sh::BSDF bsdf = shadingPack.back().material->sample(-batch.directions[i], interactions.at(i), sampler.get2D());
+			//		if (!bsdf.Le.isBlack())
+			//		{
+			//			iteration.addSample(batch.pixelIDs[i], batch.colors[i] * bsdf.Le);
+			//		}
+
+			//		if (luminance(batch.colors[i] * bsdf.Li) < lightTreshold || bsdf.wi.length() == 0)
+			//		{
+			//			printf("luminance too low\n");
+			//			continue;
+			//		}
+
+			//		if (batch.depths[i] < maxLightBounce)
+			//		{
+			//			Ray r(interactions.at(i).p, bsdf.wi);
+			//			const uint8_t vectorIndex = abs(bsdf.wi).maxDimension();
+			//			const bool isNegative = std::signbit(bsdf.wi[vectorIndex]);
+			//			const uint8_t index = vectorIndex * 2 + isNegative;
+			//			if (localBins[index].feed(CompactRay(r, batch.colors[i] * bsdf.Li, batch.pixelIDs[i], batch.sampleIDs[i], batch.depths[i] + 1)))
+			//				batchManager.feed(index, localBins[index]);
+			//		}
+			//		else
+			//		{
+			//			printf("max depth\n");
+			//			iteration.addSample(batch.pixelIDs[i], batch.colors[i]);
+			//		}
+			//	}
+
+			//	for (uint32_t i = 0; i < localBins.size(); i++)
+			//	{
+			//		batchManager.feed(i, localBins[i]);
+			//	}
+			//}
 
 			if (!shadingPack.front().material)
 			{
-				for (uint32_t i = shadingPack.front().start; i < shadingPack.front().end; i++)
+				for (uint32_t i = shadingPack.front().start; i <= shadingPack.front().end; i++)
 				{
 					atlas::Vec3f unitDir = normalize(batch.directions[i]);
 					Float t = (Float)0.5 * (unitDir.y + (Float)1.0);
@@ -205,9 +254,10 @@ void Acheron::processBatches(const Primitive &scene, FilmIterator &iteration)
 				}
 			}
 
-			threads.join();
-
+			if (hasTask)
 			{
+				threads.join();
+
 				for (Sample &sample : samples)
 				{
 					iteration.addSample(sample.pixelID, sample.color);

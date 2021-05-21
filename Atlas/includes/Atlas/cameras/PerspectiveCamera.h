@@ -11,10 +11,33 @@ namespace atlas
     class PerspectiveCamera : public ProjectiveCamera
     {
     public:
+        struct Info
+        {
+            Transform *cameraToWorld;
+            Bounds2f screenWindow;
+
+            Float shutterOpen;
+            Float shutterClose;
+
+            Float lensRadius;
+            Float focalDistance;
+
+            Float horizontalFov;
+            Float verticalFov;
+
+            Film *film = nullptr;
+            Medium *medium = nullptr;
+        };
+
+        ATLAS PerspectiveCamera(const Info &info);
+        ATLAS PerspectiveCamera(const Transform &CameraToWorld,
+            const Bounds2f &screenWindow, Float shutterOpen,
+            Float shutterClose, Float lensRadius, Float focalDistance,
+            Float fov, Film *film, const Medium *medium);
         ATLAS PerspectiveCamera(const Transform &CameraToWorld,
                                 const Bounds2f &screenWindow, Float shutterOpen,
                                 Float shutterClose, Float lensRadius, Float focalDistance,
-                                Float fov, Film *film, const Medium *medium);
+                                Float vFov, Float hFov, Film *film, const Medium *medium);
         ATLAS Float generateRay(const CameraSample &sample, Ray &ray) const;
         ATLAS Float generateRayDifferential(const CameraSample &sample,
                                             RayDifferential *ray) const;
@@ -26,4 +49,6 @@ namespace atlas
         Vec3f dyCamera;
         Float A;
     };
+
+    typedef PerspectiveCamera::Info PerspectiveCameraInfo;
 }
