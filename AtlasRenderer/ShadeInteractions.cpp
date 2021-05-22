@@ -50,7 +50,7 @@ void atlas::task::ShadeInteractions::execute()
 
 			if (data.batch->depths[i] < data.maxDepth)
 			{
-				Ray r(data.interactions->at(i).p, bsdf.wi);
+				Ray r(data.interactions->at(i).p + data.tmin * bsdf.wi, bsdf.wi);
 				const uint8_t vectorIndex = abs(bsdf.wi).maxDimension();
 				const bool isNegative = std::signbit(bsdf.wi[vectorIndex]);
 				const uint8_t index = vectorIndex * 2 + isNegative;

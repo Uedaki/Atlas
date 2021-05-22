@@ -21,6 +21,7 @@ Acheron::Acheron(const Info &info)
 	, minLightBounce(info.minLightBounce)
 	, maxLightBounce(info.maxLightBounce)
 	, lightTreshold(info.lightTreshold)
+	, tmin(info.tmin), tmax(info.tmax)
 	, batchManager(info.batchSize)
 	, sampler(*info.sampler)
 	, smallBatchTreshold(info.smallBatchTreshold)
@@ -117,6 +118,7 @@ void Acheron::processBatches(const Primitive &scene, FilmIterator &iteration)
 		{
 			TELEMETRY(achTraceRays, "acheron/render/processBatches/traceRays");
 			task::TraceRays::Data data;
+			data.tmax = tmax;
 			data.batch = &batch;
 			data.scene = &scene;
 			data.interactions = &interactions;
@@ -186,6 +188,7 @@ void Acheron::processBatches(const Primitive &scene, FilmIterator &iteration)
 				task::ShadeInteractions::Data data;
 				data.startingIndex = shadingPack.front().material ? 0 : 1;
 				data.maxDepth = maxLightBounce;
+				data.tmin = tmin;
 				data.lightTreshold = lightTreshold;
 				data.localBinSize = localBinSize;
 				data.batch = &batch;

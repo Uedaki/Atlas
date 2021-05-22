@@ -25,7 +25,7 @@ void atlas::task::TraceRays::execute()
 			uint32_t rayCount = i + maxConeSize <= size ? maxConeSize : size - i;
 			for (uint32_t j = 0; j < rayCount; j++)
 			{
-				Ray r(data.batch->origins[index + i + j], data.batch->directions[index + i + j]);
+				Ray r(data.batch->origins[index + i + j], data.batch->directions[index + i + j], data.tmax);
 				data.scene->intersect(r, (*data.interactions)[index + i + j]);
 			}
 #else

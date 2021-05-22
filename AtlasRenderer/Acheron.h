@@ -26,6 +26,8 @@ namespace atlas
 			uint32_t samplePerPixel = 16;
 			uint32_t minLightBounce = 0; // unused for now
 			uint32_t maxLightBounce = 9;
+			Float tmin = 0;
+			Float tmax = INFINITY;
 			Float lightTreshold  = (Float)0.01;
 
 			Sampler *sampler;
@@ -72,6 +74,8 @@ namespace atlas
 		uint32_t samplePerPixel = 16;
 		uint32_t minLightBounce = 0; // unused for now
 		uint32_t maxLightBounce = 9;
+		Float tmin = 0;
+		Float tmax = INFINITY;
 		Float lightTreshold = (Float)0.01;
 
 		BatchManager batchManager;

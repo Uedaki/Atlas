@@ -20,6 +20,7 @@ namespace atlas
 
 			struct Data
 			{
+				Float tmax;
 				Batch *batch;
 				const Primitive *scene;
 

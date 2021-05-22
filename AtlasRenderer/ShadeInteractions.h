@@ -38,6 +38,7 @@ namespace atlas
 
 				uint32_t localBinSize = 512;
 
+				Float tmin = 0;
 				Float lightTreshold = (Float)0.01;
 
 				std::vector<Sample> *samples = nullptr;
