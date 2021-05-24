@@ -534,4 +534,13 @@ namespace atlas
 		Float hInvTanAng = 1 / std::tan(radians(hFov) / 2);
 		return scale(hInvTanAng, vInvTanAng, 1) * Transform(persp);
 	}
+
+	inline std::ostream &operator<<(std::ostream &os, const Transform &t)
+	{
+		os << "{" << t.getMatrix().m[0][0] << ", " << t.getMatrix().m[0][1] << ", " << t.getMatrix().m[0][2] << ", " << t.getMatrix().m[0][3] << "}"
+			<< "{" << t.getMatrix().m[1][0] << ", " << t.getMatrix().m[1][1] << ", " << t.getMatrix().m[1][2] << ", " << t.getMatrix().m[1][3] << "}"
+			<< "{" << t.getMatrix().m[2][0] << ", " << t.getMatrix().m[2][1] << ", " << t.getMatrix().m[2][2] << ", " << t.getMatrix().m[2][3] << "}"
+			<< "{" << t.getMatrix().m[3][0] << ", " << t.getMatrix().m[3][1] << ", " << t.getMatrix().m[3][2] << ", " << t.getMatrix().m[3][3] << "}";
+		return (os);
+	}
 }

@@ -51,4 +51,20 @@ namespace atlas
     };
 
     typedef PerspectiveCamera::Info PerspectiveCameraInfo;
+
+    inline std::ostream &operator<<(std::ostream &os, const PerspectiveCameraInfo &info)
+    {
+        os << "PerspectiveCameraInfo {\n"
+            << "\tCamera to world: " << *info.cameraToWorld << "\n"
+            << "\tShutter open: " << info.shutterOpen << "\n"
+            << "\tShutter close: " << info.shutterClose << "\n"
+            << "\tLens radius: " << info.lensRadius << "\n"
+            << "\tFocal distance: " << info.focalDistance << "\n"
+            << "\tHorizontal fov: " << info.horizontalFov << "\n"
+            << "\tVertical fov: " << info.verticalFov << "\n"
+            << "\tFilm ptr: " << (uint64_t)info.film << "\n"
+            << "\tMedium ptr: " << (uint64_t)info.medium << "\n"
+            << "}\n";
+        return (os);
+    }
 }
