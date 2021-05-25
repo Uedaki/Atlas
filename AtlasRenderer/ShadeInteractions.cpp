@@ -34,16 +34,22 @@ void atlas::task::ShadeInteractions::execute()
 			data.sampler->startPixel(Point2i(0, 0));
 
 			sh::BSDF bsdf = data.shadingPack->at(idx).material->sample(-data.batch->directions[i], data.interactions->at(i), sampler->get2D());
+			Spectrum color = data.batch->colors[i] * bsdf.pdf * bsdf.Li;
+			
 			if (!bsdf.Le.isBlack())
 			{
 				Sample s;
-				s.color = data.batch->colors[i] * bsdf.Le;
+				s.color = data.batch->colors[i] * bsdf.pdf * bsdf.Le;
 				s.pixelID = data.batch->pixelIDs[i];
 				samples.push_back(s);
 			}
 
-			if (luminance(data.batch->colors[i] * bsdf.Li) < data.lightTreshold || bsdf.wi.length() == 0)
+			if (luminance(color) < data.lightTreshold || bsdf.wi.length() == 0)
 			{
+				Sample s;
+				s.color = color;
+				s.pixelID = data.batch->pixelIDs[i];
+				samples.push_back(s);
 				printf("luminance too low\n");
 				continue;
 			}
@@ -54,7 +60,7 @@ void atlas::task::ShadeInteractions::execute()
 				const uint8_t vectorIndex = abs(bsdf.wi).maxDimension();
 				const bool isNegative = std::signbit(bsdf.wi[vectorIndex]);
 				const uint8_t index = vectorIndex * 2 + isNegative;
-				if (localBins[index].feed(CompactRay(r, data.batch->colors[i] * bsdf.Li, data.batch->pixelIDs[i], data.batch->sampleIDs[i], data.batch->depths[i] + 1)))
+				if (localBins[index].feed(CompactRay(r, color, data.batch->pixelIDs[i], data.batch->sampleIDs[i], data.batch->depths[i] + 1)))
 					data.batchManager->feed(index, localBins[index]);
 			}
 			else

@@ -37,7 +37,7 @@ namespace atlas
 
 			virtual Float pdf(const Vec3f &wo, const Vec3f &wi) const
 			{
-				return sameHemisphere(wo, wi) ? absCosTheta(wi) * INV_PI : 0;
+				return sameHemisphere(wo, wi) ? absCosTheta(wi) : 0;
 			}
 
 			ShadingOutput<BSDF> out;
