@@ -32,6 +32,7 @@
     <ClInclude Include="ExtractBatch.h" />
     <ClInclude Include="GenerateFirstRays.h" />
     <ClInclude Include="LocalBin.h" />
+    <ClInclude Include="Renderer.h" />
     <ClInclude Include="ShadeInteractions.h" />
     <ClInclude Include="SortInteractions.h" />
     <ClInclude Include="SortRays.h" />
@@ -44,6 +45,7 @@
     <ClCompile Include="Bin.cpp" />
     <ClCompile Include="ExtractBatch.cpp" />
     <ClCompile Include="GenerateFirstRays.cpp" />
+    <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="ShadeInteractions.cpp" />
     <ClCompile Include="SortRays.cpp" />
     <ClCompile Include="TraceRays.cpp" />
