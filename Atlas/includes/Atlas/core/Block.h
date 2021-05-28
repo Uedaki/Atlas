@@ -2,6 +2,8 @@
 
 #include <cstdint>
 
+#include "Logging.h"
+
 namespace atlas
 {
 	template <typename Type>

@@ -41,6 +41,8 @@
 #include "Emission.h"
 #include "Texture.h"
 
+#include "Renderer.h"
+
 atlas::Transform *setTransform(Float x, Float y, Float z)
 {
 	atlas::Transform *tr = new atlas::Transform;
@@ -287,7 +289,7 @@ int main()
 	const uint32_t height = 500;
 	const uint32_t spp = 16;
 
-#if 0
+#if 1
 	// setup rendering configuration
 	atlas::StratifiedSampler sampler;
 
@@ -320,7 +322,14 @@ int main()
 	std::vector<std::shared_ptr<atlas::Primitive>> primitives;// = createPrimitives();
 	atlas::BvhAccel bvh(primitives);
 
-	ach.render(camera, bvh, film);
+	//ach.render(camera, bvh, film);
+
+	atlas::Renderer::Info rendererInfo;
+	rendererInfo.samplePerPixel = 1;
+	rendererInfo.sampler = atlas::StratifiedSampler::create();
+	atlas::Renderer renderer(rendererInfo);
+
+	renderer.render(camera, bvh, film);
 
 	film.writeImage();
 #else

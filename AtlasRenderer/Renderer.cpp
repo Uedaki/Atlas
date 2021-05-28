@@ -1,6 +1,8 @@
 #include "Renderer.h"
 
+#include "Atlas/core/Interaction.h"
 #include "BSDF.h"
+#include "Material.h"
 
 atlas::Renderer::Renderer(const Renderer::Info &info)
 	: samplePerPixel(info.samplePerPixel)
@@ -26,7 +28,7 @@ atlas::Spectrum atlas::Renderer::getColorAlongRay(const atlas::Ray &r, const atl
 	atlas::SurfaceInteraction s;
 	if (scene.intersect(r, s))
 	{
-#if 1//defined(SHADING)
+#if defined(SHADING)
 		atlas::sh::BSDF bsdf = s.primitive->getMaterial()->sample(-r.dir, s, sampler.get2D());
 		if (bsdf.Li.isBlack())
 			return (bsdf.Le);
@@ -45,18 +47,17 @@ void atlas::Renderer::render(const Camera &camera, const Primitive &scene, Film 
 {
 	for (auto pixel : film.croppedPixelBounds)
 	{
-		atlas::Spectrum colorSum(0);
 		sampler.startPixel(pixel);
 		for (uint32_t s = 0; s < samplePerPixel; s++)
 		{
 			atlas::Ray r;
 			atlas::CameraSample cs = sampler.getCameraSample(pixel);
+
 			camera.generateRay(cs, r);
 
 			atlas::Spectrum color = getColorAlongRay(r, scene, maxLightBounce);
-			colorSum += color;
 
-			film.addSample(cs.pFilm, color, 1);
+			film.addSample(pixel.x + pixel.y * film.resolution.x, color, 1);
 			sampler.startNextSample();
 		}
 	}
