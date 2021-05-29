@@ -7,7 +7,7 @@
 
 namespace atlas
 {
-	class Renderer
+	class NextEventEstimation
 	{
 	public:
 		struct Info
@@ -22,8 +22,8 @@ namespace atlas
 			Sampler *sampler;
 		};
 
-		ATLAS_RENDERER Renderer(const Info &info);
-		ATLAS_RENDERER ~Renderer();
+		ATLAS_RENDERER NextEventEstimation(const Info &info);
+		ATLAS_RENDERER ~NextEventEstimation();
 
 		ATLAS_RENDERER void render(const Camera &camera, const Primitive &scene, Film &film);
 

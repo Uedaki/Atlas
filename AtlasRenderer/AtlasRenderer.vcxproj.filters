@@ -57,7 +57,7 @@
     <ClInclude Include="ShadeInteractions.h">
       <Filter>Header Files\Task</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer.h">
+    <ClInclude Include="NextEventEstimation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -86,7 +86,7 @@
     <ClCompile Include="TraceRays.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer.cpp">
+    <ClCompile Include="NextEventEstimation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

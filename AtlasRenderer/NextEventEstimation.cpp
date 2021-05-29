@@ -1,10 +1,10 @@
-#include "Renderer.h"
+#include "NextEventEstimation.h"
 
 #include "Atlas/core/Interaction.h"
 #include "BSDF.h"
 #include "Material.h"
 
-atlas::Renderer::Renderer(const Renderer::Info &info)
+atlas::NextEventEstimation::NextEventEstimation(const NextEventEstimation::Info &info)
 	: samplePerPixel(info.samplePerPixel)
 	, minLightBounce(info.minLightBounce)
 	, maxLightBounce(info.maxLightBounce)
@@ -15,12 +15,12 @@ atlas::Renderer::Renderer(const Renderer::Info &info)
 
 }
 
-atlas::Renderer::~Renderer()
+atlas::NextEventEstimation::~NextEventEstimation()
 {
 
 }
 
-atlas::Spectrum atlas::Renderer::getColorAlongRay(const atlas::Ray &r, const atlas::Primitive &scene, int depth)
+atlas::Spectrum atlas::NextEventEstimation::getColorAlongRay(const atlas::Ray &r, const atlas::Primitive &scene, int depth)
 {
 	if (depth <= 0)
 		return (atlas::Spectrum(0.f));
@@ -32,7 +32,7 @@ atlas::Spectrum atlas::Renderer::getColorAlongRay(const atlas::Ray &r, const atl
 		atlas::sh::BSDF bsdf = s.primitive->getMaterial()->sample(-r.dir, s, sampler.get2D());
 		if (bsdf.Li.isBlack())
 			return (bsdf.Le);
-		return (bsdf.Le + bsdf.pdf * bsdf.Li * getColorAlongRay(atlas::Ray(s.p, bsdf.wi), scene, depth - 1));
+		return (bsdf.Le + /* bsdf.pdf * */ bsdf.Li * getColorAlongRay(atlas::Ray(s.p + tmin * bsdf.wi, bsdf.wi, tmax), scene, depth - 1));
 #endif
 	}
 	else
@@ -43,7 +43,7 @@ atlas::Spectrum atlas::Renderer::getColorAlongRay(const atlas::Ray &r, const atl
 	}
 }
 
-void atlas::Renderer::render(const Camera &camera, const Primitive &scene, Film &film)
+void atlas::NextEventEstimation::render(const Camera &camera, const Primitive &scene, Film &film)
 {
 	for (auto pixel : film.croppedPixelBounds)
 	{
@@ -54,6 +54,7 @@ void atlas::Renderer::render(const Camera &camera, const Primitive &scene, Film 
 			atlas::CameraSample cs = sampler.getCameraSample(pixel);
 
 			camera.generateRay(cs, r);
+			r.tmax = tmax;
 
 			atlas::Spectrum color = getColorAlongRay(r, scene, maxLightBounce);
 
