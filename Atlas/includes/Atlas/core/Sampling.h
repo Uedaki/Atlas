@@ -28,11 +28,16 @@ namespace atlas
 
     ATLAS Point2f concentricSampleDisk(const Point2f &u);
 
-    ATLAS inline Vec3f cosineSampleHemisphere(const Point2f &u)
+    inline Vec3f cosineSampleHemisphere(const Point2f &u)
     {
         Point2f d = concentricSampleDisk(u);
         Float z = std::sqrt(std::max((Float)0, 1 - d.x * d.x - d.y * d.y));
         return (Vec3f(d.x, d.y, z));
+    }
+
+    inline Float cosineHemispherePdf(Float cosTheta)
+    {
+        return cosTheta * INV_PI;
     }
 
     inline Point2f uniformSampleTriangle(const Point2f &u)

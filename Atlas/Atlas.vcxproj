@@ -162,6 +162,7 @@
     <ClInclude Include="includes\Atlas\core\Geometry.h" />
     <ClInclude Include="includes\Atlas\core\ImageIO.h" />
     <ClInclude Include="includes\Atlas\core\Interaction.h" />
+    <ClInclude Include="includes\Atlas\core\Light.h" />
     <ClInclude Include="includes\Atlas\core\Logging.h" />
     <ClInclude Include="includes\Atlas\core\Material.h" />
     <ClInclude Include="includes\Atlas\core\Math.h" />
@@ -196,7 +197,6 @@
     <ClInclude Include="includes\Atlas\primitives\GeometricPrimitive.h" />
     <ClInclude Include="includes\Atlas\shapes\Sphere.h" />
     <ClInclude Include="includes\Atlas\shapes\Triangle.h" />
-    <ClInclude Include="Light.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="sources\BvhAccel.cpp" />
@@ -207,6 +207,7 @@
     <ClCompile Include="sources\GeometricPrimitive.cpp" />
     <ClCompile Include="sources\Glass.cpp" />
     <ClCompile Include="sources\Interaction.cpp" />
+    <ClCompile Include="sources\Light.cpp" />
     <ClCompile Include="sources\Matrix4x4.cpp" />
     <ClCompile Include="sources\Medium.cpp" />
     <ClCompile Include="sources\Metal.cpp" />

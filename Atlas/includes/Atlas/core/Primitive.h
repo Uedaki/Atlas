@@ -4,6 +4,7 @@
 #include "atlas/core/Ray.h"
 #include "atlas/core/Material.h"
 #include "atlas/core/Payload.h"
+#include "atlas/core/Light.h"
 #ifdef _USE_SIMD
 #include "atlas/core/simd/Simd.h"
 #include "atlas/core/simd/SRay.h"
@@ -15,11 +16,6 @@ namespace atlas
     namespace sh {
         class Material;
     }
-
-    class AreaLight
-    {
-
-    };
 
     struct SurfaceInteraction;
 

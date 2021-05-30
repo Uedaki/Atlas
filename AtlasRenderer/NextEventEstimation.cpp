@@ -11,6 +11,7 @@ atlas::NextEventEstimation::NextEventEstimation(const NextEventEstimation::Info 
 	, tmin(info.tmin), tmax(info.tmax)
 	, lightTreshold(info.lightTreshold)
 	, sampler(*info.sampler)
+	, endOfIterationCallback(info.endOfIterationCallback)
 {
 
 }
@@ -20,7 +21,7 @@ atlas::NextEventEstimation::~NextEventEstimation()
 
 }
 
-atlas::Spectrum atlas::NextEventEstimation::getColorAlongRay(const atlas::Ray &r, const atlas::Primitive &scene, int depth)
+atlas::Spectrum atlas::NextEventEstimation::getColorAlongRay(const atlas::Ray &r, const atlas::Primitive &scene, const std::vector<std::shared_ptr<atlas::Light>> &lights, int depth)
 {
 	if (depth <= 0)
 		return (atlas::Spectrum(0.f));
@@ -32,7 +33,7 @@ atlas::Spectrum atlas::NextEventEstimation::getColorAlongRay(const atlas::Ray &r
 		atlas::sh::BSDF bsdf = s.primitive->getMaterial()->sample(-r.dir, s, sampler.get2D());
 		if (bsdf.Li.isBlack())
 			return (bsdf.Le);
-		return (bsdf.Le + /* bsdf.pdf * */ bsdf.Li * getColorAlongRay(atlas::Ray(s.p + tmin * bsdf.wi, bsdf.wi, tmax), scene, depth - 1));
+		return (bsdf.Le + /* bsdf.pdf * */ bsdf.Li * getColorAlongRay(atlas::Ray(s.p + tmin * bsdf.wi, bsdf.wi, tmax), scene, lights, depth - 1));
 #endif
 	}
 	else
@@ -43,23 +44,39 @@ atlas::Spectrum atlas::NextEventEstimation::getColorAlongRay(const atlas::Ray &r
 	}
 }
 
-void atlas::NextEventEstimation::render(const Camera &camera, const Primitive &scene, Film &film)
+void atlas::NextEventEstimation::render(const Camera &camera, const Primitive &scene, const std::vector<std::shared_ptr<atlas::Light>> &lights, Film &film)
 {
-	for (auto pixel : film.croppedPixelBounds)
+	isRunning = true;
+
+	uint32_t sppStep = 1;
+	for (uint32_t i = 0; isRunning && i < samplePerPixel; i += sppStep)
 	{
-		sampler.startPixel(pixel);
-		for (uint32_t s = 0; s < samplePerPixel; s++)
+		sppStep = std::min(sppStep * 2, 16u);
+		uint32_t currentSpp = i + sppStep <= samplePerPixel ? sppStep : samplePerPixel - i;
+		
+		for (auto pixel : film.croppedPixelBounds)
 		{
-			atlas::Ray r;
-			atlas::CameraSample cs = sampler.getCameraSample(pixel);
+			sampler.startPixel(pixel);
+			for (uint32_t s = 0; s < currentSpp; s++)
+			{
+				atlas::Ray r;
+				atlas::CameraSample cs = sampler.getCameraSample(pixel);
 
-			camera.generateRay(cs, r);
-			r.tmax = tmax;
+				camera.generateRay(cs, r);
+				r.tmax = tmax;
 
-			atlas::Spectrum color = getColorAlongRay(r, scene, maxLightBounce);
+				atlas::Spectrum color = getColorAlongRay(r, scene, lights, maxLightBounce);
 
-			film.addSample(pixel.x + pixel.y * film.resolution.x, color, 1);
-			sampler.startNextSample();
+				film.addSample(pixel.x + pixel.y * film.resolution.x, color, 1);
+				sampler.startNextSample();
+			}
 		}
+
+		if (endOfIterationCallback)
+			endOfIterationCallback(film);
 	}
+
+	if (!isRunning)
+		printf("Rendering canceled\n");
+	isRunning = false;
 }

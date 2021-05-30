@@ -173,9 +173,6 @@
     <ClInclude Include="includes\Atlas\core\Telemetry.h">
       <Filter>Header Files\core</Filter>
     </ClInclude>
-    <ClInclude Include="Light.h">
-      <Filter>Header Files\core</Filter>
-    </ClInclude>
     <ClInclude Include="includes\Atlas\core\Block.h">
       <Filter>Header Files\core</Filter>
     </ClInclude>
@@ -187,6 +184,9 @@
     </ClInclude>
     <ClInclude Include="includes\Atlas\shapes\Triangle.h">
       <Filter>Header Files\shape</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\Atlas\core\Light.h">
+      <Filter>Header Files\core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -254,6 +254,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="sources\Triangle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\Light.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
