@@ -33,6 +33,7 @@ namespace atlas
 		ATLAS_RENDERER void render(const Camera &camera, const Primitive &scene, const std::vector<std::shared_ptr<atlas::Light>> &lights, Film &film);
 
 		ATLAS_RENDERER Spectrum getColorAlongRay(const atlas::Ray &r, const atlas::Primitive &scene, const std::vector<std::shared_ptr<atlas::Light>> &lights, int depth);
+		ATLAS_RENDERER Spectrum sampleLightSources(const Interaction &intr, const atlas::Primitive &scene, const std::vector<std::shared_ptr<atlas::Light>> &lights);
 
 		inline void cancel()
 		{

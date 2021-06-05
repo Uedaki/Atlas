@@ -21,6 +21,22 @@ atlas::NextEventEstimation::~NextEventEstimation()
 
 }
 
+atlas::Spectrum atlas::NextEventEstimation::sampleLightSources(const Interaction &intr, const atlas::Primitive &scene, const std::vector<std::shared_ptr<atlas::Light>> &lights)
+{
+	for (auto &light : lights)
+	{
+		Vec3f wi;
+		Float pdf;
+		VisibilityTester visibility;
+		Spectrum l = light->sampleLi(intr, sampler.get2D(), wi, pdf, visibility);
+		if (!l.isBlack() && visibility.unoccluded(scene))
+		{
+			return (l);
+		}
+	}
+	return (0);
+}
+
 atlas::Spectrum atlas::NextEventEstimation::getColorAlongRay(const atlas::Ray &r, const atlas::Primitive &scene, const std::vector<std::shared_ptr<atlas::Light>> &lights, int depth)
 {
 	if (depth <= 0)
@@ -33,7 +49,14 @@ atlas::Spectrum atlas::NextEventEstimation::getColorAlongRay(const atlas::Ray &r
 		atlas::sh::BSDF bsdf = s.primitive->getMaterial()->sample(-r.dir, s, sampler.get2D());
 		if (bsdf.Li.isBlack())
 			return (bsdf.Le);
-		return (bsdf.Le + /* bsdf.pdf * */ bsdf.Li * getColorAlongRay(atlas::Ray(s.p + tmin * bsdf.wi, bsdf.wi, tmax), scene, lights, depth - 1));
+		
+		Spectrum lightColor;
+		if (!(lightColor = sampleLightSources(s, scene, lights)).isBlack())
+		{
+			return (bsdf.Le + /* bsdf.pdf * */ bsdf.Li * lightColor);
+		}
+		else
+			return (bsdf.Le + /* bsdf.pdf * */ bsdf.Li * getColorAlongRay(atlas::Ray(s.p + tmin * bsdf.wi, bsdf.wi, tmax), scene, lights, depth - 1));
 #endif
 	}
 	else
