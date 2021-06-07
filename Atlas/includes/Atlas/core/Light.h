@@ -2,6 +2,7 @@
 
 #include "atlas/atlas.h"
 #include "atlas/atlasLibHeader.h"
+#include "atlas/atlasLibHeader.h"
 #include "atlas/core/Transform.h"
 #include "atlas/core/Shape.h"
 
@@ -23,12 +24,12 @@ namespace atlas
 			: p0(p0), p1(p1)
 		{}
 
-		const Interaction &getP0() const { return p0; }
-		const Interaction &getP1() const { return p1; }
+		ATLAS const Interaction &getP0() const { return p0; }
+		ATLAS const Interaction &getP1() const { return p1; }
 
-		bool unoccluded(const Primitive &scene) const;
+		ATLAS bool unoccluded(const Primitive &scene) const;
 
-		Spectrum tr(const Primitive &scene, Sampler &sampler) const;
+		ATLAS Spectrum tr(const Primitive &scene, Sampler &sampler) const;
 
 	private:
 		Interaction p0;

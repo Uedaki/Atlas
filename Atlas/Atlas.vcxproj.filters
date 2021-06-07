@@ -188,6 +188,9 @@
     <ClInclude Include="includes\Atlas\core\Light.h">
       <Filter>Header Files\core</Filter>
     </ClInclude>
+    <ClInclude Include="includes\Atlas\shapes\Rectangle.h">
+      <Filter>Header Files\shape</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="sources\BvhAccel.cpp">
@@ -257,6 +260,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="sources\Light.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\Rectangle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

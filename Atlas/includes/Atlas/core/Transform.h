@@ -45,6 +45,15 @@ namespace atlas
 			: m(m), mInv(mInv)
 		{}
 
+		static Transform identity()
+		{
+			Matrix4x4 m(1, 0, 0, 0,
+				0, 1, 0, 0,
+				0, 0, 1, 0,
+				0, 0, 0, 1);
+			return (Transform(m));
+		}
+
 		static Transform translate(const Vec3f &delta)
 		{
 			Matrix4x4 m(1, 0, 0, delta.x,

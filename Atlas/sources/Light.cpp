@@ -43,7 +43,8 @@ atlas::Spectrum atlas::DiffuseAreaLight::sampleLi(const Interaction &ref, const 
 {
 	Interaction pShape = shape->sample(ref, u, pdf);
 	pShape.mediumInterface = mediumInterface;
-	if (pdf == 0 || (pShape.p - ref.p).lengthSquared() == 0) {
+	if (pdf == 0 || (pShape.p - ref.p).lengthSquared() == 0)
+	{
 		pdf = 0;
 		return 0.f;
 	}

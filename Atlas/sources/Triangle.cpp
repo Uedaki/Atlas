@@ -214,7 +214,8 @@ bool atlas::Triangle::intersect(const Ray &ray, Float &tHit, SurfaceInteraction 
 
         // Compute $\dndu$ and $\dndv$ for triangle shading geometry
         Normal dndu, dndv;
-        if (mesh->n) {
+        if (mesh->n)
+        {
             // Compute deltas for triangle partial derivatives of normal
             Vec2f duv02 = uv[0] - uv[2];
             Vec2f duv12 = uv[1] - uv[2];

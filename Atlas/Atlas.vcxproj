@@ -195,6 +195,7 @@
     <ClInclude Include="includes\Atlas\primitives\Aggregate.h" />
     <ClInclude Include="includes\Atlas\primitives\BvhAccel.h" />
     <ClInclude Include="includes\Atlas\primitives\GeometricPrimitive.h" />
+    <ClInclude Include="includes\Atlas\shapes\Rectangle.h" />
     <ClInclude Include="includes\Atlas\shapes\Sphere.h" />
     <ClInclude Include="includes\Atlas\shapes\Triangle.h" />
   </ItemGroup>
@@ -214,6 +215,7 @@
     <ClCompile Include="sources\Microfacet.cpp" />
     <ClCompile Include="sources\PerspectiveCamera.cpp" />
     <ClCompile Include="sources\Random.cpp" />
+    <ClCompile Include="sources\Rectangle.cpp" />
     <ClCompile Include="sources\Reflection.cpp" />
     <ClCompile Include="sources\Sampler.cpp" />
     <ClCompile Include="sources\Sampling.cpp" />
