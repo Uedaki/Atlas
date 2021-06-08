@@ -19,7 +19,7 @@ CameraSample Sampler::getCameraSample(const Point2i &pRaster)
     return cs;
 }
 
-void Sampler::startPixel(const Point2i &p)
+void Sampler::startPixel(const Point2i &p, bool)
 {
     currentPixel = p;
     currentPixelSampleIndex = 0;
@@ -102,34 +102,37 @@ Point2f PixelSampler::get2D()
         return Point2f(rng.uniformFloat(), rng.uniformFloat());
 }
 
-void GlobalSampler::startPixel(const Point2i &p)
+void GlobalSampler::startPixel(const Point2i &p, bool initArray)
 {
     Sampler::startPixel(p);
     dimension = 0;
     intervalSampleIndex = getIndexForSample(0);
     arrayEndDim = arrayStartDim + sampleArray1D.size() + 2 * sampleArray2D.size();
 
-    for (size_t i = 0; i < samples1DArraySizes.size(); ++i)
+    if (initArray)
     {
-        int nSamples = samples1DArraySizes[i] * samplesPerPixel;
-        for (int j = 0; j < nSamples; ++j)
+        for (size_t i = 0; i < samples1DArraySizes.size(); ++i)
         {
-            int64_t index = getIndexForSample(j);
-            sampleArray1D[i][j] = sampleDimension(index, arrayStartDim + i);
+            int nSamples = samples1DArraySizes[i] * samplesPerPixel;
+            for (int j = 0; j < nSamples; ++j)
+            {
+                int64_t index = getIndexForSample(j);
+                sampleArray1D[i][j] = sampleDimension(index, arrayStartDim + i);
+            }
         }
-    }
 
-    int dim = arrayStartDim + samples1DArraySizes.size();
-    for (size_t i = 0; i < samples2DArraySizes.size(); ++i)
-    {
-        int nSamples = samples2DArraySizes[i] * (int)samplesPerPixel;
-        for (int j = 0; j < nSamples; ++j)
+        int dim = arrayStartDim + samples1DArraySizes.size();
+        for (size_t i = 0; i < samples2DArraySizes.size(); ++i)
         {
-            int64_t idx = getIndexForSample(j);
-            sampleArray2D[i][j].x = sampleDimension(idx, dim);
-            sampleArray2D[i][j].y = sampleDimension(idx, dim + 1);
+            int nSamples = samples2DArraySizes[i] * (int)samplesPerPixel;
+            for (int j = 0; j < nSamples; ++j)
+            {
+                int64_t idx = getIndexForSample(j);
+                sampleArray2D[i][j].x = sampleDimension(idx, dim);
+                sampleArray2D[i][j].y = sampleDimension(idx, dim + 1);
+            }
+            dim += 2;
         }
-        dim += 2;
     }
 }
 
@@ -164,7 +167,7 @@ Point2f GlobalSampler::get2D()
     return p;
 }
 
-void StratifiedSampler::startPixel(const Point2i &p)
+void StratifiedSampler::startPixel(const Point2i &p, bool initArray)
 {
     for (size_t i = 0; i < samples1D.size(); ++i)
     {
@@ -178,20 +181,23 @@ void StratifiedSampler::startPixel(const Point2i &p)
         shuffle(&samples2D[i][0], xPixelSamples * yPixelSamples, 1, rng);
     }
 
-    for (size_t i = 0; i < samples1DArraySizes.size(); ++i)
-        for (int64_t j = 0; j < samplesPerPixel; ++j)
-        {
-            int count = samples1DArraySizes[i];
-            stratifiedSample1D(&sampleArray1D[i][j * count], count, rng,
-                jitterSamples);
-            shuffle(&sampleArray1D[i][j * count], count, 1, rng);
-        }
-    for (size_t i = 0; i < samples2DArraySizes.size(); ++i)
-        for (int64_t j = 0; j < samplesPerPixel; ++j)
-        {
-            int count = samples2DArraySizes[i];
-            latinHypercube(&sampleArray2D[i][j * count].x, count, 2, rng);
-        }
+    if (initArray)
+    {
+        for (size_t i = 0; i < samples1DArraySizes.size(); ++i)
+            for (int64_t j = 0; j < samplesPerPixel; ++j)
+            {
+                int count = samples1DArraySizes[i];
+                stratifiedSample1D(&sampleArray1D[i][j * count], count, rng,
+                    jitterSamples);
+                shuffle(&sampleArray1D[i][j * count], count, 1, rng);
+            }
+        for (size_t i = 0; i < samples2DArraySizes.size(); ++i)
+            for (int64_t j = 0; j < samplesPerPixel; ++j)
+            {
+                int count = samples2DArraySizes[i];
+                latinHypercube(&sampleArray2D[i][j * count].x, count, 2, rng);
+            }
+    }
     PixelSampler::startPixel(p);
 }
 

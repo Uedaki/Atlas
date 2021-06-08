@@ -17,7 +17,7 @@ namespace atlas
 		ATLAS Sampler(int64_t samplesPerPixel);
 		virtual ~Sampler() = default;
 
-		virtual void startPixel(const atlas::Point2i &p) = 0;
+		virtual void startPixel(const atlas::Point2i &p, bool initArray = false) = 0;
 		virtual Float get1D() = 0;
 		virtual atlas::Point2f get2D() = 0;
 		virtual bool startNextSample() = 0;
@@ -72,7 +72,7 @@ namespace atlas
 	{
 	public:
 		ATLAS bool startNextSample() override;
-		ATLAS void startPixel(const Point2i &) override;
+		ATLAS void startPixel(const Point2i &, bool initArray = false) override;
 		ATLAS bool setSampleNumber(int64_t sampleNum) override;
 		ATLAS Float get1D() override;
 		ATLAS Point2f get2D() override;
@@ -120,7 +120,7 @@ namespace atlas
 			, jitterSamples(jitterSamples)
 		{}
 
-		ATLAS void startPixel(const Point2i &);
+		ATLAS void startPixel(const Point2i &, bool initArray = false) override;
 		
 		ATLAS std::unique_ptr<Sampler> clone(int seed);
 
@@ -147,7 +147,7 @@ namespace atlas
 			return (true);
 		}
 
-		void startPixel(const Point2i &) override
+		void startPixel(const Point2i &, bool initArray = false) override
 		{}
 
 		bool setSampleNumber(int64_t sampleNum) override

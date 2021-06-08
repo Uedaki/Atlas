@@ -9,12 +9,12 @@
 
 using namespace atlas;
 
-void Bin::open(Bin &bin, uint32_t maxSize)
+Bin::FileHandles Bin::open(Bin &bin, uint32_t maxSize)
 {
 	DCHECK(pow(2, log2(maxSize)) == maxSize);
 
 	if (bin.prevFile.file)
-		Bin::unmap(bin.prevFile, maxSize);
+		;// Bin::unmap(bin.prevFile, maxSize);
 	bin.prevFile = bin.currentFile;
 
 	uint32_t flags = CREATE_ALWAYS;
@@ -27,6 +27,7 @@ void Bin::open(Bin &bin, uint32_t maxSize)
 	CHECK_WIN_CALL(bin.currentFile.buffer != nullptr);
 
 	bin.pos = 0;
+	return (bin.prevFile);
 }
 
 void Bin::map(Bin &bin, uint32_t maxSize)

@@ -26,7 +26,7 @@ namespace atlas
 		std::mutex guard;
 		std::condition_variable dispatcher;
 
-		static void open(Bin &bin, uint32_t maxSize);
+		static Bin::FileHandles open(Bin &bin, uint32_t maxSize);
 		static void map(Bin &bin, uint32_t maxSize);
 		static void unmap(FileHandles &handle, uint32_t maxSize);
 

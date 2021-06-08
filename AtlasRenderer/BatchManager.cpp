@@ -65,13 +65,15 @@ void BatchManager::feed(uint8_t idx, LocalBin &localBin)
 		postBatchAsActive(bin.filename);
 
 		bin.filename = getNewBatchName();
-		Bin::open(bin, binSize);
+		Bin::FileHandles oldHandle = Bin::open(bin, binSize);
 
 		bin.pos = secondSize;
 		bin.guard.unlock();
 
 		if (secondSize > 0)
 			memcpy(bin.currentFile.buffer, &localBin.buffer[firstSize], secondSize * sizeof(CompactRay));
+
+		Bin::unmap(oldHandle, binSize);
 	}
 	else
 	{

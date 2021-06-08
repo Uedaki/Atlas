@@ -137,7 +137,7 @@ namespace atlas
 				uint32_t taskIdx;
 				{ // lock scope
 					std::unique_lock<std::mutex> lock(guard);
-					sleepCtrl.wait_for(lock, std::chrono::milliseconds(1),[this]()
+					sleepCtrl.wait_for(lock, std::chrono::microseconds(1),[this]()
 						{
 							uint32_t taskId = currentTask;
 							return (!isRunning

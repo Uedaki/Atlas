@@ -1,6 +1,7 @@
 #include "Atlas/Shapes/Rectangle.h"
 
 #include "atlas/core/Geometry.h"
+#include "atlas/core/EFloat.h"
 
 atlas::Bounds3f atlas::Rectangle::objectBound() const
 {
@@ -12,9 +13,14 @@ bool atlas::Rectangle::intersect(const Ray &r, Float &tHit, SurfaceInteraction &
 	Vec3f oErr, dErr;
 	Ray ray = worldToObject(r, oErr, dErr);
 
+	if (ray.dir.z >= 0)
+		return (false);
 
-	Float t = (0 - ray.origin.z) / ray.dir.z;
-	Point3f pHit = ray(t);
+	EFloat dir(ray.dir.z);
+	EFloat origin(ray.origin.z);
+
+	EFloat t(-ray.origin.z / ray.dir.z);
+	Point3f pHit = ray((Float)t);
 	if (-1 < pHit.y && pHit.y < 1
 		&& -1 < pHit.x && pHit.x < 1)
 	{
@@ -25,7 +31,7 @@ bool atlas::Rectangle::intersect(const Ray &r, Float &tHit, SurfaceInteraction &
 		Vec3f dpdv(0, 1, 0);
 
 		Vec3f dnu, dnv;
-		coordinateSystem(Vec3f(0, 0, 1), &dnu, &dnv);
+		coordinateSystem(Vec3f(0, 0, -1), &dnu, &dnv);
 		Normal dndu = Normal(dnu);
 		Normal dndv = Normal(dnv);
 
@@ -51,15 +57,32 @@ Float atlas::Rectangle::area() const
 
 atlas::Interaction atlas::Rectangle::sample(const Point2f &u, Float &pdf) const
 {
-	return (Interaction());
+	Interaction it;
+	it.n = normalize(objectToWorld(Normal(0, 0, -1)));
+	if (reverseOrientation)
+		it.n *= -1;
+	Point3f pHit(u.x * 2 - 1, u.y * 2 - 1, 0);
+	Vec3f pObjError = gamma(5) * abs((Vec3f)pHit);
+	it.p = objectToWorld(pHit, pObjError, it.pError);
+	pdf = 1 / area();
+	return (it);
 }
 
 atlas::Interaction atlas::Rectangle::sample(const Interaction &ref, const Point2f &u, Float &pdf) const
 {
-	return (Interaction());
+	Interaction it;
+	it.n = normalize(objectToWorld(Normal(0, 0, -1)));
+	if (reverseOrientation)
+		it.n *= -1;
+	Point3f pHit(u.x * 2 - 1, u.y * 2 - 1, 0);
+	Vec3f pObjError = gamma(5) * abs((Vec3f)pHit);
+	it.p = objectToWorld(pHit, pObjError, it.pError);
+	pdf = dot(ref.p - it.p, it.n);
+	pdf = pdf > 0 ? pdf : 0;
+	return (it);
 }
 
 Float atlas::Rectangle::pdf(const Interaction &ref, const Vec3f &wi) const
 {
-	return (0);
+	return (1);
 }

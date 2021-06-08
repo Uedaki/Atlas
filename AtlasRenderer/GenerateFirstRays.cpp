@@ -28,7 +28,7 @@ void atlas::task::GenerateFirstRays::execute()
 			zOrderIndexToPos(i, x, y);
 			if (x < (uint32_t)data.resolution.x && y < (uint32_t)data.resolution.y)
 			{
-				sampler->startPixel(Point2i(x, y));
+				sampler->startPixel(Point2i(x, y), true);
 				for (uint32_t s = 0; s < data.spp; s++)
 				{
 					atlas::Ray r;

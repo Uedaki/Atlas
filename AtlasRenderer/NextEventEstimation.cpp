@@ -21,20 +21,44 @@ atlas::NextEventEstimation::~NextEventEstimation()
 
 }
 
-atlas::Spectrum atlas::NextEventEstimation::sampleLightSources(const Interaction &intr, const atlas::Primitive &scene, const std::vector<std::shared_ptr<atlas::Light>> &lights)
+atlas::Spectrum atlas::NextEventEstimation::sampleLightSources(const SurfaceInteraction &intr, const atlas::Primitive &scene, const std::vector<std::shared_ptr<atlas::Light>> &lights)
 {
+	Spectrum out(0);
 	for (auto &light : lights)
 	{
-		Vec3f wi;
 		Float pdf;
-		VisibilityTester visibility;
-		Spectrum l = light->sampleLi(intr, sampler.get2D(), wi, pdf, visibility);
-		if (!l.isBlack() && visibility.unoccluded(scene))
+		Interaction pShape = dynamic_cast<DiffuseAreaLight *>(light.get())->shape->sample(intr, sampler.get2D(), pdf);
+		//printf("p %f %f %f\n", pShape.p.x, pShape.p.y, pShape.p.z);
+		if (dot(intr.shading.n, pShape.n) < 0 && dot(pShape.p - intr.p, intr.shading.n) > 0)
 		{
-			return (l);
+			Ray r(pShape.p, normalize(intr.p - pShape.p), (intr.p - pShape.p).length() - 0.1);
+			SurfaceInteraction s;
+			//if (!scene.intersect(r, s))
+				return dot(intr.n, -r.dir) * (100 / pow((intr.p - pShape.p).length(), 2)) * (1);
 		}
+		// 
+		// 
+		//Vec3f wi;
+		//Float pdf;
+		//VisibilityTester visibility;
+		//Spectrum l = light->sampleLi(intr, sampler.get2D(), wi, pdf, visibility);
+		//if (!l.isBlack() && visibility.unoccluded(scene))
+		//{
+		//	return (1);
+		//}
+
+		//Ray r;
+		//SurfaceInteraction s;
+		//Normal mLight;
+		//Float pdf;
+		//Float pdfd;
+		//Spectrum l = light->sampleLe(sampler.get2D(), sampler.get2D(), 100, r, mLight, pdf, pdfd);
+		//if (!l.isBlack() && !scene.intersect(r, s))
+		//{
+		//	return (1);
+		//}
 	}
-	return (0);
+	return (out);
 }
 
 atlas::Spectrum atlas::NextEventEstimation::getColorAlongRay(const atlas::Ray &r, const atlas::Primitive &scene, const std::vector<std::shared_ptr<atlas::Light>> &lights, int depth)
@@ -49,9 +73,9 @@ atlas::Spectrum atlas::NextEventEstimation::getColorAlongRay(const atlas::Ray &r
 		atlas::sh::BSDF bsdf = s.primitive->getMaterial()->sample(-r.dir, s, sampler.get2D());
 		if (bsdf.Li.isBlack())
 			return (bsdf.Le);
-		
+
 		Spectrum lightColor;
-		if (!(lightColor = sampleLightSources(s, scene, lights)).isBlack())
+		if (luminance(lightColor = sampleLightSources(s, scene, lights)) > 0.5)
 		{
 			return (bsdf.Le + /* bsdf.pdf * */ bsdf.Li * lightColor);
 		}
@@ -61,6 +85,7 @@ atlas::Spectrum atlas::NextEventEstimation::getColorAlongRay(const atlas::Ray &r
 	}
 	else
 	{
+		return (BLACK);
 		atlas::Vec3f unitDir = normalize(r.dir);
 		Float t = (Float)0.5 * (unitDir.y + (Float)1.0);
 		return (((Float)1.0 - t) * atlas::Spectrum(1) + t * atlas::Spectrum((Float)0.5, (Float)0.7, (Float)1.0));

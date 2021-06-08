@@ -34,12 +34,12 @@ void atlas::task::ShadeInteractions::execute()
 			data.sampler->startPixel(Point2i(0, 0));
 
 			sh::BSDF bsdf = data.shadingPack->at(idx).material->sample(-data.batch->directions[i], data.interactions->at(i), sampler->get2D());
-			Spectrum color = data.batch->colors[i] * bsdf.pdf * bsdf.Li;
+			Spectrum color = data.batch->colors[i] * bsdf.Li;
 			
 			if (!bsdf.Le.isBlack())
 			{
 				Sample s;
-				s.color = data.batch->colors[i] * bsdf.pdf * bsdf.Le;
+				s.color = data.batch->colors[i] * bsdf.Le;
 				s.pixelID = data.batch->pixelIDs[i];
 				samples.push_back(s);
 			}
@@ -50,7 +50,7 @@ void atlas::task::ShadeInteractions::execute()
 				s.color = color;
 				s.pixelID = data.batch->pixelIDs[i];
 				samples.push_back(s);
-				printf("luminance too low\n");
+				//printf("luminance too low\n");
 				continue;
 			}
 

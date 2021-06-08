@@ -50,7 +50,9 @@ namespace atlas
 
 		virtual Spectrum sampleLi(const Interaction &ref, const Point2f &u, Vec3f &wi, Float &pdf, VisibilityTester &vis) const = 0;
 		virtual Spectrum power() const = 0;
-		virtual Spectrum le(const RayDifferential &r) const;
+		virtual Spectrum le(const RayDifferential &r) const {
+			return (BLACK);
+		};
 		virtual Float pdfLi(const Interaction &ref, const Vec3f &wi) const = 0;
 		virtual Spectrum sampleLe(const Point2f &u1, const Point2f &u2, Float time, Ray &ray, Normal &nLight, Float &pdfPos, Float &pdfDir) const = 0;
 		virtual void pdfLe(const Ray &ray, const Normal &nLight, Float &pdfPos, Float pdfDir) const = 0;
@@ -59,7 +61,7 @@ namespace atlas
 		const int nSamples;
 		const MediumInterface mediumInterface;
 
-	protected:
+	//protected:
 		const Transform lightToWorld;
 		const Transform worldToLight;
 	};
@@ -82,15 +84,16 @@ namespace atlas
 			, lEmit(le), shape(shape), area(shape->area())
 		{}
 
-		Spectrum l(const Interaction &intr, const Vec3f &w) const override;
-		Spectrum power() const override;
-		Spectrum sampleLi(const Interaction &ref, const Point2f &u, Vec3f &wi, Float &pdf, VisibilityTester &vis) const override;
-		Float pdfLi(const Interaction &ref, const Vec3f &wi) const override;
-		Spectrum sampleLe(const Point2f &u1, const Point2f &u2, Float time, Ray &ray, Normal &nLight, Float &pdfPos, Float &pdfDir) const override;
-		void pdfLe(const Ray &ray, const Normal &nLight, Float &pdfPos, Float pdfDir) const override;
+		ATLAS Spectrum l(const Interaction &intr, const Vec3f &w) const override;
+		ATLAS Spectrum power() const override;
+		ATLAS Spectrum sampleLi(const Interaction &ref, const Point2f &u, Vec3f &wi, Float &pdf, VisibilityTester &vis) const override;
+		ATLAS Float pdfLi(const Interaction &ref, const Vec3f &wi) const override;
+		ATLAS Spectrum sampleLe(const Point2f &u1, const Point2f &u2, Float time, Ray &ray, Normal &nLight, Float &pdfPos, Float &pdfDir) const override;
+		ATLAS void pdfLe(const Ray &ray, const Normal &nLight, Float &pdfPos, Float pdfDir) const override;
 
-	protected:
+	//protected:
 		const Spectrum lEmit;
+
 		std::shared_ptr<Shape> shape;
 		const Float area;
 	};
