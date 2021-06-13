@@ -26,10 +26,6 @@ namespace atlas
 				Onb uvw(si.n);
 				
 				bsdf.wi = uvw.local(cosineSampleDirection(sample));
-				if (wo.z < 0)
-				{
-					bsdf.wi.z *= -1;
-				}
 				bsdf.pdf = dot(uvw.w, bsdf.wi) * INV_PI;
 				bsdf.scatteringPdf = scatteringPdf(si, wo, bsdf.wi);
 				bsdf.Li = f(wo, bsdf.wi, block);
