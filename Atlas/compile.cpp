@@ -26,14 +26,15 @@
 #include "atlas/core/Texture.h"
 #include "atlas/core/Telemetry.h"
 
+#include "NextEventEstimation.h"
 #include "atlas/cameras/PerspectiveCamera.h"
 #include "atlas/core/ImageIO.h"
-
+#include "nexteventestimation.h"
 #include <iostream>
 #include <vector>
-
+#include "atlas/core/Light.h"
 #include "Acheron.h"
-
+#include "atlas/shapes/Rectangle.h"
 #include "Material.h"
 #include "Lambert.h"
 #include "Metal.h"
@@ -131,17 +132,17 @@ std::vector<std::shared_ptr<atlas::Primitive>> createPrimitives()
 	sphereInfo.radius = 1000.f;
 	sphereInfo.zMax = 1000.f;
 	sphereInfo.zMin = -1000.f;
-//	scene.push_back(std::make_shared<atlas::GeometricPrimitive>(
-//		atlas::Sphere::createShape(sphereInfo),
-//#if defined(SHADING)
-//		//checkerMaterial
-//		noiseMaterial
-//		//atlas::sh::createLambertMaterial(atlas::Spectrum(0.5))
-//#else
-//		atlas::MatteMaterial::create()
-//#endif
-//		));
-//	
+	scene.push_back(std::make_shared<atlas::GeometricPrimitive>(
+		atlas::Sphere::createShape(sphereInfo),
+#if defined(SHADING)
+		//checkerMaterial
+		noiseMaterial
+		//atlas::sh::createLambertMaterial(atlas::Spectrum(0.5))
+#else
+		atlas::MatteMaterial::create()
+#endif
+		));
+	
 //	for (int a = -11; a < 11; a++)
 //	{
 //		for (int b = -11; b < 11; b++)
@@ -208,46 +209,51 @@ std::vector<std::shared_ptr<atlas::Primitive>> createPrimitives()
 	matteInfo.kd = atlas::createSpectrumConstant((Float)0.8, (Float)0.2, (Float)0.1);
 	material = atlas::MatteMaterial::create(matteInfo);
 
-//	atlas::GlassMaterialInfo glassInfo;
-//	glassInfo.index = atlas::createFloatConstant(1.3f);
-//
-//	sphereInfo.objectToWorld = setTransform(0, 1, 0);
-//	sphereInfo.worldToObject = setInverse(sphereInfo.objectToWorld);
-//	scene.push_back(std::make_shared<atlas::GeometricPrimitive>(
-//		atlas::Sphere::createShape(sphereInfo),
-//#if defined(SHADING)
-//		atlas::sh::createGlassMaterial(1.3f)
-//#else
-//		atlas::GlassMaterial::create(glassInfo)
-//#endif
-//		));
+	atlas::GlassMaterialInfo glassInfo;
+	glassInfo.index = atlas::createFloatConstant(1.3f);
 
-	sphereInfo.objectToWorld = setTransform(0, 0, 0);
+	sphereInfo.objectToWorld = setTransform(0, 1, 0);
 	sphereInfo.worldToObject = setInverse(sphereInfo.objectToWorld);
 	scene.push_back(std::make_shared<atlas::GeometricPrimitive>(
 		atlas::Sphere::createShape(sphereInfo),
-#if defined(SHADING)
+		//atlas::sh::createGlassMaterial(1.3f)
 		atlas::sh::createLambertMaterial(atlas::Spectrum(0.8, 0.2, 0.1))
-		//emissiveMaterial// imageMaterial//noiseMaterial //atlas::sh::createLambertMaterial(atlas::Spectrum(0.8, 0.2, 0.1))
-#else
-		material
-#endif
 		));
 
-//	atlas::MetalMaterialInfo metalInfo;
-//	metalInfo.eta = atlas::createSpectrumConstant(0.7, 0.6, 0.5);
-//	metalInfo.roughness = atlas::createFloatConstant(0);
-//
-//	sphereInfo.objectToWorld = setTransform(4, 1, 0);
-//	sphereInfo.worldToObject = setInverse(sphereInfo.objectToWorld);
-//	scene.push_back(std::make_shared<atlas::GeometricPrimitive>(
-//		atlas::Sphere::createShape(sphereInfo),
-//#if defined(SHADING)
-//		atlas::sh::createMetalMaterial(atlas::Spectrum(0.7, 0.6, 0.5))
-//#else
-//		atlas::MetalMaterial::create(metalInfo)
-//#endif
-//		));
+	sphereInfo.objectToWorld = setTransform(-4, 1, 0);
+	sphereInfo.worldToObject = setInverse(sphereInfo.objectToWorld);
+	scene.push_back(std::make_shared<atlas::GeometricPrimitive>(
+		atlas::Sphere::createShape(sphereInfo),
+		atlas::sh::createLambertMaterial(atlas::Spectrum(0.8, 0.2, 0.1))
+		//emissiveMaterial// imageMaterial//noiseMaterial //atlas::sh::createLambertMaterial(atlas::Spectrum(0.8, 0.2, 0.1))
+		));
+
+	atlas::MetalMaterialInfo metalInfo;
+	metalInfo.eta = atlas::createSpectrumConstant(0.7, 0.6, 0.5);
+	metalInfo.roughness = atlas::createFloatConstant(0);
+
+	sphereInfo.objectToWorld = setTransform(4, 1, 0);
+	sphereInfo.worldToObject = setInverse(sphereInfo.objectToWorld);
+	scene.push_back(std::make_shared<atlas::GeometricPrimitive>(
+		atlas::Sphere::createShape(sphereInfo),
+		//atlas::sh::createMetalMaterial(atlas::Spectrum(0.7, 0.6, 0.5))
+		atlas::sh::createLambertMaterial(atlas::Spectrum(0.8, 0.2, 0.1))
+		));
+
+
+	sphereInfo.objectToWorld = setTransform(0, 3, 0);
+	*sphereInfo.objectToWorld = *sphereInfo.objectToWorld * atlas::Transform::rotateX(90);
+	sphereInfo.worldToObject = setInverse(sphereInfo.objectToWorld);
+
+	Float intensity = 1;
+	atlas::MediumInterface mediumInterface;
+	std::shared_ptr<atlas::Shape> shape = std::make_shared<atlas::Rectangle>(*sphereInfo.objectToWorld, *sphereInfo.worldToObject, false);
+
+	scene.push_back(std::make_shared<atlas::GeometricPrimitive>(
+		shape,
+		//atlas::sh::createLambertMaterial(atlas::Spectrum(0.8, 0.2, 0.1))
+		std::make_shared<atlas::DiffuseAreaLight>(*sphereInfo.objectToWorld, mediumInterface, atlas::Spectrum(1) * intensity, 1, shape)
+				));
 	return (scene);
 }
 
@@ -259,23 +265,20 @@ atlas::Spectrum rayColor(const atlas::Ray &r, const atlas::Primitive &scene, int
 	atlas::SurfaceInteraction s;
 	if (scene.intersect(r, s))
 	{
-#if !defined(SHADING)
-		Float pdf;
-		atlas::Vec3f wi;
-		s.primitive->computeScatteringFunctions(s, atlas::TransportMode::Radiance, true);
-		atlas::Spectrum color = s.bsdf->sampleF(-r.dir, wi, sampler.get2D(), pdf);
+		if (s.primitive->getAreaLight())
+			return (dynamic_cast<const atlas::DiffuseAreaLight *>(s.primitive->getAreaLight())->lEmit);
 
-		if (color.isBlack())
-			return (color);
-		return (/* pdf * */ color * rayColor(atlas::Ray(s.p, wi), scene, depth - 1, sampler));
-#else
 		atlas::sh::BSDF bsdf = s.primitive->getMaterial()->sample(-r.dir, s, sampler.get2D());
-		if (bsdf.Li.isBlack())
-			return (bsdf.Le);
-		return (bsdf.Le + /* bsdf.pdf * */ bsdf.Li * rayColor(atlas::Ray(s.p, bsdf.wi), scene, depth - 1, sampler));
-#endif
 
+		//atlas::Spectrum ld = bsdf.scatteringPdf * bsdf.Li * sampleLightSources(s, scene, lights);
+
+		atlas::Ray r(s.p + 0.01f * s.n, bsdf.wi);
+		atlas::Spectrum Li = rayColor(r, scene, depth - 1, sampler);
+		//std::cout << "li " << bsdf.Li << " & " << Li << " le " << bsdf.Le << " sPdf " << bsdf.scatteringPdf << " pdf " << bsdf.pdf << std::endl;
+
+		return (bsdf.Le + std::abs(bsdf.scatteringPdf) * bsdf.Li * Li / std::abs(bsdf.pdf));
 	}
+	return (0);
 	atlas::Vec3f unitDir = normalize(r.dir);
 	Float t = (Float)0.5 * (unitDir.y + (Float)1.0);
 	return (((Float)1.0 - t) * atlas::Spectrum(1) + t * atlas::Spectrum((Float)0.5, (Float)0.7, (Float)1.0));
@@ -287,7 +290,7 @@ int main()
 	const uint32_t height = 500;
 	const uint32_t spp = 16;
 
-#if 1
+#if 0
 	// setup rendering configuration
 	atlas::StratifiedSampler sampler;
 
@@ -323,6 +326,37 @@ int main()
 	ach.render(camera, bvh, film);
 
 	film.writeImage();
+#elif 1
+	atlas::FilmInfo filmInfo;
+	filmInfo.filename = "film.ppm";
+	filmInfo.resolution = atlas::Point2i(width, height);
+	filmInfo.filter = new atlas::BoxFilter(atlas::Vec2f(0.5, 0.5));
+	atlas::Film film(filmInfo);
+
+	atlas::Bounds2f screen;
+	screen.min.x = -1.f;
+	screen.max.x = 1.f;
+	screen.min.y = -1.f;
+	screen.max.y = 1.f;
+	atlas::Transform worldToCam = atlas::Transform::lookAt(atlas::Point3f(13, 2, 3), atlas::Point3f(0, 0, 0), atlas::Vec3f(0, 1, 0));
+	atlas::PerspectiveCamera camera(worldToCam.inverse(), screen, 0.f, 1.f, 0, 10, 40, &film, nullptr);
+
+	std::vector<std::shared_ptr<atlas::Primitive>> primitives = createPrimitives();
+	atlas::BvhAccel bvh(primitives);
+
+	atlas::StratifiedSamplerInfo samplerInfo;
+	atlas::Sampler *sampler = atlas::StratifiedSampler::create(samplerInfo);
+
+	std::vector<std::shared_ptr<atlas::Light>> lights;
+
+	atlas::NextEventEstimation::Info info;
+	info.sampler = sampler;
+	atlas::NextEventEstimation nee(info);
+	nee.render(camera, bvh, lights, film);
+
+	{
+		film.writeImage();
+	}
 #else
 	atlas::FilmInfo filmInfo;
 	filmInfo.filename = "film.ppm";
@@ -342,7 +376,7 @@ int main()
 	atlas::BvhAccel bvh(primitives);
 
 	atlas::StratifiedSamplerInfo samplerInfo;
-	atlas::Sampler *sampler = atlas::TestSampler::create();// atlas::StratifiedSampler::create(samplerInfo);
+	atlas::Sampler *sampler = atlas::StratifiedSampler::create(samplerInfo);
 
 	{
 		TELEMETRY(brute, "brute force");

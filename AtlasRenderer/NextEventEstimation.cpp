@@ -13,55 +13,45 @@ atlas::NextEventEstimation::NextEventEstimation(const NextEventEstimation::Info 
 	, sampler(*info.sampler)
 	, endOfIterationCallback(info.endOfIterationCallback)
 {
-
+	threads.init(info.threadCount);
 }
 
 atlas::NextEventEstimation::~NextEventEstimation()
 {
-
+	threads.shutdown();
 }
 
-atlas::Spectrum atlas::NextEventEstimation::sampleLightSources(const SurfaceInteraction &intr, const atlas::Primitive &scene, const std::vector<std::shared_ptr<atlas::Light>> &lights)
+atlas::Spectrum atlas::NextEventEstimation::sampleLightSources(const Interaction &intr, const atlas::Primitive &scene, const std::vector<std::shared_ptr<atlas::Light>> &lights)
 {
 	Spectrum out(0);
+	return (0);
 	for (auto &light : lights)
 	{
 		Float pdf;
 		Interaction pShape = dynamic_cast<DiffuseAreaLight *>(light.get())->shape->sample(intr, sampler.get2D(), pdf);
-		//printf("p %f %f %f\n", pShape.p.x, pShape.p.y, pShape.p.z);
-		if (dot(intr.shading.n, pShape.n) < 0 && dot(pShape.p - intr.p, intr.shading.n) > 0)
-		{
-			Ray r(pShape.p, normalize(intr.p - pShape.p), (intr.p - pShape.p).length() - 0.1);
-			SurfaceInteraction s;
-			//if (!scene.intersect(r, s))
-				return dot(intr.n, -r.dir) * (100 / pow((intr.p - pShape.p).length(), 2)) * (1);
-		}
-		// 
-		// 
-		//Vec3f wi;
-		//Float pdf;
-		//VisibilityTester visibility;
-		//Spectrum l = light->sampleLi(intr, sampler.get2D(), wi, pdf, visibility);
-		//if (!l.isBlack() && visibility.unoccluded(scene))
-		//{
-		//	return (1);
-		//}
+		Vec3f toLight = pShape.p - intr.p;
+		Float distanceSquared = toLight.lengthSquared();
+		toLight = normalize(toLight);
 
-		//Ray r;
-		//SurfaceInteraction s;
-		//Normal mLight;
-		//Float pdf;
-		//Float pdfd;
-		//Spectrum l = light->sampleLe(sampler.get2D(), sampler.get2D(), 100, r, mLight, pdf, pdfd);
-		//if (!l.isBlack() && !scene.intersect(r, s))
-		//{
-		//	return (1);
-		//}
+		if (dot(toLight, intr.n) >= 0)
+		{
+			Float lightArea = dynamic_cast<DiffuseAreaLight *>(light.get())->shape->area();
+			Float lightCosine = std::abs(dot(pShape.n, -toLight));
+			if (lightCosine < 0.0000001)
+				continue;
+
+			Float pdf = distanceSquared / (lightCosine * lightArea);
+			Ray r(intr.p, toLight, intr.time);
+			if (!scene.intersectP(r))
+			{
+				return (dynamic_cast<DiffuseAreaLight *>(light.get())->lEmit / pdf);
+			}
+		}
 	}
 	return (out);
 }
 
-atlas::Spectrum atlas::NextEventEstimation::getColorAlongRay(const atlas::Ray &r, const atlas::Primitive &scene, const std::vector<std::shared_ptr<atlas::Light>> &lights, int depth)
+atlas::Spectrum atlas::NextEventEstimation::getColorAlongRay(const atlas::Ray &r, const atlas::Primitive &scene, const std::vector<std::shared_ptr<atlas::Light>> &lights, Sampler &sampler, int depth)
 {
 	if (depth <= 0)
 		return (atlas::Spectrum(0.f));
@@ -70,17 +60,27 @@ atlas::Spectrum atlas::NextEventEstimation::getColorAlongRay(const atlas::Ray &r
 	if (scene.intersect(r, s))
 	{
 #if defined(SHADING)
-		atlas::sh::BSDF bsdf = s.primitive->getMaterial()->sample(-r.dir, s, sampler.get2D());
-		if (bsdf.Li.isBlack())
-			return (bsdf.Le);
 
-		Spectrum lightColor;
-		if (luminance(lightColor = sampleLightSources(s, scene, lights)) > 0.5)
-		{
-			return (bsdf.Le + /* bsdf.pdf * */ bsdf.Li * lightColor);
-		}
-		else
-			return (bsdf.Le + /* bsdf.pdf * */ bsdf.Li * getColorAlongRay(atlas::Ray(s.p + tmin * bsdf.wi, bsdf.wi, tmax), scene, lights, depth - 1));
+		if (s.primitive->getAreaLight())
+			return (dynamic_cast<const DiffuseAreaLight*>(s.primitive->getAreaLight())->lEmit);
+
+		atlas::sh::BSDF bsdf = s.primitive->getMaterial()->sample(-r.dir, s, sampler.get2D());
+		/*if (luminance(bsdf.Li) < lightTreshold)
+			return (bsdf.Le);*/
+
+		auto n = s.n * 0.5 + 0.5;
+		//return (Spectrum(n.x, n.y, n.z));
+
+		Spectrum ld = bsdf.scatteringPdf * bsdf.Li * sampleLightSources(s, scene, lights);
+		
+		Ray r(s.p + tmin * bsdf.wi, bsdf.wi, tmax);
+		Spectrum Li = getColorAlongRay(r, scene, lights, sampler, depth - 1);
+		
+		//printf("color %f %f %f sPdf %f pdf %f\n", bsdf.Li.r, bsdf.Li.g, bsdf.Li.b, bsdf.scatteringPdf, bsdf.pdf);
+
+		return (bsdf.Le + std::abs(bsdf.scatteringPdf) * bsdf.Li * Li / std::abs(bsdf.pdf) + ld);		
+		
+		//return (bsdf.Li * ei);// (PI * (Float)2 * bsdf.Li * ei + ld);
 #endif
 	}
 	else
@@ -88,20 +88,30 @@ atlas::Spectrum atlas::NextEventEstimation::getColorAlongRay(const atlas::Ray &r
 		return (BLACK);
 		atlas::Vec3f unitDir = normalize(r.dir);
 		Float t = (Float)0.5 * (unitDir.y + (Float)1.0);
-		return (((Float)1.0 - t) * atlas::Spectrum(1) + t * atlas::Spectrum((Float)0.5, (Float)0.7, (Float)1.0));
+		return ((Float)1.0 - t) * atlas::Spectrum(1) + t * atlas::Spectrum((Float)0.5, (Float)0.7, (Float)1.0);
 	}
 }
 
 void atlas::NextEventEstimation::render(const Camera &camera, const Primitive &scene, const std::vector<std::shared_ptr<atlas::Light>> &lights, Film &film)
 {
 	isRunning = true;
-
 	uint32_t sppStep = 1;
 	for (uint32_t i = 0; isRunning && i < samplePerPixel; i += sppStep)
 	{
 		sppStep = std::min(sppStep * 2, 16u);
 		uint32_t currentSpp = i + sppStep <= samplePerPixel ? sppStep : samplePerPixel - i;
 		
+#if 1
+		Job::Info info;
+		info.nee = this;
+		info.camera = &camera;
+		info.scene = &scene;
+		info.lights = &lights;
+		info.film = &film;
+		info.spp = currentSpp;
+		threads.execute<Job>(info);
+		threads.join();
+#else
 		for (auto pixel : film.croppedPixelBounds)
 		{
 			sampler.startPixel(pixel);
@@ -113,13 +123,13 @@ void atlas::NextEventEstimation::render(const Camera &camera, const Primitive &s
 				camera.generateRay(cs, r);
 				r.tmax = tmax;
 
-				atlas::Spectrum color = getColorAlongRay(r, scene, lights, maxLightBounce);
+				atlas::Spectrum color = getColorAlongRay(r, scene, lights, sampler, maxLightBounce);
 
 				film.addSample(pixel.x + pixel.y * film.resolution.x, color, 1);
 				sampler.startNextSample();
 			}
 		}
-
+#endif
 		if (endOfIterationCallback)
 			endOfIterationCallback(film);
 	}
@@ -127,4 +137,54 @@ void atlas::NextEventEstimation::render(const Camera &camera, const Primitive &s
 	if (!isRunning)
 		printf("Rendering canceled\n");
 	isRunning = false;
+}
+
+bool atlas::NextEventEstimation::Job::preExecute()
+{
+	for (uint32_t j = 0; j < film.resolution.y; j += 64)
+	{
+		for (uint32_t i = 0; i < film.resolution.x; i += 64)
+		{
+			Point2i pMin(i, j);
+			Point2i pMax = min(Point2i(i + 64, j + 64), film.resolution);
+			ranges.emplace_back(pMin, pMax);
+		}
+	}
+	return (true);
+}
+
+void atlas::NextEventEstimation::Job::execute()
+{
+	std::unique_ptr<Sampler> sampler = nee.sampler.clone(0);
+
+	while (nee.isRunning)
+	{
+		uint32_t index = nextIndex.fetch_add(1);
+		if (index >= ranges.size())
+			return;
+
+		for (auto pixel : ranges[index])
+		{
+			sampler->startPixel(pixel);
+			for (uint32_t s = 0; s < spp; s++)
+			{
+				atlas::Ray r;
+				atlas::CameraSample cs = sampler->getCameraSample(pixel);
+
+				camera.generateRay(cs, r);
+				r.tmax = nee.tmax;
+
+				atlas::Spectrum color = nee.getColorAlongRay(r, scene, lights, *sampler, nee.maxLightBounce);
+
+				film.addSample(pixel.x + pixel.y * film.resolution.x, color, 1);
+				auto c = film.getPixel(pixel.x + pixel.y * film.resolution.x);
+				sampler->startNextSample();
+			}
+		}
+	}
+}
+
+void atlas::NextEventEstimation::Job::postExecute()
+{
+
 }
