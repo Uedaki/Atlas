@@ -6,6 +6,7 @@
 #include "BSDF.h"
 #include "Shader.h"
 #include "ShadingIO.h"
+#include "Onb.h"
 
 namespace atlas
 {
@@ -22,10 +23,15 @@ namespace atlas
 			void evaluate(const Vec3f &wo, const SurfaceInteraction &si, const Point2f &sample, DataBlock &block) const override
 			{
 				BSDF bsdf = {};
-				bsdf.wi = cosineSampleHemisphere(sample);
+				Onb uvw(si.n);
+				
+				bsdf.wi = uvw.local(cosineSampleDirection(sample));
 				if (wo.z < 0)
+				{
 					bsdf.wi.z *= -1;
-				bsdf.pdf = pdf(wo, bsdf.wi);
+				}
+				bsdf.pdf = dot(uvw.w, bsdf.wi) * INV_PI;
+				bsdf.scatteringPdf = scatteringPdf(si, wo, bsdf.wi);
 				bsdf.Li = f(wo, bsdf.wi, block);
 				out.set(block, bsdf);
 			}
@@ -35,9 +41,10 @@ namespace atlas
 				return (BLACK);
 			}
 
-			virtual Float pdf(const Vec3f &wo, const Vec3f &wi) const
+			virtual Float scatteringPdf(const Interaction &intr, const Vec3f &wo, const Vec3f &wi) const
 			{
-				return sameHemisphere(wo, wi) ? absCosTheta(wi) : 0;
+				Float cosine = dot(intr.n, wi);
+				return (cosine < 0 ? 0 : cosine * INV_PI);
 			}
 
 			ShadingOutput<BSDF> out;

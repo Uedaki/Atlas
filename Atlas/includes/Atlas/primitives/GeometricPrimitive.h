@@ -22,6 +22,12 @@ namespace atlas
         )
             : shape(s), material(m)
         {}
+
+        GeometricPrimitive(std::shared_ptr<Shape> s,
+            std::shared_ptr<AreaLight> l)
+            : shape(s), areaLight(l)
+        {}
+
         ~GeometricPrimitive() override {}
         ATLAS Bounds3f worldBound() const override;
 

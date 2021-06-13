@@ -164,7 +164,7 @@ namespace atlas
 
 		Float lengthSquared() const
 		{
-			return (x * x + y * y + z * z);
+			return (std::fma(x, x, sumOfProducts(y, y, z, z)));
 		}
 
 		Float length() const

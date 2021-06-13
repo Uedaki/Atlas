@@ -35,17 +35,9 @@ namespace atlas
 				return (shader);
 			}
 
-			BSDF sample(const Vec3f &woWorld, const SurfaceInteraction &si, const Point2f &sample) const
+			BSDF sample(const Vec3f &wo, const SurfaceInteraction &si, const Point2f &sample) const
 			{
 				BSDF bsdf;
-
-				const Normal ns = si.shading.n;
-				const Vec3f ss = normalize(si.shading.dpdu);
-				const Vec3f ts = cross(si.shading.n, ss);
-
-				// Transform wo from world to local
-				const Vec3f wo = Vec3f(dot(woWorld, ss), dot(woWorld, ts), dot(woWorld, si.shading.n));
-
 				{
 					DataBlock block(dataSize);
 					for (size_t i = shaders.size() - 1; i < shaders.size(); i--)
@@ -54,11 +46,6 @@ namespace atlas
 					}
 					bsdf = bsdfInput.get(block);
 				}
-
-				// transform wi from local to world
-				bsdf.wi = Vec3f(ss.x * bsdf.wi.x + ts.x * bsdf.wi.y + si.shading.n.x * bsdf.wi.z,
-					ss.y * bsdf.wi.x + ts.y * bsdf.wi.y + si.shading.n.y * bsdf.wi.z,
-					ss.z * bsdf.wi.x + ts.z * bsdf.wi.y + si.shading.n.z * bsdf.wi.z);
 				return (bsdf);
 			}
 

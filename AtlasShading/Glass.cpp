@@ -13,11 +13,13 @@ void atlas::sh::Glass::evaluate(const Vec3f &wo, const SurfaceInteraction &si, c
 	if (refract(wo, faceForward(Normal(0, 0, 1), wo), etaI / etaT, bsdf.wi))
 	{
 		bsdf.pdf = 1;
+		bsdf.scatteringPdf = 1;
 		bsdf.Li = Spectrum(1.f);
 	}
 	else
 	{
 		bsdf.pdf = 0;
+		bsdf.scatteringPdf = 0;
 		bsdf.Le = Spectrum(0.f);
 	}
 	out.set(block, bsdf);

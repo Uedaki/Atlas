@@ -7,6 +7,7 @@ void atlas::sh::Metal::evaluate(const Vec3f &wo, const SurfaceInteraction &si, c
 	BSDF bsdf = {};
 	bsdf.wi = Vec3f(-wo.x, -wo.y, wo.z);
 	bsdf.pdf = 1;
+	bsdf.scatteringPdf = 1;
 	bsdf.Li = iR.get(block);
 	out.set(block, bsdf);
 }

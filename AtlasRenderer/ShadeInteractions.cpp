@@ -65,11 +65,7 @@ void atlas::task::ShadeInteractions::execute()
 			}
 			else
 			{
-				printf("max depth\n");
-				Sample s;
-				s.color = data.batch->colors[i];
-				s.pixelID = data.batch->pixelIDs[i];
-				samples.push_back(s);
+				//printf("max depth\n");
 			}
 		}
 #else
