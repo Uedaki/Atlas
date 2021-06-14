@@ -216,7 +216,7 @@ bool atlas::Rectangle::intersectP(const Ray &ray, bool testAlphaTexture) const
 
 Float atlas::Rectangle::area() const
 {
-	return (objectToWorld.getMatrix().m[0][0] * objectToWorld.getMatrix().m[1][1]);
+	return ((p1 - p0).length() * (p2 - p0).length());
 }
 
 atlas::Interaction atlas::Rectangle::sample(const Point2f &u, Float &pdf) const

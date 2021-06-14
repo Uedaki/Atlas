@@ -348,11 +348,26 @@ int main()
 	atlas::Sampler *sampler = atlas::StratifiedSampler::create(samplerInfo);
 
 	std::vector<std::shared_ptr<atlas::Light>> lights;
+	for (auto prim : primitives)
+	{
+		if (prim->getAreaLight())
+		{
+			lights.emplace_back((atlas::Light *)prim->getAreaLight());
+		}
+	}
 
 	atlas::NextEventEstimation::Info info;
+	info.maxLightBounce = 9;
+	info.samplePerPixel = 16;
 	info.sampler = sampler;
 	atlas::NextEventEstimation nee(info);
 	nee.render(camera, bvh, lights, film);
+
+
+	for (auto &l : lights)
+	{
+		l.reset();
+	}
 
 	{
 		film.writeImage();

@@ -4,6 +4,8 @@
 #include "BSDF.h"
 #include "Material.h"
 
+#include <iostream>
+
 atlas::NextEventEstimation::NextEventEstimation(const NextEventEstimation::Info &info)
 	: samplePerPixel(info.samplePerPixel)
 	, minLightBounce(info.minLightBounce)
@@ -24,7 +26,7 @@ atlas::NextEventEstimation::~NextEventEstimation()
 atlas::Spectrum atlas::NextEventEstimation::sampleLightSources(const Interaction &intr, const atlas::Primitive &scene, const std::vector<std::shared_ptr<atlas::Light>> &lights)
 {
 	Spectrum out(0);
-	return (0);
+	//return (0);
 	for (auto &light : lights)
 	{
 		Float pdf;
@@ -40,11 +42,13 @@ atlas::Spectrum atlas::NextEventEstimation::sampleLightSources(const Interaction
 			if (lightCosine < 0.0000001)
 				continue;
 
-			Float pdf = distanceSquared / (lightCosine * lightArea);
-			Ray r(intr.p, toLight, intr.time);
-			if (!scene.intersectP(r))
+			Float pdf = (lightCosine * lightArea) / distanceSquared;
+			Ray r(intr.p + tmin * intr.n, toLight, intr.time);
+			SurfaceInteraction s;
+			if (!scene.intersectP(r) || s.primitive->getAreaLight())
 			{
-				return (dynamic_cast<DiffuseAreaLight *>(light.get())->lEmit / pdf);
+				//std::cout << "pdf " << pdf << " lightCosine " << lightCosine << " light Area " << lightArea << std::endl;
+				return (dynamic_cast<DiffuseAreaLight *>(light.get())->lEmit * pdf).getClampedSpectrum();
 			}
 		}
 	}
@@ -71,9 +75,11 @@ atlas::Spectrum atlas::NextEventEstimation::getColorAlongRay(const atlas::Ray &r
 		auto n = s.n * 0.5 + 0.5;
 		//return (Spectrum(n.x, n.y, n.z));
 
-		Spectrum ld = bsdf.scatteringPdf * bsdf.Li * sampleLightSources(s, scene, lights);
-		
-		Ray r(s.p + tmin * bsdf.wi, bsdf.wi, tmax);
+		Spectrum ld = bsdf.scatteringPdf / std::abs(bsdf.pdf) * bsdf.Li * sampleLightSources(s, scene, lights);
+		if (luminance(ld) > lightTreshold)
+			return (bsdf.Le + ld);
+
+		Ray r(s.p + tmin * s.n, bsdf.wi, tmax);
 		Spectrum Li = getColorAlongRay(r, scene, lights, sampler, depth - 1);
 		
 		//printf("color %f %f %f sPdf %f pdf %f\n", bsdf.Li.r, bsdf.Li.g, bsdf.Li.b, bsdf.scatteringPdf, bsdf.pdf);
@@ -141,9 +147,9 @@ void atlas::NextEventEstimation::render(const Camera &camera, const Primitive &s
 
 bool atlas::NextEventEstimation::Job::preExecute()
 {
-	for (uint32_t j = 0; j < film.resolution.y; j += 64)
+	for (int32_t j = 0; j < film.resolution.y; j += 64)
 	{
-		for (uint32_t i = 0; i < film.resolution.x; i += 64)
+		for (int32_t i = 0; i < film.resolution.x; i += 64)
 		{
 			Point2i pMin(i, j);
 			Point2i pMax = min(Point2i(i + 64, j + 64), film.resolution);
@@ -155,7 +161,8 @@ bool atlas::NextEventEstimation::Job::preExecute()
 
 void atlas::NextEventEstimation::Job::execute()
 {
-	std::unique_ptr<Sampler> sampler = nee.sampler.clone(0);
+	std::hash<std::thread::id> hasher;
+	std::unique_ptr<Sampler> sampler = nee.sampler.clone((int)hasher(std::this_thread::get_id()) * (spp + 1));
 
 	while (nee.isRunning)
 	{

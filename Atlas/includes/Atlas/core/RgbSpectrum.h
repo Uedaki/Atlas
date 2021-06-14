@@ -124,7 +124,7 @@ namespace atlas
 			return (r == 1.f && g == 1.f && b == 1.f);
 		}
 
-		RgbSpectrum getClampedSpectrum(Float low = 0., Float high = 0.) const
+		RgbSpectrum getClampedSpectrum(Float low = 0., Float high = 1.) const
 		{
 			return (RgbSpectrum(clamp(r, low, high), clamp(r, low, high), clamp(r, low, high)));
 		}
