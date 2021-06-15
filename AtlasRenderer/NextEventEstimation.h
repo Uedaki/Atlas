@@ -25,6 +25,9 @@ namespace atlas
 			Float tmax = INFINITY;
 			Float lightTreshold = (Float)0.01;
 
+			bool useSkyBackground = false;
+			Spectrum backgroundColor = BLACK;
+
 			Sampler *sampler;
 
 			uint32_t threadCount = std::thread::hardware_concurrency() - 1;
@@ -94,6 +97,9 @@ namespace atlas
 		Float tmin = 0;
 		Float tmax = INFINITY;
 		Float lightTreshold = (Float)0.01;
+
+		bool useSkyBackground;
+		Spectrum backgroundColor;
 
 		Sampler &sampler;
 

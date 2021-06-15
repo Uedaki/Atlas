@@ -12,6 +12,8 @@ atlas::NextEventEstimation::NextEventEstimation(const NextEventEstimation::Info 
 	, maxLightBounce(info.maxLightBounce)
 	, tmin(info.tmin), tmax(info.tmax)
 	, lightTreshold(info.lightTreshold)
+	, useSkyBackground(info.useSkyBackground)
+	, backgroundColor(info.backgroundColor)
 	, sampler(*info.sampler)
 	, endOfIterationCallback(info.endOfIterationCallback)
 {
@@ -47,8 +49,8 @@ atlas::Spectrum atlas::NextEventEstimation::sampleLightSources(const Interaction
 			SurfaceInteraction s;
 			if (!scene.intersectP(r) || s.primitive->getAreaLight())
 			{
-				//std::cout << "pdf " << pdf << " lightCosine " << lightCosine << " light Area " << lightArea << std::endl;
-				return (dynamic_cast<DiffuseAreaLight *>(light.get())->lEmit * pdf).getClampedSpectrum();
+				return (dynamic_cast<DiffuseAreaLight *>(light.get())->lEmit / std::pow(std::sqrt(distanceSquared), 2)).getClampedSpectrum();
+				//return (dynamic_cast<DiffuseAreaLight *>(light.get())->lEmit * pdf).getClampedSpectrum();
 			}
 		}
 	}
@@ -69,11 +71,8 @@ atlas::Spectrum atlas::NextEventEstimation::getColorAlongRay(const atlas::Ray &r
 			return (dynamic_cast<const DiffuseAreaLight*>(s.primitive->getAreaLight())->lEmit);
 
 		atlas::sh::BSDF bsdf = s.primitive->getMaterial()->sample(-r.dir, s, sampler.get2D());
-		/*if (luminance(bsdf.Li) < lightTreshold)
-			return (bsdf.Le);*/
-
-		auto n = s.n * 0.5 + 0.5;
-		//return (Spectrum(n.x, n.y, n.z));
+		if (luminance(bsdf.Li) < lightTreshold)
+			return (bsdf.Le);
 
 		Spectrum ld = bsdf.scatteringPdf / std::abs(bsdf.pdf) * bsdf.Li * sampleLightSources(s, scene, lights);
 		if (luminance(ld) > lightTreshold)
@@ -89,12 +88,15 @@ atlas::Spectrum atlas::NextEventEstimation::getColorAlongRay(const atlas::Ray &r
 		//return (bsdf.Li * ei);// (PI * (Float)2 * bsdf.Li * ei + ld);
 #endif
 	}
-	else
+	else if (useSkyBackground)
 	{
-		return (BLACK);
 		atlas::Vec3f unitDir = normalize(r.dir);
 		Float t = (Float)0.5 * (unitDir.y + (Float)1.0);
 		return ((Float)1.0 - t) * atlas::Spectrum(1) + t * atlas::Spectrum((Float)0.5, (Float)0.7, (Float)1.0);
+	}
+	else
+	{
+		return (backgroundColor);
 	}
 }
 
