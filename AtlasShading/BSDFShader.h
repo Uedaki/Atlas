@@ -10,40 +10,37 @@
 
 namespace atlas
 {
-	namespace sh
+	struct BSDFShader : public Shader
 	{
-		struct BSDFShader : public Shader
+	public:
+		void registerOutputs(uint32_t &size) override
 		{
-		public:
-			void registerOutputs(uint32_t &size) override
-			{
-				out.registerOutput(size);
-			}
+			out.registerOutput(size);
+		}
 
-			void evaluate(const Vec3f &wo, const SurfaceInteraction &si, const Point2f &sample, DataBlock &block) const override
-			{
-				BSDF bsdf = {};
-				Onb uvw(si.n);
+		void evaluate(const Vec3f &wo, const SurfaceInteraction &si, const Point2f &sample, DataBlock &block) const override
+		{
+			BSDF bsdf = {};
+			Onb uvw(si.n);
 				
-				bsdf.wi = uvw.local(cosineSampleDirection(sample));
-				bsdf.pdf = dot(uvw.w, bsdf.wi) * INV_PI;
-				bsdf.scatteringPdf = scatteringPdf(si, wo, bsdf.wi);
-				bsdf.Li = f(wo, bsdf.wi, block);
-				out.set(block, bsdf);
-			}
+			bsdf.wi = uvw.local(cosineSampleDirection(sample));
+			bsdf.pdf = dot(uvw.w, bsdf.wi) * INV_PI;
+			bsdf.scatteringPdf = scatteringPdf(si, wo, bsdf.wi);
+			bsdf.Li = f(wo, bsdf.wi, block);
+			out.set(block, bsdf);
+		}
 
-			virtual Spectrum f(const Vec3f &wo, const Vec3f &wi, const DataBlock &block) const
-			{
-				return (BLACK);
-			}
+		virtual Spectrum f(const Vec3f &wo, const Vec3f &wi, const DataBlock &block) const
+		{
+			return (BLACK);
+		}
 
-			virtual Float scatteringPdf(const Interaction &intr, const Vec3f &wo, const Vec3f &wi) const
-			{
-				Float cosine = dot(intr.n, wi);
-				return (cosine < 0 ? 0 : cosine * INV_PI);
-			}
+		virtual Float scatteringPdf(const Interaction &intr, const Vec3f &wo, const Vec3f &wi) const
+		{
+			Float cosine = dot(intr.n, wi);
+			return (cosine < 0 ? 0 : cosine * INV_PI);
+		}
 
-			ShadingOutput<BSDF> out;
-		};
-	}
+		ShadingOutput<BSDF> out;
+	};
 }

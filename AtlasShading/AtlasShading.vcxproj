@@ -153,6 +153,7 @@
     <ClInclude Include="Material.h" />
     <ClInclude Include="Metal.h" />
     <ClInclude Include="Onb.h" />
+    <ClInclude Include="PrincipledBsdf.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderGroup.h" />
     <ClInclude Include="ShadingIO.h" />

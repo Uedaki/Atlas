@@ -33,7 +33,7 @@ void atlas::task::ShadeInteractions::execute()
 		{
 			data.sampler->startPixel(Point2i(0, 0));
 
-			sh::BSDF bsdf = data.shadingPack->at(idx).material->sample(-data.batch->directions[i], data.interactions->at(i), sampler->get2D());
+			BSDF bsdf = data.shadingPack->at(idx).material->sample(-data.batch->directions[i], data.interactions->at(i), sampler->get2D());
 			Spectrum color = data.batch->colors[i] * bsdf.Li;
 			
 			if (!bsdf.Le.isBlack())

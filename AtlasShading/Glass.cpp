@@ -2,7 +2,7 @@
 
 #include "Material.h"
 
-void atlas::sh::Glass::evaluate(const Vec3f &wo, const SurfaceInteraction &si, const Point2f &sample, DataBlock &block) const
+void atlas::Glass::evaluate(const Vec3f &wo, const SurfaceInteraction &si, const Point2f &sample, DataBlock &block) const
 {
 	BSDF bsdf = {};
 
@@ -25,12 +25,12 @@ void atlas::sh::Glass::evaluate(const Vec3f &wo, const SurfaceInteraction &si, c
 	out.set(block, bsdf);
 }
 
-atlas::Spectrum atlas::sh::Glass::f(const Vec3f &wo, const Vec3f &wi, const DataBlock &block) const
+atlas::Spectrum atlas::Glass::f(const Vec3f &wo, const Vec3f &wi, const DataBlock &block) const
 {
 	return (Spectrum(0.f));
 }
 
-std::shared_ptr<atlas::sh::Material> atlas::sh::createGlassMaterial(Float eta)
+std::shared_ptr<atlas::Material> atlas::createGlassMaterial(Float eta)
 {
 	std::shared_ptr<Material> m = std::make_shared<Material>();
 	Glass &glass = m->addShader<Glass>();

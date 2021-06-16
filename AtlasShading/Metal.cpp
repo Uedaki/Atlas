@@ -2,7 +2,7 @@
 
 #include "Material.h"
 
-void atlas::sh::Metal::evaluate(const Vec3f &wo, const SurfaceInteraction &si, const Point2f &sample, DataBlock &block) const
+void atlas::Metal::evaluate(const Vec3f &wo, const SurfaceInteraction &si, const Point2f &sample, DataBlock &block) const
 {
 	BSDF bsdf = {};
 	bsdf.wi = Vec3f(-wo.x, -wo.y, wo.z);
@@ -12,12 +12,12 @@ void atlas::sh::Metal::evaluate(const Vec3f &wo, const SurfaceInteraction &si, c
 	out.set(block, bsdf);
 }
 
-atlas::Spectrum atlas::sh::Metal::f(const Vec3f &wo, const Vec3f &wi, const DataBlock &block) const
+atlas::Spectrum atlas::Metal::f(const Vec3f &wo, const Vec3f &wi, const DataBlock &block) const
 {
 	return (iR.get(block));
 }
 
-std::shared_ptr<atlas::sh::Material> atlas::sh::createMetalMaterial(const Spectrum &r)
+std::shared_ptr<atlas::Material> atlas::createMetalMaterial(const Spectrum &r)
 {
 	std::shared_ptr<Material> m = std::make_shared<Material>();
 	Metal &metal = m->addShader<Metal>();

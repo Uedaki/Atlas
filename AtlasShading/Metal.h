@@ -5,18 +5,15 @@
 
 namespace atlas
 {
-	namespace sh
+	class Material;
+
+	struct Metal : public BSDFShader
 	{
-		class Material;
+		ATLAS_SH void evaluate(const Vec3f &wo, const SurfaceInteraction &si, const Point2f &sample, DataBlock &block) const override;
+		ATLAS_SH Spectrum f(const Vec3f &wo, const Vec3f &wi, const DataBlock &block) const override;
 
-		struct Metal : public BSDFShader
-		{
-			ATLAS_SH void evaluate(const Vec3f &wo, const SurfaceInteraction &si, const Point2f &sample, DataBlock &block) const override;
-			ATLAS_SH Spectrum f(const Vec3f &wo, const Vec3f &wi, const DataBlock &block) const override;
+		ShadingInput<Spectrum> iR;
+	};
 
-			ShadingInput<Spectrum> iR;
-		};
-
-		ATLAS_SH std::shared_ptr<Material> createMetalMaterial(const Spectrum &r);
-	}
+	ATLAS_SH std::shared_ptr<Material> createMetalMaterial(const Spectrum &r);
 }

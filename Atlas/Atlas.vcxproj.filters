@@ -15,9 +15,6 @@
     <Filter Include="Header Files\primitive">
       <UniqueIdentifier>{2f766a87-e7a7-49d2-9b5f-690b86f14203}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Materials">
-      <UniqueIdentifier>{0bdd19f5-f391-4df7-9046-53f12cc5c990}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Camera">
       <UniqueIdentifier>{3512482b-6e8d-417e-bce0-52d8de32811d}</UniqueIdentifier>
     </Filter>
@@ -32,9 +29,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="includes\Atlas\core\Material.h">
-      <Filter>Header Files\core</Filter>
-    </ClInclude>
     <ClInclude Include="includes\Atlas\core\Primitive.h">
       <Filter>Header Files\core</Filter>
     </ClInclude>
@@ -122,15 +116,6 @@
     <ClInclude Include="includes\Atlas\core\Interaction.h">
       <Filter>Header Files\core</Filter>
     </ClInclude>
-    <ClInclude Include="includes\Atlas\materials\Metal.h">
-      <Filter>Header Files\Materials</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\Atlas\materials\Glass.h">
-      <Filter>Header Files\Materials</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\Atlas\core\Texture.h">
-      <Filter>Header Files\core</Filter>
-    </ClInclude>
     <ClInclude Include="includes\Atlas\core\Filter.h">
       <Filter>Header Files\core</Filter>
     </ClInclude>
@@ -202,16 +187,7 @@
     <ClCompile Include="sources\GeometricPrimitive.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="sources\Metal.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="sources\Glass.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="sources\PerspectiveCamera.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="sources\Texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="sources\Shape.cpp">

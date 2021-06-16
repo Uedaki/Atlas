@@ -14,9 +14,7 @@ bool GeometricPrimitive::intersect(const Ray &r, SurfaceInteraction &intersectio
 		return (false);
 	r.tmax = tHit;
 	intersection.primitive = this;
-#if SHADING
 	intersection.material = material.get();
-#endif
 
 	if (mediumInterface.isMediumTransition())
 		intersection.mediumInterface = mediumInterface;
@@ -149,17 +147,10 @@ const AreaLight *GeometricPrimitive::getAreaLight() const
 	return areaLight.get();
 }
 
-#if defined(SHADING)
-const sh::Material *GeometricPrimitive::getMaterial() const
-{
-	return material.get();
-}
-#else
 const Material *GeometricPrimitive::getMaterial() const
 {
 	return material.get();
 }
-#endif
 
 void GeometricPrimitive::computeScatteringFunctions(
 	SurfaceInteraction &isect, TransportMode mode,

@@ -6,7 +6,6 @@
 #include "atlas/core/Ray.h"
 #include "atlas/core/Bounds.h"
 
-#include "atlas/core/Material.h"
 #include "atlas/core/Primitive.h"
 
 #include "atlas/core/Sampler.h"
@@ -14,16 +13,12 @@
 
 #include "atlas/shapes/Sphere.h"
 
-#include "atlas/materials/Glass.h"
-#include "atlas/materials/Metal.h"
-
 #include "atlas/core/Random.h"
 #include "atlas/core/Interaction.h"
 
 #include "atlas/primitives/BvhAccel.h"
 #include "atlas/primitives/GeometricPrimitive.h"
 
-#include "atlas/core/Texture.h"
 #include "atlas/core/Telemetry.h"
 
 #include "NextEventEstimation.h"
@@ -60,61 +55,61 @@ std::vector<std::shared_ptr<atlas::Primitive>> createPrimitives()
 {
 	std::vector<std::shared_ptr<atlas::Primitive>> scene;
 
-	std::shared_ptr<atlas::sh::Material> checkerMaterial = std::make_shared<atlas::sh::Material>();
+	std::shared_ptr<atlas::Material> checkerMaterial = std::make_shared<atlas::Material>();
 	{
-		auto &l = checkerMaterial->addShader<atlas::sh::Lambert>();
+		auto &l = checkerMaterial->addShader<atlas::Lambert>();
 		checkerMaterial->bind(l);
 
-		auto &t = checkerMaterial->addShader<atlas::sh::CheckerTexture>();
+		auto &t = checkerMaterial->addShader<atlas::CheckerTexture>();
 		l.iR.bind(t.oColor);
 
-		auto &c1 = checkerMaterial->addShader<atlas::sh::ConstantShader<atlas::Spectrum>>();
+		auto &c1 = checkerMaterial->addShader<atlas::ConstantShader<atlas::Spectrum>>();
 		c1.value = atlas::Spectrum((Float)0.2, (Float)0.3, (Float)0.1);
 		t.iColor1.bind(c1.out);
 
-		auto &c2 = checkerMaterial->addShader<atlas::sh::ConstantShader<atlas::Spectrum>>();
+		auto &c2 = checkerMaterial->addShader<atlas::ConstantShader<atlas::Spectrum>>();
 		c2.value = atlas::Spectrum((Float)0.9);
 		t.iColor2.bind(c2.out);
 
-		auto &s = checkerMaterial->addShader<atlas::sh::ConstantShader<Float>>();
+		auto &s = checkerMaterial->addShader<atlas::ConstantShader<Float>>();
 		s.value = 10;
 		t.iScale.bind(s.out);
 	}
 
-	std::shared_ptr<atlas::sh::Material> noiseMaterial = std::make_shared<atlas::sh::Material>();
+	std::shared_ptr<atlas::Material> noiseMaterial = std::make_shared<atlas::Material>();
 	{
-		auto &l = noiseMaterial->addShader<atlas::sh::Lambert>();
+		auto &l = noiseMaterial->addShader<atlas::Lambert>();
 		noiseMaterial->bind(l);
 
-		auto &t = noiseMaterial->addShader<atlas::sh::TurbulenceNoiseTexture>();
+		auto &t = noiseMaterial->addShader<atlas::TurbulenceNoiseTexture>();
 		l.iR.bind(t.oColor);
 
-		auto &s = noiseMaterial->addShader<atlas::sh::ConstantShader<Float>>();
+		auto &s = noiseMaterial->addShader<atlas::ConstantShader<Float>>();
 		s.value = 4;
 		t.iScale.bind(s.out);
 
-		auto &d = noiseMaterial->addShader<atlas::sh::ConstantShader<uint32_t>>();
+		auto &d = noiseMaterial->addShader<atlas::ConstantShader<uint32_t>>();
 		d.value = 1;
 		t.iDepth.bind(d.out);
 	}
 
-	std::shared_ptr<atlas::sh::Material> imageMaterial = std::make_shared<atlas::sh::Material>();
+	std::shared_ptr<atlas::Material> imageMaterial = std::make_shared<atlas::Material>();
 	{
-		auto &l = imageMaterial->addShader<atlas::sh::Lambert>();
+		auto &l = imageMaterial->addShader<atlas::Lambert>();
 		imageMaterial->bind(l);
 
-		auto &t = imageMaterial->addShader<atlas::sh::ImageTexture>();
+		auto &t = imageMaterial->addShader<atlas::ImageTexture>();
 		l.iR.bind(t.oColor);
-		t.imageID = atlas::sh::ImageLibrary::requestID("../earthmap.jpg");
+		t.imageID = atlas::ImageLibrary::requestID("../earthmap.jpg");
 
-		auto &c = imageMaterial->addShader<atlas::sh::ConstantShader<atlas::Vec2f>>();
+		auto &c = imageMaterial->addShader<atlas::ConstantShader<atlas::Vec2f>>();
 		c.value = atlas::Vec2f(0, 0);
 		t.iOffset.bind(c.out);
 	}
 
-	std::shared_ptr<atlas::sh::Material> emissiveMaterial = std::make_shared<atlas::sh::Material>();
+	std::shared_ptr<atlas::Material> emissiveMaterial = std::make_shared<atlas::Material>();
 	{
-		auto &l = emissiveMaterial->addShader<atlas::sh::Emission>();
+		auto &l = emissiveMaterial->addShader<atlas::Emission>();
 		emissiveMaterial->bind(l);
 
 		auto &t = emissiveMaterial->addConstant<atlas::Spectrum>();
@@ -137,7 +132,7 @@ std::vector<std::shared_ptr<atlas::Primitive>> createPrimitives()
 #if defined(SHADING)
 		//checkerMaterial
 		noiseMaterial
-		//atlas::sh::createLambertMaterial(atlas::Spectrum(0.5))
+		//atlas::createLambertMaterial(atlas::Spectrum(0.5))
 #else
 		atlas::MatteMaterial::create()
 #endif
@@ -155,14 +150,14 @@ std::vector<std::shared_ptr<atlas::Primitive>> createPrimitives()
 //			if ((center - atlas::Vec3f(4, 0.2, 0)).length() > 0.9)
 //			{
 //#if defined(SHADING)
-//				std::shared_ptr<atlas::sh::Material> material = nullptr;
+//				std::shared_ptr<atlas::Material> material = nullptr;
 //#else
 //				std::shared_ptr<atlas::Material> material = nullptr;
 //#endif
 //				if (choose_mat < 0.8)
 //				{
 //#if defined(SHADING)
-//					material = atlas::sh::createLambertMaterial(atlas::Spectrum(atlas::random() * atlas::random(), atlas::random() * atlas::random(), atlas::random() * atlas::random()));
+//					material = atlas::createLambertMaterial(atlas::Spectrum(atlas::random() * atlas::random(), atlas::random() * atlas::random(), atlas::random() * atlas::random()));
 //#else
 //					atlas::MatteMaterialInfo info;
 //					info.kd = atlas::createSpectrumConstant(atlas::random() * atlas::random(), atlas::random() * atlas::random(), atlas::random() * atlas::random());
@@ -172,7 +167,7 @@ std::vector<std::shared_ptr<atlas::Primitive>> createPrimitives()
 //				else if (choose_mat < 0.95)
 //				{
 //#if defined(SHADING)
-//					material = atlas::sh::createMetalMaterial(atlas::Spectrum(
+//					material = atlas::createMetalMaterial(atlas::Spectrum(
 //						0.5f * (1.0f + atlas::random(),
 //							0.5f * (1.0f + atlas::random()),
 //							0.5f * (1.0f + atlas::random()))));
@@ -188,7 +183,7 @@ std::vector<std::shared_ptr<atlas::Primitive>> createPrimitives()
 //				else
 //				{
 //#if defined(SHADING)
-//					material = atlas::sh::createGlassMaterial(1.5f);
+//					material = atlas::createGlassMaterial(1.5f);
 //#else
 //					material = atlas::GlassMaterial::create();
 //#endif
@@ -204,40 +199,28 @@ std::vector<std::shared_ptr<atlas::Primitive>> createPrimitives()
 	sphereInfo.zMax = 1.f;
 	sphereInfo.zMin = -1.f;
 
-	std::shared_ptr<atlas::Material> material = nullptr;
-	atlas::MatteMaterialInfo matteInfo;
-	matteInfo.kd = atlas::createSpectrumConstant((Float)0.8, (Float)0.2, (Float)0.1);
-	material = atlas::MatteMaterial::create(matteInfo);
-
-	atlas::GlassMaterialInfo glassInfo;
-	glassInfo.index = atlas::createFloatConstant(1.3f);
-
 	sphereInfo.objectToWorld = setTransform(0, 1, 0);
 	sphereInfo.worldToObject = setInverse(sphereInfo.objectToWorld);
 	scene.push_back(std::make_shared<atlas::GeometricPrimitive>(
 		atlas::Sphere::createShape(sphereInfo),
-		//atlas::sh::createGlassMaterial(1.3f)
-		atlas::sh::createLambertMaterial(atlas::Spectrum(0.8, 0.2, 0.1))
+		//atlas::createGlassMaterial(1.3f)
+		atlas::createLambertMaterial(atlas::Spectrum(0.8, 0.2, 0.1))
 		));
 
 	sphereInfo.objectToWorld = setTransform(-4, 1, 0);
 	sphereInfo.worldToObject = setInverse(sphereInfo.objectToWorld);
 	scene.push_back(std::make_shared<atlas::GeometricPrimitive>(
 		atlas::Sphere::createShape(sphereInfo),
-		atlas::sh::createLambertMaterial(atlas::Spectrum(0.8, 0.2, 0.1))
-		//emissiveMaterial// imageMaterial//noiseMaterial //atlas::sh::createLambertMaterial(atlas::Spectrum(0.8, 0.2, 0.1))
+		atlas::createLambertMaterial(atlas::Spectrum(0.8, 0.2, 0.1))
+		//emissiveMaterial// imageMaterial//noiseMaterial //atlas::createLambertMaterial(atlas::Spectrum(0.8, 0.2, 0.1))
 		));
-
-	atlas::MetalMaterialInfo metalInfo;
-	metalInfo.eta = atlas::createSpectrumConstant(0.7, 0.6, 0.5);
-	metalInfo.roughness = atlas::createFloatConstant(0);
 
 	sphereInfo.objectToWorld = setTransform(4, 1, 0);
 	sphereInfo.worldToObject = setInverse(sphereInfo.objectToWorld);
 	scene.push_back(std::make_shared<atlas::GeometricPrimitive>(
 		atlas::Sphere::createShape(sphereInfo),
-		//atlas::sh::createMetalMaterial(atlas::Spectrum(0.7, 0.6, 0.5))
-		atlas::sh::createLambertMaterial(atlas::Spectrum(0.8, 0.2, 0.1))
+		//atlas::createMetalMaterial(atlas::Spectrum(0.7, 0.6, 0.5))
+		atlas::createLambertMaterial(atlas::Spectrum(0.8, 0.2, 0.1))
 		));
 
 
@@ -251,7 +234,7 @@ std::vector<std::shared_ptr<atlas::Primitive>> createPrimitives()
 
 	scene.push_back(std::make_shared<atlas::GeometricPrimitive>(
 		shape,
-		//atlas::sh::createLambertMaterial(atlas::Spectrum(0.8, 0.2, 0.1))
+		//atlas::createLambertMaterial(atlas::Spectrum(0.8, 0.2, 0.1))
 		std::make_shared<atlas::DiffuseAreaLight>(*sphereInfo.objectToWorld, mediumInterface, atlas::Spectrum(1) * intensity, 1, shape)
 				));
 	return (scene);
@@ -268,7 +251,7 @@ atlas::Spectrum rayColor(const atlas::Ray &r, const atlas::Primitive &scene, int
 		if (s.primitive->getAreaLight())
 			return (dynamic_cast<const atlas::DiffuseAreaLight *>(s.primitive->getAreaLight())->lEmit);
 
-		atlas::sh::BSDF bsdf = s.primitive->getMaterial()->sample(-r.dir, s, sampler.get2D());
+		atlas::BSDF bsdf = s.primitive->getMaterial()->sample(-r.dir, s, sampler.get2D());
 
 		//atlas::Spectrum ld = bsdf.scatteringPdf * bsdf.Li * sampleLightSources(s, scene, lights);
 

@@ -2,7 +2,6 @@
 
 #include "atlas/core/Bounds.h"
 #include "atlas/core/Ray.h"
-#include "atlas/core/Material.h"
 #include "atlas/core/Payload.h"
 #include "atlas/core/Light.h"
 #ifdef _USE_SIMD
@@ -13,10 +12,8 @@
 
 namespace atlas
 {
-    namespace sh {
-        class Material;
-    }
-
+    class Material;
+ 
     struct SurfaceInteraction;
 
     class Primitive
@@ -43,11 +40,7 @@ namespace atlas
 //#endif
 
         virtual const AreaLight *getAreaLight() const = 0;
-#if defined(SHADING)
-        virtual const sh::Material *getMaterial() const = 0;
-#else
         virtual const Material *getMaterial() const = 0;
-#endif
         virtual void computeScatteringFunctions(SurfaceInteraction &isect, TransportMode mode, bool allowMultipleLobes) const = 0;
     };
 }

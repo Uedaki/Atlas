@@ -1,21 +1,20 @@
 #pragma once
 
 #include "atlas/AtlasLibHeader.h"
-#include "atlas/core/Material.h"
 #include "atlas/core/Medium.h"
 #include "atlas/core/Primitive.h"
 #include "atlas/core/Shape.h"
 
-#include "Material.h"
-
 namespace atlas
 {
+    class Material;
+
     class GeometricPrimitive : public Primitive
     {
     public:
         GeometricPrimitive(std::shared_ptr<Shape> s,
 #if defined(SHADING)
-            std::shared_ptr<sh::Material> m
+            std::shared_ptr<Material> m
 #else
             std::shared_ptr<Material> m
 #endif
@@ -48,20 +47,14 @@ namespace atlas
 //#endif
 
         ATLAS const AreaLight *getAreaLight() const override;
-#if defined(SHADING)
-        ATLAS const sh::Material *getMaterial() const override;
-#else
         ATLAS const Material *getMaterial() const override;
-#endif
+
         ATLAS void computeScatteringFunctions(SurfaceInteraction &isect, TransportMode mode, bool allowMultipleLobes) const override;
 
     private:
         std::shared_ptr<Shape> shape;
-#if defined(SHADING)
-        std::shared_ptr<sh::Material> material;
-#else
         std::shared_ptr<Material> material;
-#endif
+
         std::shared_ptr<AreaLight> areaLight;
         MediumInterface mediumInterface;
     };

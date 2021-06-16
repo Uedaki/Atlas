@@ -8,19 +8,16 @@
 
 namespace atlas
 {
-	namespace sh
+	struct Emission : public BSDFShader
 	{
-		struct Emission : public BSDFShader
+		void evaluate(const Vec3f &wo, const SurfaceInteraction &si, const Point2f &sample, DataBlock &block) const override
 		{
-			void evaluate(const Vec3f &wo, const SurfaceInteraction &si, const Point2f &sample, DataBlock &block) const override
-			{
-				BSDF bsdf = { 0 };
-				bsdf.Le = iColor.get(block) * iStrength.get(block);
-				out.set(block, bsdf);
-			}
+			BSDF bsdf = { 0 };
+			bsdf.Le = iColor.get(block) * iStrength.get(block);
+			out.set(block, bsdf);
+		}
 
-			ShadingInput<Spectrum> iColor;
-			ShadingInput<Float> iStrength;
-		};
-	}
+		ShadingInput<Spectrum> iColor;
+		ShadingInput<Float> iStrength;
+	};
 }

@@ -17,7 +17,7 @@ namespace atlas
 	{
 		uint32_t start;
 		uint32_t end;
-		sh::Material *material;
+		Material *material;
 	};
 
 	struct Sample

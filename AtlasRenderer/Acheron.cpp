@@ -278,7 +278,7 @@ Spectrum Acheron::getColorAlongRay(const atlas::Ray &r, const atlas::Primitive &
 	atlas::SurfaceInteraction s;
 	if (scene.intersect(r, s))
 	{
-		atlas::sh::BSDF bsdf = s.material->sample(-r.dir, s, sampler.get2D());
+		atlas::BSDF bsdf = s.material->sample(-r.dir, s, sampler.get2D());
 		if (luminance(bsdf.Li) < lightTreshold)
 			return (bsdf.Le);
 		return (bsdf.Le + /* bsdf.pdf * */ bsdf.Li * getColorAlongRay(atlas::Ray(s.p, bsdf.wi), scene, sampler, depth + 1));

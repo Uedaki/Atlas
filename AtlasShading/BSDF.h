@@ -6,15 +6,12 @@
 
 namespace atlas
 {
-	namespace sh
+	struct BSDF
 	{
-		struct BSDF
-		{
-			Spectrum Li = BLACK;
-			Spectrum Le = BLACK;
-			Vec3f wi = Vec3f(0, 0, 0);
-			Float pdf = 0;
-			Float scatteringPdf = 0;
-		};
-	}
+		Spectrum Li = BLACK;
+		Spectrum Le = BLACK;
+		Vec3f wi = Vec3f(0, 0, 0);
+		Float pdf = 0;
+		Float scatteringPdf = 0;
+	};
 }

@@ -65,12 +65,10 @@ atlas::Spectrum atlas::NextEventEstimation::getColorAlongRay(const atlas::Ray &r
 	atlas::SurfaceInteraction s;
 	if (scene.intersect(r, s))
 	{
-#if defined(SHADING)
-
 		if (s.primitive->getAreaLight())
 			return (dynamic_cast<const DiffuseAreaLight*>(s.primitive->getAreaLight())->lEmit);
 
-		atlas::sh::BSDF bsdf = s.primitive->getMaterial()->sample(-r.dir, s, sampler.get2D());
+		atlas::BSDF bsdf = s.primitive->getMaterial()->sample(-r.dir, s, sampler.get2D());
 		if (luminance(bsdf.Li) < lightTreshold)
 			return (bsdf.Le);
 
@@ -86,7 +84,6 @@ atlas::Spectrum atlas::NextEventEstimation::getColorAlongRay(const atlas::Ray &r
 		return (bsdf.Le + std::abs(bsdf.scatteringPdf) * bsdf.Li * Li / std::abs(bsdf.pdf) + ld);		
 		
 		//return (bsdf.Li * ei);// (PI * (Float)2 * bsdf.Li * ei + ld);
-#endif
 	}
 	else if (useSkyBackground)
 	{

@@ -7,55 +7,52 @@
 
 namespace atlas
 {
-	namespace sh
+	template <typename T>
+	class ShadingOutput
 	{
-		template <typename T>
-		class ShadingOutput
+	public:
+		ShadingOutput() = default;
+		ShadingOutput(uint32_t &size)
+			: pos(size)
 		{
-		public:
-			ShadingOutput() = default;
-			ShadingOutput(uint32_t &size)
-				: pos(size)
-			{
-				size += sizeof(T);
-			}
+			size += sizeof(T);
+		}
 
-			void registerOutput(uint32_t &size)
-			{
-				pos = size;
-				size += sizeof(T);
-			}
-
-			void set(DataBlock &block, const T &value) const
-			{
-				block.set(value, pos);
-			}
-
-			uint32_t getPos() const
-			{
-				CHECK(pos != -1);
-				return (pos);
-			}
-		private:
-			uint32_t pos = -1;
-		};
-
-		template <typename T>
-		class ShadingInput
+		void registerOutput(uint32_t &size)
 		{
-		public:
-			void bind(const ShadingOutput<T> &o)
-			{
-				pos = o.getPos();
-			}
+			pos = size;
+			size += sizeof(T);
+		}
 
-			const T &get(const DataBlock &block) const
-			{
-				return (block.get<T>(pos));
-			}
+		void set(DataBlock &block, const T &value) const
+		{
+			block.set(value, pos);
+		}
 
-		private:
-			uint32_t pos = -1;
-		};
-	}
+		uint32_t getPos() const
+		{
+			CHECK(pos != -1);
+			return (pos);
+		}
+	private:
+		uint32_t pos = -1;
+	};
+
+	template <typename T>
+	class ShadingInput
+	{
+	public:
+		void bind(const ShadingOutput<T> &o)
+		{
+			pos = o.getPos();
+		}
+
+		const T &get(const DataBlock &block) const
+		{
+			return (block.get<T>(pos));
+		}
+
+	private:
+		uint32_t pos = -1;
+	};
 }

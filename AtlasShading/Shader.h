@@ -6,29 +6,26 @@
 
 namespace atlas
 {
-	namespace sh
+	struct Shader
 	{
-		struct Shader
+		virtual void registerOutputs(uint32_t &size) = 0;
+		virtual void evaluate(const Vec3f &wo, const SurfaceInteraction &si, const Point2f &sample, DataBlock &block) const = 0;
+	};
+
+	template <typename T>
+	struct ConstantShader : public Shader
+	{
+		void registerOutputs(uint32_t &size) override
 		{
-			virtual void registerOutputs(uint32_t &size) = 0;
-			virtual void evaluate(const Vec3f &wo, const SurfaceInteraction &si, const Point2f &sample, DataBlock &block) const = 0;
-		};
+			out.registerOutput(size);
+		}
 
-		template <typename T>
-		struct ConstantShader : public Shader
+		void evaluate(const Vec3f &wo, const SurfaceInteraction &si, const Point2f &sample, DataBlock &block) const override
 		{
-			void registerOutputs(uint32_t &size) override
-			{
-				out.registerOutput(size);
-			}
+			out.set(block, value);
+		}
 
-			void evaluate(const Vec3f &wo, const SurfaceInteraction &si, const Point2f &sample, DataBlock &block) const override
-			{
-				out.set(block, value);
-			}
-
-			T value;
-			ShadingOutput<T> out;
-		};
-	}
+		T value;
+		ShadingOutput<T> out;
+	};
 }

@@ -1,10 +1,8 @@
 #include "ImageLibrary.h"
 
-using namespace atlas;
+atlas::ImageLibrary atlas::ImageLibrary::instance;
 
-sh::ImageLibrary sh::ImageLibrary::instance;
-
-bool sh::ImageWrapper::load()
+bool atlas::ImageWrapper::load()
 {
 	int nbComp;
 	buffer = stbi_load(filename.c_str(), &width, &height, &nbComp, 4);
@@ -17,14 +15,14 @@ bool sh::ImageWrapper::load()
 	return (false);
 }
 
-void sh::ImageWrapper::unload()
+void atlas::ImageWrapper::unload()
 {
 	if (buffer)
 		free(buffer);
 	bIsLoaded = false;
 }
 
-Spectrum sh::ImageWrapper::sample(const Point2f &uv, const uint32_t callValue, Float &alpha)
+atlas::Spectrum atlas::ImageWrapper::sample(const Point2f &uv, const uint32_t callValue, Float &alpha)
 {
 	uint32_t x = (uint32_t)(uv.x * width) % width;
 	uint32_t y = (uint32_t)(uv.y * height) % height;
@@ -37,7 +35,7 @@ Spectrum sh::ImageWrapper::sample(const Point2f &uv, const uint32_t callValue, F
 	return (Spectrum((Float)rgba[0] / 255, (Float)rgba[1] / 255, (Float)rgba[2] / 255));
 }
 
-sh::ImageID sh::ImageLibrary::privateRequestID(const std::string &filename)
+atlas::ImageID atlas::ImageLibrary::privateRequestID(const std::string &filename)
 {
 	for (uint32_t i = 0; i < images.size(); i++)
 	{
@@ -50,7 +48,7 @@ sh::ImageID sh::ImageLibrary::privateRequestID(const std::string &filename)
 	return (images.size() - 1);
 }
 
-Spectrum sh::ImageLibrary::privateSample(const ImageID id, const Point2f &uv, Float &alpha)
+atlas::Spectrum atlas::ImageLibrary::privateSample(const ImageID id, const Point2f &uv, Float &alpha)
 {
 	if (!images[id].isLoaded())
 	{

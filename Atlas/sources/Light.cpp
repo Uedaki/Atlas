@@ -2,6 +2,7 @@
 
 #include "atlas/core/primitive.h"
 #include "atlas/core/RgbSpectrum.h"
+#include "atlas/core/Sampling.h"
 
 bool atlas::VisibilityTester::unoccluded(const Primitive &scene) const
 {

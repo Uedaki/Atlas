@@ -164,7 +164,6 @@
     <ClInclude Include="includes\Atlas\core\Interaction.h" />
     <ClInclude Include="includes\Atlas\core\Light.h" />
     <ClInclude Include="includes\Atlas\core\Logging.h" />
-    <ClInclude Include="includes\Atlas\core\Material.h" />
     <ClInclude Include="includes\Atlas\core\Math.h" />
     <ClInclude Include="includes\Atlas\core\Matrix4x4.h" />
     <ClInclude Include="includes\Atlas\core\Medium.h" />
@@ -186,12 +185,9 @@
     <ClInclude Include="includes\Atlas\core\simd\SSurfaceInteraction.h" />
     <ClInclude Include="includes\Atlas\core\simd\SVectors.h" />
     <ClInclude Include="includes\Atlas\core\Telemetry.h" />
-    <ClInclude Include="includes\Atlas\core\Texture.h" />
     <ClInclude Include="includes\Atlas\core\Transform.h" />
     <ClInclude Include="includes\Atlas\core\TriangleMesh.h" />
     <ClInclude Include="includes\Atlas\core\Vectors.h" />
-    <ClInclude Include="includes\Atlas\materials\Glass.h" />
-    <ClInclude Include="includes\Atlas\materials\Metal.h" />
     <ClInclude Include="includes\Atlas\primitives\Aggregate.h" />
     <ClInclude Include="includes\Atlas\primitives\BvhAccel.h" />
     <ClInclude Include="includes\Atlas\primitives\GeometricPrimitive.h" />
@@ -206,12 +202,10 @@
     <ClCompile Include="sources\Film.cpp" />
     <ClCompile Include="sources\FilmIterator.cpp" />
     <ClCompile Include="sources\GeometricPrimitive.cpp" />
-    <ClCompile Include="sources\Glass.cpp" />
     <ClCompile Include="sources\Interaction.cpp" />
     <ClCompile Include="sources\Light.cpp" />
     <ClCompile Include="sources\Matrix4x4.cpp" />
     <ClCompile Include="sources\Medium.cpp" />
-    <ClCompile Include="sources\Metal.cpp" />
     <ClCompile Include="sources\Microfacet.cpp" />
     <ClCompile Include="sources\PerspectiveCamera.cpp" />
     <ClCompile Include="sources\Random.cpp" />
@@ -222,7 +216,6 @@
     <ClCompile Include="sources\Shape.cpp" />
     <ClCompile Include="sources\Sphere.cpp" />
     <ClCompile Include="sources\Telemetry.cpp" />
-    <ClCompile Include="sources\Texture.cpp" />
     <ClCompile Include="sources\Triangle.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
