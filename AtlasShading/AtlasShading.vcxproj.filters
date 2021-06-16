@@ -63,7 +63,7 @@
     <ClInclude Include="Onb.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PrincipledBsdf.h">
+    <ClInclude Include="DisneyPrincipled.h">
       <Filter>Shaders</Filter>
     </ClInclude>
   </ItemGroup>
@@ -81,6 +81,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ImageLibrary.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DisneyPrincipled.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
