@@ -17,5 +17,5 @@ void atlas::DisneyPrincipled::evaluate(const Vec3f &wo, const SurfaceInteraction
 
 atlas::Spectrum atlas::DisneyPrincipled::f(const Vec3f &wo, const Vec3f &wi, const DataBlock &block) const
 {
-
+	return (WHITE);
 }
