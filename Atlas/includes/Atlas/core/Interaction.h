@@ -92,7 +92,7 @@ namespace atlas
 		const PhaseFunction *phase;
 	};
 
-	class BSDF;
+	struct BSDF;
 	class Primitive;
 	class Shape;
 
