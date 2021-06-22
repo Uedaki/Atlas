@@ -152,7 +152,6 @@
     <ClInclude Include="includes\Atlas\core\Block.h" />
     <ClInclude Include="includes\Atlas\core\Bounds.h" />
     <ClInclude Include="includes\Atlas\core\BSDF.h" />
-    <ClInclude Include="includes\Atlas\core\BxDF.h" />
     <ClInclude Include="includes\Atlas\core\Camera.h" />
     <ClInclude Include="includes\Atlas\core\ConeBoxIntersection.h" />
     <ClInclude Include="includes\Atlas\core\EFloat.h" />
@@ -167,7 +166,6 @@
     <ClInclude Include="includes\Atlas\core\Math.h" />
     <ClInclude Include="includes\Atlas\core\Matrix4x4.h" />
     <ClInclude Include="includes\Atlas\core\Medium.h" />
-    <ClInclude Include="includes\Atlas\core\Microfacet.h" />
     <ClInclude Include="includes\Atlas\core\Payload.h" />
     <ClInclude Include="includes\Atlas\core\Points.h" />
     <ClInclude Include="includes\Atlas\core\Primitive.h" />
@@ -206,7 +204,6 @@
     <ClCompile Include="sources\Light.cpp" />
     <ClCompile Include="sources\Matrix4x4.cpp" />
     <ClCompile Include="sources\Medium.cpp" />
-    <ClCompile Include="sources\Microfacet.cpp" />
     <ClCompile Include="sources\PerspectiveCamera.cpp" />
     <ClCompile Include="sources\Random.cpp" />
     <ClCompile Include="sources\Rectangle.cpp" />

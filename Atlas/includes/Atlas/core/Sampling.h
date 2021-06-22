@@ -8,9 +8,9 @@
 
 namespace atlas
 {
-    inline bool sameHemisphere(const Vec3f &w, const Vec3f &wp)
+    inline bool sameHemisphere(const Vec3f &w, const Vec3f &wp, const Normal &n)
     {
-        return w.z * wp.z > 0;
+        return (dot(w, n) * dot(wp, n) > 0);
     }
 
 	ATLAS Vec3f uniformSampleSphere(const Point2f &u);

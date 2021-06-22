@@ -101,12 +101,6 @@
     <ClInclude Include="includes\Atlas\core\Film.h">
       <Filter>Header Files\core</Filter>
     </ClInclude>
-    <ClInclude Include="includes\Atlas\core\BxDF.h">
-      <Filter>Header Files\core</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\Atlas\core\Microfacet.h">
-      <Filter>Header Files\core</Filter>
-    </ClInclude>
     <ClInclude Include="includes\Atlas\core\Reflection.h">
       <Filter>Header Files\core</Filter>
     </ClInclude>
@@ -200,9 +194,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="sources\Reflection.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="sources\Microfacet.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="sources\Medium.cpp">
