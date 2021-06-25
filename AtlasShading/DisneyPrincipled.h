@@ -14,6 +14,7 @@ namespace atlas
 
 		ATLAS_SH Spectrum diffuseModel(const Spectrum &baseColor, const Float roughness, const Float nDotL, const Float nDotV, const Float lDotH) const;
 		ATLAS_SH Spectrum subsurfaceModel(const Spectrum &baseColor, const Float roughness, const Float nDotL, const Float nDotV, const Float lDotH) const;
+		ATLAS_SH Spectrum microfacetAnisotropicModel(Float nDotL, Float nDotV, Float nDotH, Float lDotH, const Vec3f &l, const Vec3 &v, const Vec3f &h, const Vec3f &x, const Vec3f &y);
 
 		ShadingInput<Spectrum> iBaseColor;
 		ShadingInput<Float> iSubsurface;

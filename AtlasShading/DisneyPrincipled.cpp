@@ -99,10 +99,13 @@ void atlas::DisneyPrincipled::evaluate(const Vec3f &wo, const SurfaceInteraction
 	const Float nDotH = dot(si.n, h);
 	const Float lDotH = dot(wo, h);
 
-	Spectrum diffuse = diffuseModel(baseColor, roughness, nDotL, nDotV, lDotH);
-	Spectrum diffuseSubsurface = subsurfaceModel(baseColor, roughness, nDotL, nDotV, lDotH);
+	Spectrum disneyDiffuse = diffuseModel(baseColor, roughness, nDotL, nDotV, lDotH);
+	Spectrum disneySubsurface = subsurfaceModel(baseColor, roughness, nDotL, nDotV, lDotH);
+	Spectrum disneyGlossy = microfacetAnisotropicModel(nDotL, nDot);
+	Float disneyClearcoat;
+	Spectrum disneySheen;
 
-	bsdf.Li = (lerp(diffuse, diffuseSubsurface, subsurface) + sheen) * (1 - metallic);// +glossy + clearcoat;
+	bsdf.Li = (lerp(disneyDiffuse, disneySubsurface, subsurface) + disneySheen) * (1 - metallic) + disneyGlossy + disneyClearcoat;
 	out.set(block, bsdf);
 }
 
@@ -131,4 +134,9 @@ atlas::Spectrum atlas::DisneyPrincipled::subsurfaceModel(const Spectrum &baseCol
 	const Float fss = lerp((Float)1.0, fss90, fl) * lerp((Float)1.0, fss90, fv);
 	const Float ss = 1.25 * (fss * (1. / (nDotL + nDotV) - .5) + .5);
 	return (baseColor * INV_PI * ss);
+}
+
+atlas::Spectrum atlas::DisneyPrincipled::microfacetAnisotropicModel(Float nDotL, Float nDotV, Float nDotH, Float lDotH, const Vec3f &l, const Vec3 &v, const Vec3f &h, const Vec3f &x, const Vec3f &y)
+{
+
 }
