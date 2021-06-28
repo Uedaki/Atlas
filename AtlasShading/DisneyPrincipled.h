@@ -12,9 +12,13 @@ namespace atlas
 		ATLAS_SH void evaluate(const Vec3f &wo, const SurfaceInteraction &si, const Point2f &sample, DataBlock &block) const override;
 		ATLAS_SH Spectrum f(const Vec3f &wo, const Vec3f &wi, const DataBlock &block) const override;
 
-		ATLAS_SH Spectrum diffuseModel(const Spectrum &baseColor, const Float roughness, const Float nDotL, const Float nDotV, const Float lDotH) const;
-		ATLAS_SH Spectrum subsurfaceModel(const Spectrum &baseColor, const Float roughness, const Float nDotL, const Float nDotV, const Float lDotH) const;
-		ATLAS_SH Spectrum microfacetAnisotropicModel(Float nDotL, Float nDotV, Float nDotH, Float lDotH, const Vec3f &l, const Vec3 &v, const Vec3f &h, const Vec3f &x, const Vec3f &y);
+		ATLAS_SH Spectrum diffuseModel(const DataBlock &block, const Float nDotL, const Float nDotV, const Float lDotH) const;
+		ATLAS_SH Spectrum specularModel(const DataBlock &block, const Vec3f &wo, const Vec3f &wi, const Vec3f &tangent, const Vec3f &binormal, const Vec3f &h, const Float nDotL, const Float nDotV, const Float nDotH, const Float lDotH) const;
+
+		Float scatteringPdf(const Interaction &intr, const Vec3f &wo, const Vec3f &wi) const override
+		{
+			return (1);
+		}
 
 		ShadingInput<Spectrum> iBaseColor;
 		ShadingInput<Float> iSubsurface;
