@@ -27,8 +27,8 @@ atlas::NextEventEstimation::~NextEventEstimation()
 
 atlas::Spectrum atlas::NextEventEstimation::sampleLightSources(const Interaction &intr, const atlas::Primitive &scene, const std::vector<std::shared_ptr<atlas::Light>> &lights)
 {
+	Float div = 0;
 	Spectrum out(0);
-	//return (0);
 	for (auto &light : lights)
 	{
 		Float pdf;
@@ -49,12 +49,12 @@ atlas::Spectrum atlas::NextEventEstimation::sampleLightSources(const Interaction
 			SurfaceInteraction s;
 			if (!scene.intersectP(r) || s.primitive->getAreaLight())
 			{
-				return (dynamic_cast<DiffuseAreaLight *>(light.get())->lEmit / std::pow(std::sqrt(distanceSquared), 2)).getClampedSpectrum();
-				//return (dynamic_cast<DiffuseAreaLight *>(light.get())->lEmit * pdf).getClampedSpectrum();
+				out += dynamic_cast<DiffuseAreaLight *>(light.get())->lEmit / distanceSquared;
+				div++;
 			}
 		}
 	}
-	return (out);
+	return (div != 0 ? out / div : out);
 }
 
 atlas::Spectrum atlas::NextEventEstimation::getColorAlongRay(const atlas::Ray &r, const atlas::Primitive &scene, const std::vector<std::shared_ptr<atlas::Light>> &lights, Sampler &sampler, int depth)
@@ -68,11 +68,11 @@ atlas::Spectrum atlas::NextEventEstimation::getColorAlongRay(const atlas::Ray &r
 		if (s.primitive->getAreaLight())
 			return (dynamic_cast<const DiffuseAreaLight*>(s.primitive->getAreaLight())->lEmit);
 
-		atlas::BSDF bsdf = s.primitive->getMaterial()->sample(-r.dir, s, sampler.get2D());
+		BSDFSample bsdf = s.primitive->getMaterial()->sample(-r.dir, s, sampler.get2D());
 		if (luminance(bsdf.Li) < lightTreshold)
 			return (bsdf.Le);
 
-		Spectrum ld = bsdf.scatteringPdf / std::abs(bsdf.pdf) * bsdf.Li * sampleLightSources(s, scene, lights);
+		Spectrum ld = bsdf.scatteringPdf / bsdf.pdf * bsdf.Li * sampleLightSources(s, scene, lights);
 		if (luminance(ld) > lightTreshold)
 			return (bsdf.Le + ld);
 
@@ -81,7 +81,7 @@ atlas::Spectrum atlas::NextEventEstimation::getColorAlongRay(const atlas::Ray &r
 		
 		//printf("color %f %f %f sPdf %f pdf %f\n", bsdf.Li.r, bsdf.Li.g, bsdf.Li.b, bsdf.scatteringPdf, bsdf.pdf);
 
-		return (bsdf.Le + std::abs(bsdf.scatteringPdf) * bsdf.Li * Li / std::abs(bsdf.pdf) + ld);		
+		return (bsdf.Le + 0.5 * (bsdf.scatteringPdf * bsdf.Li * Li / bsdf.pdf + ld));		
 		
 		//return (bsdf.Li * ei);// (PI * (Float)2 * bsdf.Li * ei + ld);
 	}

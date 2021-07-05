@@ -29,6 +29,11 @@ namespace atlas
 			block.set(value, pos);
 		}
 
+		const T &get(const DataBlock &block) const
+		{
+			return (block.get<T>(pos));
+		}
+
 		uint32_t getPos() const
 		{
 			CHECK(pos != -1);

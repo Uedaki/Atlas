@@ -9,7 +9,9 @@ namespace atlas
 	struct Shader
 	{
 		virtual void registerOutputs(uint32_t &size) = 0;
-		virtual void evaluate(const Vec3f &wo, const SurfaceInteraction &si, const Point2f &sample, DataBlock &block) const = 0;
+		
+		virtual void evaluate(const Vec3f &wo, const Vec3f &wi, const SurfaceInteraction &si, DataBlock &block) const = 0;
+		virtual void evaluate(const Vec3f &wo, const SurfaceInteraction &si, const Point2f &sample, DataBlock &block) const {}
 	};
 
 	template <typename T>

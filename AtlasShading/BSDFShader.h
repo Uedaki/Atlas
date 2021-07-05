@@ -18,16 +18,34 @@ namespace atlas
 			out.registerOutput(size);
 		}
 
-		void evaluate(const Vec3f &wo, const SurfaceInteraction &si, const Point2f &sample, DataBlock &block) const override
+		void evaluate(const Vec3f &wo, const Vec3f &wi, const SurfaceInteraction &si, DataBlock &block) const final
 		{
-			BSDF bsdf = {};
-			Onb uvw(si.n);
-				
-			bsdf.wi = uvw.local(cosineSampleDirection(sample));
-			bsdf.pdf = dot(uvw.w, bsdf.wi) * INV_PI;
-			bsdf.scatteringPdf = scatteringPdf(si, wo, bsdf.wi);
-			bsdf.Li = f(wo, bsdf.wi, block);
+			BSDFSample bsdf = {};
+			evaluateBsdf(wo, bsdf.wi, si, block, bsdf);
 			out.set(block, bsdf);
+		}
+
+		void evaluate(const Vec3f &wo, const SurfaceInteraction &si, const Point2f &sample, DataBlock &block) const final
+		{
+			BSDFSample bsdf = {};
+
+			evaluateWi(wo, si, sample, block, bsdf.wi);
+			evaluateBsdf(wo, bsdf.wi, si, block, bsdf);
+			out.set(block, bsdf);
+		}
+
+		virtual void evaluateWi(const Vec3f &wo, const SurfaceInteraction &si, const Point2f &sample, const DataBlock &block, Vec3f &wi) const
+		{
+			Onb uvw(si.n);
+			wi = uvw.local(cosineSampleDirection(sample));
+		}
+
+		virtual void evaluateBsdf(const Vec3f &wo, const Vec3f &wi, const SurfaceInteraction &si, const DataBlock &block, BSDF &bsdf) const
+		{
+			Onb uvw(si.n);
+			bsdf.pdf = dot(uvw.w, wi) * INV_PI;
+			bsdf.scatteringPdf = scatteringPdf(si, wo, wi);
+			bsdf.Li = f(wo, wi, block);
 		}
 
 		virtual Spectrum f(const Vec3f &wo, const Vec3f &wi, const DataBlock &block) const
@@ -41,6 +59,6 @@ namespace atlas
 			return (cosine < 0 ? 0 : cosine * INV_PI);
 		}
 
-		ShadingOutput<BSDF> out;
+		ShadingOutput<BSDFSample> out;
 	};
 }
