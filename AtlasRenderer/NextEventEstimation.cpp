@@ -25,7 +25,7 @@ atlas::NextEventEstimation::~NextEventEstimation()
 	threads.shutdown();
 }
 
-atlas::Spectrum atlas::NextEventEstimation::sampleLightSources(const Interaction &intr, const atlas::Primitive &scene, const std::vector<std::shared_ptr<atlas::Light>> &lights)
+atlas::Spectrum atlas::NextEventEstimation::sampleLightSources(const SurfaceInteraction &intr, const atlas::Primitive &scene, const std::vector<std::shared_ptr<atlas::Light>> &lights)
 {
 	Float div = 0;
 	Spectrum out(0);
@@ -47,9 +47,10 @@ atlas::Spectrum atlas::NextEventEstimation::sampleLightSources(const Interaction
 			Float pdf = (lightCosine * lightArea) / distanceSquared;
 			Ray r(intr.p + tmin * intr.n, toLight, intr.time);
 			SurfaceInteraction s;
-			if (!scene.intersectP(r) || s.primitive->getAreaLight())
+			if (!scene.intersect(r, s) || s.primitive->getAreaLight())
 			{
-				out += dynamic_cast<DiffuseAreaLight *>(light.get())->lEmit / distanceSquared;
+				BSDF bsdf = intr.primitive->getMaterial()->evaluate(intr.wo, r.dir, s);
+				out += bsdf.scatteringPdf * bsdf.Li * (dynamic_cast<DiffuseAreaLight *>(light.get())->lEmit / distanceSquared) / bsdf.pdf;
 				div++;
 			}
 		}
@@ -72,7 +73,7 @@ atlas::Spectrum atlas::NextEventEstimation::getColorAlongRay(const atlas::Ray &r
 		if (luminance(bsdf.Li) < lightTreshold)
 			return (bsdf.Le);
 
-		Spectrum ld = bsdf.scatteringPdf / bsdf.pdf * bsdf.Li * sampleLightSources(s, scene, lights);
+		Spectrum ld = sampleLightSources(s, scene, lights);
 		if (luminance(ld) > lightTreshold)
 			return (bsdf.Le + ld);
 

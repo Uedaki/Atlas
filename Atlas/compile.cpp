@@ -57,8 +57,7 @@ std::vector<std::shared_ptr<atlas::Primitive>> createPrimitives()
 
 	std::shared_ptr<atlas::Material> checkerMaterial = std::make_shared<atlas::Material>();
 	{
-		auto &l = checkerMaterial->addShader<atlas::Lambert>();
-		checkerMaterial->bind(l);
+		auto &l = checkerMaterial->addEntryShader<atlas::Lambert>();
 
 		auto &t = checkerMaterial->addShader<atlas::CheckerTexture>();
 		l.iR.bind(t.oColor);
@@ -78,8 +77,7 @@ std::vector<std::shared_ptr<atlas::Primitive>> createPrimitives()
 
 	std::shared_ptr<atlas::Material> noiseMaterial = std::make_shared<atlas::Material>();
 	{
-		auto &l = noiseMaterial->addShader<atlas::Lambert>();
-		noiseMaterial->bind(l);
+		auto &l = noiseMaterial->addEntryShader<atlas::Lambert>();
 
 		auto &t = noiseMaterial->addShader<atlas::TurbulenceNoiseTexture>();
 		l.iR.bind(t.oColor);
@@ -95,8 +93,7 @@ std::vector<std::shared_ptr<atlas::Primitive>> createPrimitives()
 
 	std::shared_ptr<atlas::Material> imageMaterial = std::make_shared<atlas::Material>();
 	{
-		auto &l = imageMaterial->addShader<atlas::Lambert>();
-		imageMaterial->bind(l);
+		auto &l = imageMaterial->addEntryShader<atlas::Lambert>();
 
 		auto &t = imageMaterial->addShader<atlas::ImageTexture>();
 		l.iR.bind(t.oColor);
@@ -109,8 +106,7 @@ std::vector<std::shared_ptr<atlas::Primitive>> createPrimitives()
 
 	std::shared_ptr<atlas::Material> emissiveMaterial = std::make_shared<atlas::Material>();
 	{
-		auto &l = emissiveMaterial->addShader<atlas::Emission>();
-		emissiveMaterial->bind(l);
+		auto &l = emissiveMaterial->addEntryShader<atlas::Emission>();
 
 		auto &t = emissiveMaterial->addConstant<atlas::Spectrum>();
 		t.value = atlas::Spectrum(1);
@@ -251,7 +247,7 @@ atlas::Spectrum rayColor(const atlas::Ray &r, const atlas::Primitive &scene, int
 		if (s.primitive->getAreaLight())
 			return (dynamic_cast<const atlas::DiffuseAreaLight *>(s.primitive->getAreaLight())->lEmit);
 
-		atlas::BSDF bsdf = s.primitive->getMaterial()->sample(-r.dir, s, sampler.get2D());
+		atlas::BSDFSample bsdf = s.primitive->getMaterial()->sample(-r.dir, s, sampler.get2D());
 
 		//atlas::Spectrum ld = bsdf.scatteringPdf * bsdf.Li * sampleLightSources(s, scene, lights);
 

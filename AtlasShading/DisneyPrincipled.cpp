@@ -38,14 +38,83 @@ namespace
 	}
 }
 
-void atlas::DisneyPrincipled::evaluate(const Vec3f &wo, const SurfaceInteraction &si, const Point2f &sample, DataBlock &block) const
+void atlas::DisneyPrincipled::evaluateBsdf(const Vec3f &wo, const Vec3f &wi, const SurfaceInteraction &si, const DataBlock &block, BSDF &bsdf) const
 {
 	const Float metallic = iMetallic.get(block);
 	const Float roughness = iRoughness.get(block);
 	const Float anisotropic = iAnisotropic.get(block);
 	const Float clearcoatGloss = iClearcoatGloss.get(block);
 
-	BSDF bsdf = {};
+	Float rnd = random();
+	if (rnd < metallic)
+	{
+		Float newRnd = rnd * 1 / metallic;
+		if (newRnd)
+		{
+			// Specular
+			Float phi = 0;
+			Float cosTheta = 0;
+
+			Float aspect = std::sqrt(1. - anisotropic * 0.9);
+			Float alphaX = std::max((Float)0.001, (roughness * roughness) / aspect);
+			Float alphaY = std::max((Float).001, (roughness * roughness) * aspect);
+
+			Float alphaX2 = alphaX * alphaX;
+			Float alphaY2 = alphaY * alphaY;
+
+			{
+				Vec3f wh = normalize(wo + wi);
+				float hDotX = dot(wh, si.dpdx);
+				float hDotY = dot(wh, si.dpdy);
+				float ndotH = dot(si.n, wh);
+
+				float denom = hDotX * hDotX / alphaX2 + hDotY * hDotY / alphaY2 + ndotH * ndotH;
+				if (denom == 0.)
+					bsdf.pdf = 0;
+				else
+				{
+					Float pdfDistribution = ndotH / (PI * alphaX * alphaY * denom * denom);
+					bsdf.pdf = pdfDistribution / (4. * dot(wo, wh));
+				}
+			}
+		}
+		else
+		{
+			// Clear coat
+			Vec3f wh = normalize(wo + wi);
+			float ndotH = dot(si.n, wh);
+
+			float Dr = GTR1(ndotH, lerp(.1, .001, clearcoatGloss));
+			bsdf.pdf = Dr * ndotH / (4. * dot(wo, wh));
+		}
+	}
+	else
+	{
+		// Lambertian
+		Onb uvw(si.n);
+		bsdf.pdf = sameHemisphere(wo, wi, si.n) ? std::abs(dot(uvw.w, wi)) * INV_PI : 0;
+	}
+
+	const Float nDotL = dot(si.n, wo);
+	const Float nDotV = dot(si.n, wi);
+
+	const Vec3f h = normalize(wo + wi);
+	const Float nDotH = dot(si.n, h);
+	const Float lDotH = dot(wo, h);
+
+	Spectrum diffuse = diffuseModel(block, nDotL, nDotV, lDotH);
+	Spectrum specular = specularModel(block, wo, wi, si.dpdx, si.dpdy, h, nDotL, nDotV, nDotH, lDotH);
+	
+	bsdf.Li = diffuse * (1 - metallic) + specular;
+	bsdf.scatteringPdf = scatteringPdf(si, wo, wi);
+}
+
+void atlas::DisneyPrincipled::evaluateWi(const Vec3f &wo, const SurfaceInteraction &si, const Point2f &sample, const DataBlock &block, Vec3f &wi) const
+{
+	const Float metallic = iMetallic.get(block);
+	const Float roughness = iRoughness.get(block);
+	const Float anisotropic = iAnisotropic.get(block);
+	const Float clearcoatGloss = iClearcoatGloss.get(block);
 
 	Float rnd = random();
 	if (rnd < metallic)
@@ -71,36 +140,18 @@ void atlas::DisneyPrincipled::evaluate(const Vec3f &wo, const SurfaceInteraction
 			Float alphaY2 = alphaY * alphaY;
 			Float alpha2 = 1. / (cosPhi * cosPhi / alphaX2 + sinPhi * sinPhi / alphaY2);
 
-			{
-				Float tanTheta2 = alpha2 * sample.x / (1. - sample.x);
-				cosTheta = 1. / std::sqrt(1. + tanTheta2);
+			Float tanTheta2 = alpha2 * sample.x / (1. - sample.x);
+			cosTheta = 1. / std::sqrt(1. + tanTheta2);
 
-				Float sinTheta = std::sqrt(std::max(0., 1. - cosTheta * cosTheta));
-				Vec3f whLocal = sphericalDirection(sinTheta, cosTheta, phi);
+			Float sinTheta = std::sqrt(std::max(0., 1. - cosTheta * cosTheta));
+			Vec3f whLocal = sphericalDirection(sinTheta, cosTheta, phi);
 
-				Onb uvw(si.n);
-				Vec3f wh = uvw.local(whLocal);
-				if (!sameHemisphere(wo, wh, si.n))
-					wh *= -1;
+			Onb uvw(si.n);
+			Vec3f wh = uvw.local(whLocal);
+			if (!sameHemisphere(wo, wh, si.n))
+				wh *= -1;
 
-				bsdf.wi = reflect(-wo, wh);
-			}
-
-			{
-				Vec3f wh = normalize(wo + bsdf.wi);
-				float hDotX = dot(wh, si.dpdx);
-				float hDotY = dot(wh, si.dpdy);
-				float ndotH = dot(si.n, wh);
-
-				float denom = hDotX * hDotX / alphaX2 + hDotY * hDotY / alphaY2 + ndotH * ndotH;
-				if (denom == 0.)
-					bsdf.pdf = 0;
-				else
-				{
-					Float pdfDistribution = ndotH / (PI * alphaX * alphaY * denom * denom);
-					bsdf.pdf = pdfDistribution / (4. * dot(wo, wh));
-				}
-			}
+			wi = reflect(-wo, wh);
 		}
 		else
 		{
@@ -118,38 +169,15 @@ void atlas::DisneyPrincipled::evaluate(const Vec3f &wo, const SurfaceInteraction
 			if (!sameHemisphere(wo, wh, si.n))
 				wh *= -1;
 
-			bsdf.wi = reflect(-wo, wh);
-
-			{
-				Vec3f wh = normalize(wo + bsdf.wi);
-				float ndotH = dot(si.n, wh);
-
-				float Dr = GTR1(ndotH, lerp(.1, .001, clearcoatGloss));
-				bsdf.pdf = Dr * ndotH / (4. * dot(wo, wh));
-			}
+			wi = reflect(-wo, wh);
 		}
 	}
 	else
 	{
 		// Lambertian
 		Onb uvw(si.n);
-		bsdf.wi = uvw.local(cosineSampleDirection(sample));
-		bsdf.pdf = sameHemisphere(wo, bsdf.wi, si.n) ? std::abs(dot(uvw.w, bsdf.wi)) * INV_PI : 0;
+		wi = uvw.local(cosineSampleDirection(sample));
 	}
-
-	const Float nDotL = dot(si.n, wo);
-	const Float nDotV = dot(si.n, bsdf.wi);
-
-	const Vec3f h = normalize(wo + bsdf.wi);
-	const Float nDotH = dot(si.n, h);
-	const Float lDotH = dot(wo, h);
-
-	Spectrum diffuse = diffuseModel(block, nDotL, nDotV, lDotH);
-	Spectrum specular = specularModel(block, wo, bsdf.wi, si.dpdx, si.dpdy, h, nDotL, nDotV, nDotH, lDotH);
-	
-	bsdf.Li = diffuse * (1 - metallic) + specular;
-	bsdf.scatteringPdf = scatteringPdf(si, wo, bsdf.wi);
-	out.set(block, bsdf);
 }
 
 atlas::Spectrum atlas::DisneyPrincipled::f(const Vec3f &wo, const Vec3f &wi, const DataBlock &block) const

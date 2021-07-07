@@ -9,7 +9,8 @@ namespace atlas
 
 	struct DisneyPrincipled : public BSDFShader
 	{
-		ATLAS_SH void evaluate(const Vec3f &wo, const SurfaceInteraction &si, const Point2f &sample, DataBlock &block) const override;
+		ATLAS_SH void evaluateBsdf(const Vec3f &wo, const Vec3f &wi, const SurfaceInteraction &si, const DataBlock &block, BSDF &bsdf) const override;
+		ATLAS_SH void evaluateWi(const Vec3f &wo, const SurfaceInteraction &si, const Point2f &sample, const DataBlock &block, Vec3f &wi) const;
 		ATLAS_SH Spectrum f(const Vec3f &wo, const Vec3f &wi, const DataBlock &block) const override;
 
 		ATLAS_SH Spectrum diffuseModel(const DataBlock &block, const Float nDotL, const Float nDotV, const Float lDotH) const;

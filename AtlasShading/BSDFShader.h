@@ -15,23 +15,27 @@ namespace atlas
 	public:
 		void registerOutputs(uint32_t &size) override
 		{
-			out.registerOutput(size);
+			// out.registerOutput(size);
 		}
 
-		void evaluate(const Vec3f &wo, const Vec3f &wi, const SurfaceInteraction &si, DataBlock &block) const final
+		void evaluate(const Vec3f &wo, const SurfaceInteraction &si, DataBlock &block) const override
 		{
-			BSDFSample bsdf = {};
-			evaluateBsdf(wo, bsdf.wi, si, block, bsdf);
-			out.set(block, bsdf);
+
 		}
 
-		void evaluate(const Vec3f &wo, const SurfaceInteraction &si, const Point2f &sample, DataBlock &block) const final
+		BSDF evaluate(const Vec3f &wo, const Vec3f &wi, const SurfaceInteraction &si, DataBlock &block) const
+		{
+			BSDF bsdf;
+			evaluateBsdf(wo, wi, si, block, bsdf);
+			return (bsdf);
+		}
+
+		BSDFSample evaluate(const Vec3f &wo, const SurfaceInteraction &si, const Point2f &sample, DataBlock &block) const
 		{
 			BSDFSample bsdf = {};
-
 			evaluateWi(wo, si, sample, block, bsdf.wi);
 			evaluateBsdf(wo, bsdf.wi, si, block, bsdf);
-			out.set(block, bsdf);
+			return (bsdf);
 		}
 
 		virtual void evaluateWi(const Vec3f &wo, const SurfaceInteraction &si, const Point2f &sample, const DataBlock &block, Vec3f &wi) const
@@ -58,7 +62,5 @@ namespace atlas
 			Float cosine = dot(intr.n, wi);
 			return (cosine < 0 ? 0 : cosine * INV_PI);
 		}
-
-		ShadingOutput<BSDFSample> out;
 	};
 }

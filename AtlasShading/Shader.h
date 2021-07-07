@@ -10,8 +10,7 @@ namespace atlas
 	{
 		virtual void registerOutputs(uint32_t &size) = 0;
 		
-		virtual void evaluate(const Vec3f &wo, const Vec3f &wi, const SurfaceInteraction &si, DataBlock &block) const = 0;
-		virtual void evaluate(const Vec3f &wo, const SurfaceInteraction &si, const Point2f &sample, DataBlock &block) const {}
+		virtual void evaluate(const Vec3f &wo, const SurfaceInteraction &si, DataBlock &block) const = 0;
 	};
 
 	template <typename T>
@@ -22,7 +21,7 @@ namespace atlas
 			out.registerOutput(size);
 		}
 
-		void evaluate(const Vec3f &wo, const SurfaceInteraction &si, const Point2f &sample, DataBlock &block) const override
+		void evaluate(const Vec3f &wo, const SurfaceInteraction &si, DataBlock &block) const override
 		{
 			out.set(block, value);
 		}

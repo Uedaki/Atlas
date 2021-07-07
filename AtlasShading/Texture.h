@@ -25,7 +25,7 @@ namespace atlas
 
 	struct CheckerTexture : public Texture
 	{
-		void evaluate(const Vec3f &wo, const SurfaceInteraction &si, const Point2f &sample, DataBlock &block) const override
+		void evaluate(const Vec3f &wo, const SurfaceInteraction &si, DataBlock &block) const override
 		{
 			Float scale = iScale.get(block);
 			Float sines = sin(si.p.x * scale) * sin(si.p.y * scale) * sin(si.p.z * scale);
@@ -65,7 +65,7 @@ namespace atlas
 			return (perlinInterpolation(c, u, v, w));
 		}
 
-		void evaluate(const Vec3f &wo, const SurfaceInteraction &si, const Point2f &sample, DataBlock &block) const override
+		void evaluate(const Vec3f &wo, const SurfaceInteraction &si, DataBlock &block) const override
 		{
 			Float scale = iScale.get(block);
 			Point3f p = scale * si.p;
@@ -150,7 +150,7 @@ namespace atlas
 
 	struct TurbulenceNoiseTexture : public NoiseTexture
 	{
-		void evaluate(const Vec3f &wo, const SurfaceInteraction &si, const Point2f &sample, DataBlock &block) const override
+		void evaluate(const Vec3f &wo, const SurfaceInteraction &si, DataBlock &block) const override
 		{
 			Float scale = iScale.get(block);
 			uint32_t depth = iDepth.get(block);
@@ -175,7 +175,7 @@ namespace atlas
 
 	struct ImageTexture : public Texture
 	{
-		void evaluate(const Vec3f &wo, const SurfaceInteraction &si, const Point2f &sample, DataBlock &block) const override
+		void evaluate(const Vec3f &wo, const SurfaceInteraction &si, DataBlock &block) const override
 		{
 			Vec2f offset = iOffset.get(block);
 

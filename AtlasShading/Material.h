@@ -17,8 +17,18 @@ namespace atlas
 	{
 	public:
 		template <typename T>
+		inline T &addEntryShader()
+		{
+			CHECK(!entryShader);
+			T *ptr = new T;
+			entryShader = ptr;
+			return (*ptr);
+		}
+
+		template <typename T>
 		inline T &addShader()
 		{
+			CHECK(entryShader);
 			T *ptr = new T;
 			ptr->registerOutputs(dataSize);
 			shaders.push_back(ptr);
@@ -38,24 +48,34 @@ namespace atlas
 			BSDFSample bsdf;
 			{
 				DataBlock block(dataSize);
-				for (size_t i = shaders.size() - 1; i > 0; i--)
+				for (size_t i = shaders.size() - 1; i < shaders.size(); i--)
 				{
-					shaders[i]->evaluate(wo, si, sample, block);
+					shaders[i]->evaluate(wo, si, block);
 				}
-				shaders[0]->evaluate(wo, si, sample, block);
-				bsdf = bsdfInput.get(block);
+				bsdf = entryShader->evaluate(wo, si, sample, block);
 			}
 			return (bsdf);
 		}
 
-		void bind(const BSDFShader &shader)
+		BSDF evaluate(const Vec3f &wo, const Vec3f &wi, const SurfaceInteraction &si) const
 		{
-			bsdfInput.bind(shader.out);
+			BSDF bsdf;
+			{
+				DataBlock block(dataSize);
+				for (size_t i = shaders.size() - 1; i < shaders.size(); i--)
+				{
+					shaders[i]->evaluate(wo, si, block);
+				}
+				bsdf = entryShader->evaluate(wo, wi, si, block);
+			}
+			return (bsdf);
 		}
 
 	private:
 		uint32_t dataSize = 0;
 		ShadingInput<BSDFSample> bsdfInput;
+		
+		BSDFShader *entryShader;
 		std::vector<Shader *> shaders;
 
 		// TODO support for bump
