@@ -74,8 +74,6 @@ atlas::Spectrum atlas::NextEventEstimation::getColorAlongRay(const atlas::Ray &r
 			return (bsdf.Le);
 
 		Spectrum ld = sampleLightSources(s, scene, lights);
-		if (luminance(ld) > lightTreshold)
-			return (bsdf.Le + ld);
 
 		Ray r(s.p + tmin * s.n, bsdf.wi, tmax);
 		Spectrum Li = getColorAlongRay(r, scene, lights, sampler, depth - 1);
